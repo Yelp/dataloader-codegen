@@ -1,0 +1,8 @@
+*.lcov
+coverage
+lib
+node_modules
+npm-debug.log*
+venv
+yarn-debug.log*
+yarn-error.log*

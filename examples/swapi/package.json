@@ -1,0 +1,12 @@
+{
+    "devDependencies": {
+        "@babel/node": "^7.7.0",
+        "@babel/preset-flow": "^7.0.0",
+        "flow-bin": "0.111.3",
+        "flow-typed": "^2.6.2"
+    },
+    "dependencies": {
+        "graphql": "15.0.0-alpha.1",
+        "node-fetch": "^2.6.0"
+    }
+}
