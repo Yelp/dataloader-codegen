@@ -3,7 +3,17 @@
   "version": "0.0.1",
   "description": "dataloader-codegen is an opinionated JavaScript library for automatically generating DataLoaders over a set of resources (e.g. HTTP endpoints)",
   "main": "lib/index.js",
-  "author": "opensource@yelp.com",
+  "contributors": [
+    "Mark Larah <mark@larah.me> (https://mark.larah.me)"
+  ],
+  "homepage": "https://github.com/Yelp/dataloader-codegen",
+  "bugs": {
+    "url": "https://github.com/Yelp/dataloader-codegen/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Yelp/dataloader-codegen.git"
+  },
   "license": "MIT",
   "scripts": {
     "test": "jest",
