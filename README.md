@@ -37,16 +37,14 @@ With dataloader-codegen, we build a **1:1 mapping of resources to DataLoaders**:
 This makes it super easy to find the DataLoaders you want - there will be
 exactly one DataLoader available per resource, with a predictable name and interface.
 
-Other benefits:
+This also means **reduced risk of making unnecessary HTTP requests.**
 
--   **Reduced risk of making unnecessary HTTP requests.**
+If there were (accidentally!) multiple dataloaders created for a single
+endpoint, we potentially lose out on the ability to batch up requests to that
+resource.
 
-    If there were (accidentally!) multiple dataloaders created for a single
-    endpoint, we potentially lose out on the ability to batch up requests to that
-    resource.
-
-    By keeping the mapping of one DataLoader per resource, we can reduce that
-    risk and make an efficient set of HTTP requests to the underlying resource.
+By keeping the mapping of one DataLoader per resource, we can reduce that
+risk and make an efficient set of HTTP requests to the underlying resource.
 
 ## Usage
 
