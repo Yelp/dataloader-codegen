@@ -32,7 +32,7 @@ of human defined DataLoaders.
 
 With dataloader-codegen, we build a **1:1 mapping of resources to DataLoaders**:
 
-![mapping](./images/mapping.png)
+<img src="https://raw.githubusercontent.com/Yelp/dataloader-codegen/master/images/mapping.png" height="400" />
 
 This makes it super easy to find the DataLoaders you want - there will be
 exactly one DataLoader available per resource, with a predictable name and interface.
