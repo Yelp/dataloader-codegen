@@ -21,6 +21,33 @@ dataloader-codegen is an opinionated JavaScript library for automagically genera
 $ yarn add --dev dataloader-codegen
 ```
 
+## Why?
+
+We believe the DataLoader layer should be (mostly) transparent when implementing
+a GraphQL server over a set of existing resources (e.g. HTTP API Endpoints).
+
+When fetching data, GraphQL resolver authors should think in terms of the
+underlying _resources_ that they're already familiar with, not an invented set
+of human defined DataLoaders.
+
+With dataloader-codegen, we build a **1:1 mapping of resources to DataLoaders**:
+
+![mapping](./images/mapping.png)
+
+This makes it super easy to find the DataLoaders you want - there will be
+exactly one DataLoader available per resource, with a predictable name and interface.
+
+Other benefits:
+
+-   **Reduced risk of making unnecessary HTTP requests.**
+
+    If there were (accidentally!) multiple dataloaders created for a single
+    endpoint, we potentially lose out on the ability to batch up requests to that
+    resource.
+
+    By keeping the mapping of one DataLoader per resource, we can reduce that
+    risk and make an efficient set of HTTP requests to the underlying resource.
+
 ## Usage
 
 1. Create `dataloader-config.yaml` to describe the shape and behaviour of your resources. (See the docs for more info.)
@@ -72,33 +99,6 @@ $ yarn add --dev dataloader-codegen
     ```
 
     _(See the [swapi example](./examples/swapi/swapi-server.js) to see this in context.)_
-
-## Why?
-
-We believe the DataLoader layer should be (mostly) transparent when implementing
-a GraphQL server over a set of existing resources (e.g. HTTP API Endpoints).
-
-When fetching data, GraphQL resolver authors should think in terms of the
-underlying _resources_ that they're already familiar with, not an invented set
-of human defined DataLoaders.
-
-With dataloader-codegen, we build a **1:1 mapping of resources to DataLoaders**:
-
-![mapping](./images/mapping.png)
-
-This makes it super easy to find the DataLoaders you want - there will be
-exactly one DataLoader available per resource, with a predictable name and interface.
-
-Other benefits:
-
--   **Reduced risk of making unnecessary HTTP requests.**
-
-    If there were (accidentally!) multiple dataloaders created for a single
-    endpoint, we potentially lose out on the ability to batch up requests to that
-    resource.
-
-    By keeping the mapping of one DataLoader per resource, we can reduce that
-    risk and make an efficient set of HTTP requests to the underlying resource.
 
 ## Batch Resources
 
