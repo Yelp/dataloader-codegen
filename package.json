@@ -37,7 +37,7 @@
     "@types/yargs": "^13.0.3",
     "flow-bin": "^0.111.1",
     "flowgen": "^1.10.0",
-    "jest": "^24.9.0",
+    "jest": "^25.1.0",
     "regenerator-runtime": "^0.13.3",
     "tmp-promise": "^2.0.2",
     "typescript": "^3.7.0-beta"
