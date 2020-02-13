@@ -1,9 +1,11 @@
+PYTHON3 := $(shell command -v python3.8 || command -v python3)
+
 .PHONY: minimal
 minimal: node_modules build
 
 venv: Makefile requirements-dev.txt
 	rm -rf venv
-	virtualenv venv --python=python3.6
+	virtualenv venv --python=$(PYTHON3)
 	venv/bin/pip install -r requirements-dev.txt
 
 node_modules: package.json yarn.lock
