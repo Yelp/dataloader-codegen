@@ -92,5 +92,5 @@ runQuery(/* GraphQL */ `
         }
     }
 `).then(result => {
-    console.log(result);
+    console.log(JSON.stringify(result, null, 4));
 });

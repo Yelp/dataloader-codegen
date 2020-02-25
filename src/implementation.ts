@@ -272,6 +272,8 @@ function getBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
                                 );
                             }
                         `;
+                    } else {
+                        return '';
                     }
                 })()}
 
@@ -330,6 +332,8 @@ function getBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
                                 resourcePath: ${JSON.stringify(resourcePath)},
                             })
                         `;
+                    } else {
+                        return '';
                     }
                 })()}
 

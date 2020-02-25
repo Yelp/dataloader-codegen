@@ -13,6 +13,7 @@ import {
     partitionItems,
     sortByKeys,
     unPartitionResults,
+    resultsDictToList,
 } from 'dataloader-codegen/lib/runtimeHelpers';
 
 /**
@@ -290,30 +291,35 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             response = await options.resourceMiddleware.after(['getPlanets'], response);
                         }
 
-                        if (!(response instanceof Error) && !Array.isArray(response)) {
-                            response = new Error(
-                                ['[dataloader-codegen :: getPlanets]', 'Expected response to be an array!'].join(' '),
-                            );
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getPlanets]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
                         }
 
-                        /**
-                         * Check to see the resource contains the same number
-                         * of items that we requested. If not, since there's
-                         * no "reorderResultsByKey" specified for this resource,
-                         * we don't _which_ key's response is missing. Therefore
-                         * it's unsafe to return the response array back, since it
-                         * the wrong .load requst might get the 'null' value back.
-                         */
-                        if (!(response instanceof Error) && response.length !== requests.length) {
+                        if (!(response instanceof Error)) {
                             /**
-                             * We must return errors for all keys in this group :(
+                             * Check to see the resource contains the same number
+                             * of items that we requested. If not, since there's
+                             * no "reorderResultsByKey" specified for this resource,
+                             * we don't know _which_ key's response is missing. Therefore
+                             * it's unsafe to return the response array back.
                              */
-                            response = new Error(
-                                [
-                                    `[dataloader-codegen :: getPlanets] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
-                                    'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                ].join(' '),
-                            );
+                            if (response.length !== requests.length) {
+                                /**
+                                 * We must return errors for all keys in this group :(
+                                 */
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getPlanets] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
+                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
+                                    ].join(' '),
+                                );
+                            }
                         }
 
                         /**
@@ -512,30 +518,35 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             response = await options.resourceMiddleware.after(['getPeople'], response);
                         }
 
-                        if (!(response instanceof Error) && !Array.isArray(response)) {
-                            response = new Error(
-                                ['[dataloader-codegen :: getPeople]', 'Expected response to be an array!'].join(' '),
-                            );
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getPeople]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
                         }
 
-                        /**
-                         * Check to see the resource contains the same number
-                         * of items that we requested. If not, since there's
-                         * no "reorderResultsByKey" specified for this resource,
-                         * we don't _which_ key's response is missing. Therefore
-                         * it's unsafe to return the response array back, since it
-                         * the wrong .load requst might get the 'null' value back.
-                         */
-                        if (!(response instanceof Error) && response.length !== requests.length) {
+                        if (!(response instanceof Error)) {
                             /**
-                             * We must return errors for all keys in this group :(
+                             * Check to see the resource contains the same number
+                             * of items that we requested. If not, since there's
+                             * no "reorderResultsByKey" specified for this resource,
+                             * we don't know _which_ key's response is missing. Therefore
+                             * it's unsafe to return the response array back.
                              */
-                            response = new Error(
-                                [
-                                    `[dataloader-codegen :: getPeople] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
-                                    'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                ].join(' '),
-                            );
+                            if (response.length !== requests.length) {
+                                /**
+                                 * We must return errors for all keys in this group :(
+                                 */
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getPeople] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
+                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
+                                    ].join(' '),
+                                );
+                            }
                         }
 
                         /**
@@ -734,30 +745,35 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             response = await options.resourceMiddleware.after(['getVehicles'], response);
                         }
 
-                        if (!(response instanceof Error) && !Array.isArray(response)) {
-                            response = new Error(
-                                ['[dataloader-codegen :: getVehicles]', 'Expected response to be an array!'].join(' '),
-                            );
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getVehicles]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
                         }
 
-                        /**
-                         * Check to see the resource contains the same number
-                         * of items that we requested. If not, since there's
-                         * no "reorderResultsByKey" specified for this resource,
-                         * we don't _which_ key's response is missing. Therefore
-                         * it's unsafe to return the response array back, since it
-                         * the wrong .load requst might get the 'null' value back.
-                         */
-                        if (!(response instanceof Error) && response.length !== requests.length) {
+                        if (!(response instanceof Error)) {
                             /**
-                             * We must return errors for all keys in this group :(
+                             * Check to see the resource contains the same number
+                             * of items that we requested. If not, since there's
+                             * no "reorderResultsByKey" specified for this resource,
+                             * we don't know _which_ key's response is missing. Therefore
+                             * it's unsafe to return the response array back.
                              */
-                            response = new Error(
-                                [
-                                    `[dataloader-codegen :: getVehicles] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
-                                    'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                ].join(' '),
-                            );
+                            if (response.length !== requests.length) {
+                                /**
+                                 * We must return errors for all keys in this group :(
+                                 */
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getVehicles] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
+                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
+                                    ].join(' '),
+                                );
+                            }
                         }
 
                         /**
