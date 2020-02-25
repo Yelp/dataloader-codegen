@@ -23,6 +23,8 @@ interface BatchResourceConfig {
     reorderResultsByKey?: string;
     nestedPath?: string;
     commaSeparatedBatchKey?: boolean;
+    // TODO: Assert somehow/somewhere that both isResponseDictionary and reorderResultsByKey aren't set
+    isResponseDictionary?: boolean;
 }
 
 interface NonBatchResourceConfig {
