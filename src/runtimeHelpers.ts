@@ -147,11 +147,11 @@ export function sortByKeys<V>({
                 );
             }
 
-            itemsMap.set(reorderResultsByValue.toString(), item);
+            itemsMap.set(String(reorderResultsByValue), item);
         } else {
             // TODO: Work how to tell typescript item[prop] exists
             invariant(item[prop] != null, `${errorPrefix(resourcePath)} Could not find property "${prop}" in item`);
-            itemsMap.set(item[prop].toString(), item);
+            itemsMap.set(String(item[prop]), item);
         }
     });
 
@@ -159,9 +159,9 @@ export function sortByKeys<V>({
     // items, generate an BatchItemNotFoundError. (This can be caught specifically in resolvers.)
     return keys.map(
         key =>
-            itemsMap.get(key.toString()) ||
+            itemsMap.get(String(key)) ||
             new BatchItemNotFoundError(
-                `${errorPrefix(resourcePath)} Response did not contain item with ${prop} = ${key.toString()}`,
+                `${errorPrefix(resourcePath)} Response did not contain item with ${prop} = ${String(key)}`,
             ),
     );
 }
@@ -232,4 +232,45 @@ export function unPartitionResults<T>(
                 return result;
             }
         });
+}
+
+/**
+ * Turn a dictionary of results into an ordered list
+ *
+ * Example
+ * ```js
+ * resultsDictToList(
+ *   {
+ *     3: { foo: '!' },
+ *     1: { foo: 'hello' },
+ *     2: { foo: 'world' },
+ *   },
+ *   [1, 2, 3],
+ *   resourcePath: ['FooService', 'getFoos'],
+ * )
+ * ```
+ *
+ * Returns:
+ * ```
+ * [
+ *   { foo: 'hello' },
+ *   { foo: 'world' },
+ *   { foo: '!' },
+ * ]
+ */
+export function resultsDictToList<V>(
+    /** A dictionary of results */
+    response: { [key in string | number]: V },
+    /** The IDs we originally requested from the endpoint */
+    keys: ReadonlyArray<string | number>,
+    /** Some path that indicates what resource this is being used on. Used for stack traces. */
+    resourcePath: ReadonlyArray<string>,
+): ReadonlyArray<V | Error> {
+    return keys.map(
+        key =>
+            response[String(key)] ||
+            new BatchItemNotFoundError(
+                `${errorPrefix(resourcePath)} Could not find key = "${String(key)}" in the response dict.`,
+            ),
+    );
 }

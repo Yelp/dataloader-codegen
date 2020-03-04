@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import prettier from 'prettier';
-import { GlobalConfig, ResourceConfig, getResourcePaths } from './config';
+import { GlobalConfig, getResourcePaths } from './config';
 import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genTypeFlow';
 import getLoaderImplementation from './implementation';
 
@@ -61,6 +61,7 @@ export default function codegen(
             partitionItems,
             sortByKeys,
             unPartitionResults,
+            resultsDictToList,
         } from '${runtimeHelpers}';
 
 

@@ -7,7 +7,6 @@ import _ from 'lodash';
 import codegen from '../src/codegen';
 import { getConfig } from '../src/config';
 
-const CONFIG_PATH = path.join(__dirname, 'fixtures', 'config.yaml');
 const BABEL_CONFIG = {
     presets: [
         '@babel/preset-flow',
@@ -338,19 +337,13 @@ test('batch endpoint (multiple requests, error handling)', async () => {
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, include_extra_info: false },
-                { foo_id: 2, include_extra_info: true },
-                { foo_id: 3, include_extra_info: false },
-                { foo_id: 4, include_extra_info: true },
-                { foo_id: 5, include_extra_info: true },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
 
         expect(results).toMatchObject([
             expect.toBeError(/yikes/),
@@ -411,19 +404,13 @@ test('batch endpoint (multiple requests, error handling, nestedPath)', async () 
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, include_extra_info: false },
-                { foo_id: 2, include_extra_info: true },
-                { foo_id: 3, include_extra_info: false },
-                { foo_id: 4, include_extra_info: true },
-                { foo_id: 5, include_extra_info: true },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
 
         expect(results).toMatchObject([
             expect.toBeError(/yikes/),
@@ -468,19 +455,13 @@ test('batch endpoint (multiple requests, error handling - non array response)', 
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, include_extra_info: false },
-                { foo_id: 2, include_extra_info: true },
-                { foo_id: 3, include_extra_info: false },
-                { foo_id: 4, include_extra_info: true },
-                { foo_id: 5, include_extra_info: true },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
 
         expect(results).toMatchObject([
             expect.toBeError('yikes'),
@@ -539,19 +520,13 @@ test('batch endpoint (multiple requests, error handling, with reordering)', asyn
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, include_extra_info: false },
-                { foo_id: 2, include_extra_info: true },
-                { foo_id: 3, include_extra_info: false },
-                { foo_id: 4, include_extra_info: true },
-                { foo_id: 5, include_extra_info: true },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
 
         expect(results).toMatchObject([
             expect.toBeError(/yikes/),
@@ -602,7 +577,6 @@ test('batch endpoint without reorderResultsByKey throws error for response with 
                     {
                         foo_id: 4,
                         foo_value: 'greetings',
-                        extra_stuff: 'lorem ipsum',
                     },
                 ]);
             }
@@ -612,24 +586,18 @@ test('batch endpoint without reorderResultsByKey throws error for response with 
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, bar: true },
-                { foo_id: 2, bar: true },
-                { foo_id: 3, bar: true },
-                { foo_id: 4, bar: false },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: true },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: true },
+            { foo_id: 4, include_extra_info: false },
+        ]);
 
         expect(results).toMatchObject([
             expect.toBeError('[dataloader-codegen :: foo] Resource returned 2 items, but we requested 3 items'),
             expect.toBeError('[dataloader-codegen :: foo] Resource returned 2 items, but we requested 3 items'),
             expect.toBeError('[dataloader-codegen :: foo] Resource returned 2 items, but we requested 3 items'),
-            { foo_id: 4, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+            { foo_id: 4, foo_value: 'greetings' },
         ]);
     });
 });
@@ -678,24 +646,89 @@ test('batch endpoint with reorderResultsByKey handles response with non existant
     await createDataLoaders(config, async getLoaders => {
         const loaders = getLoaders(resources);
 
-        // .loadMany will tank the whole batch load if there's any errors
-        // @see https://github.com/graphql/dataloader/issues/41
-        const results = await Promise.all(
-            [
-                { foo_id: 1, bar: true },
-                { foo_id: 2, bar: true },
-                { foo_id: 3, bar: true },
-                { foo_id: 4, bar: false },
-            ].map(key => {
-                return loaders.foo.load(key).catch(err => err);
-            }),
-        );
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, bar: true },
+            { foo_id: 2, bar: true },
+            { foo_id: 3, bar: true },
+            { foo_id: 4, bar: false },
+        ]);
 
         expect(results).toMatchObject([
             { foo_id: 1, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
             expect.toBeError('[dataloader-codegen :: foo] Response did not contain item with foo_id = 2'),
             { foo_id: 3, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
             { foo_id: 4, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+        ]);
+    });
+});
+
+test('batch endpoint with isResponseDictionary handles a response that returns a dictionary', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/foos',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                isResponseDictionary: true,
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids }) => {
+            expect(foo_ids).toEqual([1, 2, 3]);
+            return Promise.resolve({
+                2: { foo_id: 2, foo_value: 'world' },
+                '1': { foo_id: 1, foo_value: 'hello' },
+                3: { foo_id: 3, foo_value: '!' },
+            });
+        },
+    };
+
+    await createDataLoaders(config, async getLoaders => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
+        expect(results).toEqual([
+            { foo_id: 1, foo_value: 'hello' },
+            { foo_id: 2, foo_value: 'world' },
+            { foo_id: 3, foo_value: '!' },
+        ]);
+    });
+});
+
+test('batch endpoint with isResponseDictionary handles a response that returns a dictionary, with a missing item', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/foos',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                isResponseDictionary: true,
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids }) => {
+            expect(foo_ids).toEqual([1, 2, 3]);
+            return Promise.resolve({
+                '1': { foo_id: 1, foo_value: 'hello' },
+                3: { foo_id: 3, foo_value: '!' },
+            });
+        },
+    };
+
+    await createDataLoaders(config, async getLoaders => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
+        expect(results).toEqual([
+            { foo_id: 1, foo_value: 'hello' },
+            expect.toBeError('[dataloader-codegen :: foo] Could not find key = "2" in the response dict'),
+            { foo_id: 3, foo_value: '!' },
         ]);
     });
 });

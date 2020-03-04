@@ -201,36 +201,75 @@ function getBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
                     }
                 })()}
 
-                if ((!(response instanceof Error)) && !Array.isArray(response)) {
-                    response = new Error(
-                        [
-                            '${errorPrefix(resourcePath)}',
-                            'Expected response to be an array!',
-                        ].join(' ')
-                    )
+                if (!(response instanceof Error)) {
+                    ${(() => {
+                        if (resourceConfig.isResponseDictionary === true) {
+                            return `
+                                if (typeof response !== 'object') {
+                                    response = new Error(
+                                        [
+                                            '${errorPrefix(resourcePath)}',
+                                            'Expected response to be an dictionary!',
+                                        ].join(' ')
+                                    );
+                                }
+                            `;
+                        } else {
+                            return `
+                                if (!Array.isArray(response)) {
+                                    response = new Error(
+                                        [
+                                            '${errorPrefix(resourcePath)}',
+                                            'Expected response to be an array!',
+                                        ].join(' ')
+                                    );
+                                }
+                            `;
+                        }
+                    })()}
                 }
 
                 ${(() => {
-                    if (resourceConfig.reorderResultsByKey == null) {
+                    const { reorderResultsByKey, isResponseDictionary } = resourceConfig;
+
+                    if (!isResponseDictionary && reorderResultsByKey == null) {
                         return `
-                            /**
-                             * Check to see the resource contains the same number
-                             * of items that we requested. If not, since there's
-                             * no "reorderResultsByKey" specified for this resource,
-                             * we don't _which_ key's response is missing. Therefore
-                             * it's unsafe to return the response array back, since it
-                             * the wrong .load requst might get the 'null' value back.
-                             */
-                            if ((!(response instanceof Error)) && response.length !== requests.length) {
+                            if (!(response instanceof Error)) {
                                 /**
-                                 * We must return errors for all keys in this group :(
-                                 */
-                                response = new Error([
-                                    \`${errorPrefix(
-                                        resourcePath,
-                                    )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
-                                    'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                ].join(' '));
+                                * Check to see the resource contains the same number
+                                * of items that we requested. If not, since there's
+                                * no "reorderResultsByKey" specified for this resource,
+                                * we don't know _which_ key's response is missing. Therefore
+                                * it's unsafe to return the response array back.
+                                */
+                                if (response.length !== requests.length) {
+                                    /**
+                                    * We must return errors for all keys in this group :(
+                                    */
+                                    response = new Error([
+                                        \`${errorPrefix(
+                                            resourcePath,
+                                        )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
+                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
+                                    ].join(' '));
+                                }
+                            }
+                        `;
+                    } else {
+                        return '';
+                    }
+                })()}
+
+                ${(() => {
+                    const { newKey, isResponseDictionary } = resourceConfig;
+                    if (isResponseDictionary === true) {
+                        return `
+                            if (!(response instanceof Error)) {
+                                response = resultsDictToList(
+                                    response,
+                                    requests.map(request => request['${newKey}']),
+                                    ${JSON.stringify(resourcePath)},
+                                );
                             }
                         `;
                     } else {

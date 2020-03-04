@@ -89,6 +89,10 @@
                 "commaSeparatedBatchKey": {
                     "type": "boolean",
                     "description": "(Optional) Set to true if the interface of the resource takes the batch key as a comma separated list (rather than an array of IDs, as is more common). Default: false"
+                },
+                "isResponseDictionary": {
+                    "type": "boolean",
+                    "description": "(Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false"
                 }
             }
         },
