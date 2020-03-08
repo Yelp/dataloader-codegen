@@ -11,7 +11,7 @@ dataloader-codegen is an opinionated JavaScript library for automagically genera
 
 -   🚚 Supports Batched + Non Batched Resources
 -   ✨ Predictable DataLoader Interfaces
--   🐛 Custom + Built-in Error Handling
+-   🐛 Error Handling
 -   🔒 Type Safety (Flow)
 -   🔧 Resource Middleware
 
@@ -35,16 +35,16 @@ With dataloader-codegen, we build a **1:1 mapping of resources to DataLoaders**:
 <img src="https://raw.githubusercontent.com/Yelp/dataloader-codegen/master/images/mapping.png" height="400" />
 
 This makes it super easy to find the DataLoaders you want - there will be
-exactly one DataLoader available per resource, with a predictable name and interface.
+exactly 1 DataLoader available per resource, with a predictable name and interface.
 
 This also means **reduced risk of making unnecessary HTTP requests.**
 
-If there were (accidentally!) multiple dataloaders created for a single
-endpoint, we potentially lose out on the ability to batch up requests to that
+If there were (accidentally!) multiple DataLoaders created for a single
+endpoint, we potentially lose out on batched requests to that
 resource.
 
-By keeping the mapping of one DataLoader per resource, we can reduce that
-risk and make an efficient set of HTTP requests to the underlying resource.
+By keeping the mapping of one DataLoader per resource, we reduce that risk
+and can make a more efficient set of HTTP requests to the underlying resource.
 
 ## Usage
 
