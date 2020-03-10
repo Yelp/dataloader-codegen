@@ -110,18 +110,17 @@ Consider the following resource that returns information about users:
 const getUserInfo = (args: {
     user_ids: Array<number>,
     locale: string,
-    include_private_info?: boolean,
+    include_slow_fields?: boolean,
 }): Promise<Array<UserInfo>> => fetch('/userInfo', args);
 ```
 
 This is a [batch resource](https://www.codementor.io/blog/batch-endpoints-6olbjay1hd) that accepts a list of users (`user_ids`) and returns a list of corresponding user objects (`Array<UserInfo>`).
 
-For the DataLoader version of this, we'll want to instead ask for a _single_ user
+For the DataLoader version of this, we'll want to instead ask for a **single** user
 object at a time. This means we need to transform the interface in the following
 ways:
 
-1. Call `.load` with the same arguments, but switch "user*ids" to "user_id".
-   (\_Because we're only asking for the one user!*)
+1. Call `.load` with the same arguments, but switch "user_ids" to "user_id".
 
 2. Return a _single_ `UserInfo` object from `.load`, instead of an _array_ of
    `UserInfo` objects.
