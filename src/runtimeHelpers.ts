@@ -242,11 +242,11 @@ export function unPartitionResults<T>(
  * ```js
  * resultsDictToList(
  *   {
- *     3: { foo: '!' },
+ *     '3': { foo: '!' },
  *     1: { foo: 'hello' },
  *     2: { foo: 'world' },
  *   },
- *   [1, 2, 3],
+ *   [1, '2', 3],
  *   resourcePath: ['FooService', 'getFoos'],
  * )
  * ```
