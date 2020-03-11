@@ -261,7 +261,7 @@ export function unPartitionResults<T>(
  */
 export function resultsDictToList<V>(
     /** A dictionary of results */
-    response: { [key in string | number]: V },
+    response: { [key: string]: V },
     /** The IDs we originally requested from the endpoint */
     keys: ReadonlyArray<string | number>,
     /** Some path that indicates what resource this is being used on. Used for stack traces. */
