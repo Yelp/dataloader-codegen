@@ -1,4 +1,4 @@
-import { ResourceConfig } from './config';
+import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
 import assert from './assert';
 import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
 
@@ -27,7 +27,7 @@ function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: Readonly
     `;
 }
 
-function getBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
+function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === true,
         `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
@@ -355,7 +355,7 @@ function getBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
      )`;
 }
 
-function getNonBatchLoader(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
+function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === false,
         `${errorPrefix(resourcePath)} Expected getNonBatchLoader to be called with a non-batch endpoint config`,

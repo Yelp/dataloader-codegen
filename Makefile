@@ -16,7 +16,7 @@ build: node_modules
 	# Generate the .d.ts files
 	node_modules/.bin/tsc --project tsconfig.json --checkJs false --emitDeclarationOnly || true
 	# TODO: Loop through everything in the lib folder to create the flow types
-	flowgen --add-flow-header lib/runtimeHelpers.d.ts --output-file lib/runtimeHelpers.js.flow
+	yarn flowgen --add-flow-header lib/runtimeHelpers.d.ts --output-file lib/runtimeHelpers.js.flow
 
 .PHONY: test
 test: build venv node_modules

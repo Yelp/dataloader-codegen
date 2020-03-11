@@ -14,7 +14,7 @@ const resourceReference = (resourcePath: ReadonlyArray<string>) => ['resources',
  */
 export function getResourceTypeReference(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
     function toPropertyTypePath(path: ReadonlyArray<string>): string {
-        assert(path.length >= 1);
+        assert(path.length >= 1, 'expected resource path to be a not empty array');
 
         if (path.length === 1) {
             return path[0];

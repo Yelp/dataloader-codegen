@@ -56,5 +56,8 @@
   "files": [
     "lib",
     "schema.json"
-  ]
+  ],
+  "engines": {
+    "node": ">=10"
+  }
 }
