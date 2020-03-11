@@ -63,7 +63,7 @@ export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: R
         >`;
 
     if (resourceConfig.isBatchResource) {
-        retVal = `$ElementType<${retVal}, 0>`;
+        retVal = resourceConfig.isResponseDictionary ? `$Values<${retVal}>` : `$ElementType<${retVal}, 0>`;
     }
 
     /**
