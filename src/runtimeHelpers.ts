@@ -149,8 +149,9 @@ export function sortByKeys<V>({
 
             itemsMap.set(String(reorderResultsByValue), item);
         } else {
-            // TODO: Work how to tell typescript item[prop] exists
+            // @ts-ignore: TODO: Work how to tell typescript item[prop] exists
             invariant(item[prop] != null, `${errorPrefix(resourcePath)} Could not find property "${prop}" in item`);
+            // @ts-ignore: TODO: Work how to tell typescript item[prop] exists
             itemsMap.set(String(item[prop]), item);
         }
     });

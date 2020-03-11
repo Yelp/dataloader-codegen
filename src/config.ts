@@ -16,7 +16,7 @@ export interface GlobalConfig {
     resources: any;
 }
 
-interface BatchResourceConfig {
+export interface BatchResourceConfig {
     isBatchResource: true;
     batchKey: string;
     newKey: string;
@@ -27,7 +27,7 @@ interface BatchResourceConfig {
     isResponseDictionary?: boolean;
 }
 
-interface NonBatchResourceConfig {
+export interface NonBatchResourceConfig {
     isBatchResource: false;
 }
 

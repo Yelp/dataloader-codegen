@@ -8,8 +8,8 @@ import codegen from './codegen';
 import { getConfig } from './config';
 
 interface CLIArgs {
-    config?: string;
-    output?: string;
+    config: string;
+    output: string;
 }
 
 function writeLoaders(args: CLIArgs) {
@@ -17,6 +17,7 @@ function writeLoaders(args: CLIArgs) {
     const output = codegen(config);
 
     assert(typeof args.config === 'string', 'expected args.config to be set!');
+    assert(typeof args.output === 'string', 'expected args.output to be set!');
     fs.writeFileSync(args.output, output);
 }
 
