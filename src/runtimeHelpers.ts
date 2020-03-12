@@ -8,7 +8,7 @@ import AggregateError from 'aggregate-error';
 import invariant from 'assert';
 import objectHash from 'object-hash';
 
-function errorPrefix(resourcePath: ReadonlyArray<string>): string {
+export function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
 }
 
@@ -243,10 +243,10 @@ export function unPartitionResults<T>(
  * resultsDictToList(
  *   {
  *     '3': { foo: '!' },
- *     1: { foo: 'hello' },
- *     2: { foo: 'world' },
+ *     '1': { foo: 'hello' },
+ *     '2': { foo: 'world' },
  *   },
- *   [1, '2', 3],
+ *   [1, 2, 3],
  *   resourcePath: ['FooService', 'getFoos'],
  * )
  * ```
@@ -260,7 +260,10 @@ export function unPartitionResults<T>(
  * ]
  */
 export function resultsDictToList<V>(
-    /** A dictionary of results */
+    /**
+     * A dictionary of results. Object keys that were numbers will get turned into strings by JavaScript.
+     * @see https://stackoverflow.com/a/3633390
+     */
     response: { [key: string]: V },
     /** The IDs we originally requested from the endpoint */
     keys: ReadonlyArray<string | number>,
