@@ -17,7 +17,8 @@ deploy:
     email: opensource@yelp.com
     api_key:
         # this is already encrypted, see https://docs.travis-ci.com/user/deployment/npm/#npm-auth-token
-        secure: kImaLZnn8re2P9SaT5/2rAGOwQwh9vXSIb5N9AFx3OMrDDd6uenwhSid1yvUzleVLmGn+HMo3TDc0QP1+lfLChGweSGQ6eCpvzz2aC/EfGruCZbO35lsG0DzFINQmmeIuwzNESHdgxpPNjnI5vF+76O01VSP5ZGhD6xke5uDXb0QgV9msJq8a1EVmmZSHxse3bGz0bCpq5zdDD0L0f0W2JmBz6R5ft9c/Zm7iOjzLeZ5TihS7uQseCKcTr9bOLLm9w0aK30M/Ku5LNXo8iCP5+zJhEo6sK7BQzsTU96qXvc4GyL4NsJllqkYJpkio4D7yzEvOQ7vVK69Jrz7/vi5a+Q3rP4CNlVTkF0PzeTNq1A2FJjMH+kajo7HE9tmSwpVrgWrwgI9NN5WqGEuXEvj1rhXtHZV4gvtZax2pUGwmXkI45N1722rPa0Cj/uVHNdQfzBYysq/jHc1yJ/EeiC8gi4u5WXXHTLFQk9SPXWaUFKOANzLLLGMSfOh4w6krTBDI9Q8L4jrYaS8SIOJt0gxbKxn5L42VjyMGoFVwr55XG2x/PXAMWuvYCCRi/XaCidycCnfkKvrTsQwjeFCLJTx0+Fm8UEpyjvOaiIOen5hwkXGn6uPx1kvFnTGgrJBBltkmWye+RJtXXBRO8jAliJk/N4UCTgQK0To1NBDLFe4kBs= # pragma: allowlist secret
+        secure: i/6hXjjC3AK3S7HelU33aPPe/aJQHOqCIQ3Nql49dBD2Uu3Rqx2+h7dcZ4c2sYdJgzkIiDBG6OT4rNOVcMU1LdHz+v43rrL+SP0sbdp9ftDI16lrbxRNIckR+2XytQIlly/E1LQuG2inLd8+VBpf5pixGieCT64G47mO7qcURysCrLoag8hbc2cLK3oxLnB+FPnx9DyumC3XB/FK5jpg7s4Bc04ZDdlyeRV97MMjri9GHorUsJaRqc3eWGMvwVBWQ+HY23pam2tyIJ9QA1CcEKKlkTqpV0qrHEXhBFjd/g4NR5u9IhsKFeSwR+yZ5haQ+WscpidZoqAcAyLuQxYx0VapdAUB5HafT2OTmWs9pUOVwfXwRJeEIFoBoXnjuQkB45xEKno0RIufi3uNyG8rSVn12rCgWKNwAy3r4HhlNsw03D+bDS4LbfRJIYKXRFa6oPAhPEIlJ4ZsBrLLXjw5IS/kAs6UZXqlbkhTgd4y6vxlsmCyklJVxPwRwTp+Mtm4ijmHUQKdf8LNjFGrtKJ4aXSa3/6KYiTlMM84fHse38vrXkYkZYwcd2m5VuQWJeDy+dJATfh6yCcEa3yFu+htE7SemMCN067pDJr/ELifnVrTMgh3Ik1bAk5iqUqR8pyHCjZN81UQrGlkE+9GLKf2BbcWgZg6XiS/6eJHlCtgO9I= # pragma: allowlist secret
+    skip_cleanup: true
     on:
         branch: master
         tags: true
