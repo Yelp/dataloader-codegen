@@ -18,6 +18,7 @@
   "scripts": {
     "test": "jest",
     "build": "babel --verbose --extensions '.ts' src -d lib",
+    "prepublishOnly": "make build",
     "typecheck": "tsc --project tsconfig.json"
   },
   "bin": {
