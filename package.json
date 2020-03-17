@@ -47,6 +47,7 @@
     "@babel/preset-env": "^7.6.3",
     "aggregate-error": "^3.0.1",
     "ajv": "^6.11.0",
+    "apollo-server-express": "^2.11.0",
     "dataloader": "^2.0.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",

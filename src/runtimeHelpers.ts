@@ -7,29 +7,35 @@ import _ from 'lodash';
 import AggregateError from 'aggregate-error';
 import invariant from 'assert';
 import objectHash from 'object-hash';
+import { ApolloError } from 'apollo-server-express';
 
 export function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
 }
 
-export class BatchItemNotFoundError extends Error {
+/**
+ * An error reflects missing item in response. It extends from the basic generic ApolloError.
+ * It is not tie to apollo-server-express, but extending from ApolloError make it easier to debug your Apollo Server integration.
+ * @see https://github.com/apollographql/apollo-server/blob/faba52c689c22472a19fcb65d78925df549077f7/packages/apollo-server-errors/src/index.ts#L3
+ */
+export class BatchItemNotFoundError extends ApolloError {
     constructor(message: string) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, 'BATCH_ITEM_NOT_FOUND_ERROR');
         Error.captureStackTrace(this, this.constructor);
+        Object.defineProperty(this, 'name', { value: 'BatchItemNotFoundError' });
     }
 }
 
-export class CaughtResourceError extends Error {
-    cause: Error;
-    reorderResultsByValue: string | number | null;
-
+/**
+ * An error reflects error when calling resource. It extends from the basic generic ApolloError.
+ * It is not tie to apollo-server-express, but extending from ApolloError make it easier to debug your Apollo Server integration.
+ * @see https://github.com/apollographql/apollo-server/blob/faba52c689c22472a19fcb65d78925df549077f7/packages/apollo-server-errors/src/index.ts#L3
+ */
+export class CaughtResourceError extends ApolloError {
     constructor(message: string, cause: Error, reorderResultsByValue: string | number | null) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, 'CAUGHT_RESOURCE_ERROR', { cause, reorderResultsByValue });
         Error.captureStackTrace(this, this.constructor);
-        this.cause = cause;
-        this.reorderResultsByValue = reorderResultsByValue;
+        Object.defineProperty(this, 'name', { value: 'CaughtResourceError' });
     }
 }
 
