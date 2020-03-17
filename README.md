@@ -1,7 +1,7 @@
 # 🤖 dataloader-codegen
 
 [![npm](https://img.shields.io/npm/v/dataloader-codegen.svg)](https://yarn.pm/dataloader-codegen)
-[![Build Status](https://travis-ci.org/Yelp/dataloader-codegen.svg?branch=master)](https://travis-ci.org/Yelp/dataloader-codegen)
+[![Build Status](https://api.travis-ci.com/Yelp/dataloader-codegen.svg?branch=master)](https://travis-ci.com/github/Yelp/dataloader-codegen)
 
 dataloader-codegen is an opinionated JavaScript library for automagically generating [DataLoaders](https://github.com/graphql/dataloader) over a set of resources (e.g. HTTP endpoints), with a predictable interface, and maintains type safety.
 
