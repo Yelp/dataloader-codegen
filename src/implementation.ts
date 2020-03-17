@@ -1,10 +1,7 @@
 import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
 import assert from './assert';
 import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
-
-function errorPrefix(resourcePath: ReadonlyArray<string>): string {
-    return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
-}
+import { errorPrefix } from './runtimeHelpers';
 
 function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
     const configComment = JSON.stringify(resourceConfig, null, 2)
@@ -246,7 +243,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                     /**
                                     * We must return errors for all keys in this group :(
                                     */
-                                    response = new Error([
+                                    response = new BatchItemNotFoundError([
                                         \`${errorPrefix(
                                             resourcePath,
                                         )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,

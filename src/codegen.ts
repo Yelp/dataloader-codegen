@@ -56,6 +56,7 @@ export default function codegen(
         import invariant from 'assert';
         import DataLoader from 'dataloader';
         import {
+            BatchItemNotFoundError,
             CaughtResourceError,
             cacheKeyOptions,
             partitionItems,
