@@ -12,10 +12,20 @@ export function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
 }
 
+/**
+ * An error reflects missing item in response. It follows similar structure to ApolloError that has an `extension` field.
+ * This makes it easier to link and integrate with apollo-server
+ * @see https://github.com/apollographql/apollo-server/blob/faba52c689c22472a19fcb65d78925df549077f7/packages/apollo-server-errors/src/index.ts#L3
+ */
 export class BatchItemNotFoundError extends Error {
+    readonly extensions: Record<string, any>;
+
     constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
+        this.extensions = {
+            code: 'BATCH_ITEM_NOT_FOUND_ERROR',
+        };
         Error.captureStackTrace(this, this.constructor);
     }
 }
