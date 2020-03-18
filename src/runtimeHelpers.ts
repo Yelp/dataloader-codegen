@@ -7,35 +7,39 @@ import _ from 'lodash';
 import AggregateError from 'aggregate-error';
 import invariant from 'assert';
 import objectHash from 'object-hash';
-import { ApolloError } from 'apollo-server-express';
 
 export function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
 }
 
 /**
- * An error reflects missing item in response. It extends from the basic generic ApolloError.
- * It is not tie to apollo-server-express, but extending from ApolloError make it easier to debug your Apollo Server integration.
+ * An error reflects missing item in response. It follows similar structure to ApolloError that has an `extension` field.
+ * This makes it easier to link and integrate with apollo-server
  * @see https://github.com/apollographql/apollo-server/blob/faba52c689c22472a19fcb65d78925df549077f7/packages/apollo-server-errors/src/index.ts#L3
  */
-export class BatchItemNotFoundError extends ApolloError {
+export class BatchItemNotFoundError extends Error {
+    readonly extensions: Record<string, any>;
+
     constructor(message: string) {
-        super(message, 'BATCH_ITEM_NOT_FOUND_ERROR');
+        super(message);
+        this.name = this.constructor.name;
+        this.extensions = {
+            code: 'BATCH_ITEM_NOT_FOUND_ERROR',
+        };
         Error.captureStackTrace(this, this.constructor);
-        Object.defineProperty(this, 'name', { value: 'BatchItemNotFoundError' });
     }
 }
 
-/**
- * An error reflects error when calling resource. It extends from the basic generic ApolloError.
- * It is not tie to apollo-server-express, but extending from ApolloError make it easier to debug your Apollo Server integration.
- * @see https://github.com/apollographql/apollo-server/blob/faba52c689c22472a19fcb65d78925df549077f7/packages/apollo-server-errors/src/index.ts#L3
- */
-export class CaughtResourceError extends ApolloError {
+export class CaughtResourceError extends Error {
+    cause: Error;
+    reorderResultsByValue: string | number | null;
+
     constructor(message: string, cause: Error, reorderResultsByValue: string | number | null) {
-        super(message, 'CAUGHT_RESOURCE_ERROR', { cause, reorderResultsByValue });
+        super(message);
+        this.name = this.constructor.name;
         Error.captureStackTrace(this, this.constructor);
-        Object.defineProperty(this, 'name', { value: 'CaughtResourceError' });
+        this.cause = cause;
+        this.reorderResultsByValue = reorderResultsByValue;
     }
 }
 
