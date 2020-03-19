@@ -137,48 +137,71 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         }];
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
-                            resourceArgs = await options.resourceMiddleware.before(${JSON.stringify(
-                                resourcePath,
-                            )}, resourceArgs);
+                            resourceArgs = await options.resourceMiddleware.before(
+                                ${JSON.stringify(resourcePath)},
+                                resourceArgs
+                            );
                         }
 
-                        // Finally, call the resource!
-                        let response = await ${resourceReference}(...resourceArgs);
+                        let response;
+                        try {
+                            // Finally, call the resource!
+                            response = await ${resourceReference}(...resourceArgs);
+                        } catch (error) {
+                            /**
+                             * Apply some default error handling to catch and handle all errors/rejected promises.
+                             *
+                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                             *
+                             * We use ensureError because 'error' might actually be a string or something in the case of a rejected promise.
+                             */
+                            response = ensureError(error);
+                        }
+
+                        // If there's a custom error handler, do something with the error
+                        if (options && options.errorHandler && response instanceof Error) {
+                            response = await options.errorHandler(
+                                ${JSON.stringify(resourcePath)},
+                                response
+                            );
+                        }
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
-                            response = await options.resourceMiddleware.after(${JSON.stringify(
-                                resourcePath,
-                            )}, response);
+                            response = await options.resourceMiddleware.after(
+                                ${JSON.stringify(resourcePath)},
+                                response
+                            );
                         }
                     `;
                 })()}
 
-                ${(() => {
-                    if (typeof resourceConfig.nestedPath === 'string') {
-                        return `
-                            /**
-                             * Un-nest the actual data from the resource return value.
-                             *
-                             * e.g.
-                             * \`\`\`js
-                             * {
-                             *   foos: [
-                             *     { id: 1, value: 'hello' },
-                             *     { id: 2, value: 'world' },
-                             *   ]
-                             * }
-                             * \`\`\`
-                             *
-                             * Becomes
-                             *
-                             * \`\`\`js
-                             * [
-                             *   { id: 1, value: 'hello' },
-                             *   { id: 2, value: 'world' },
-                             * ]
-                             * \`\`\`
-                             */
-                            if (!(response instanceof Error)) {
+                if (!(response instanceof Error)) {
+                    ${(() => {
+                        if (typeof resourceConfig.nestedPath === 'string') {
+                            return `
+                                /**
+                                 * Un-nest the actual data from the resource return value.
+                                 *
+                                 * e.g.
+                                 * \`\`\`js
+                                 * {
+                                 *   foos: [
+                                 *     { id: 1, value: 'hello' },
+                                 *     { id: 2, value: 'world' },
+                                 *   ]
+                                 * }
+                                 * \`\`\`
+                                 *
+                                 * Becomes
+                                 *
+                                 * \`\`\`js
+                                 * [
+                                 *   { id: 1, value: 'hello' },
+                                 *   { id: 2, value: 'world' },
+                                 * ]
+                                 * \`\`\`
+                                 */
                                 response = _.get(
                                     response,
                                     '${resourceConfig.nestedPath}',
@@ -191,12 +214,12 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                         ].join(' ')
                                     ),
                                 );
-                            }
-                        `;
-                    } else {
-                        return '';
-                    }
-                })()}
+                            `;
+                        } else {
+                            return '';
+                        }
+                    })()}
+                }
 
                 if (!(response instanceof Error)) {
                     ${(() => {

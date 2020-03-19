@@ -54,6 +54,7 @@ export default function codegen(
 
         import _ from 'lodash';
         import invariant from 'assert';
+        import ensureError from 'ensure-error';
         import DataLoader from 'dataloader';
         import {
             BatchItemNotFoundError,
@@ -83,9 +84,10 @@ export default function codegen(
         type ExtractPromisedReturnValue<A> = <R>((...A) => Promise<R>) => R;
 
         export type DataLoaderCodegenOptions = {|
+            errorHandler?: (resourcePath: $ReadOnlyArray<string>, error: Error) => Promise<Error>,
             resourceMiddleware?: {|
-                before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => T,
-                after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => T,
+                before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => Promise<T>,
+                after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => Promise<T>,
             |};
         |};
 

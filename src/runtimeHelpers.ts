@@ -30,6 +30,13 @@ export class BatchItemNotFoundError extends Error {
     }
 }
 
+/**
+ * An error class used internally to wrap an error returned from a batch resource call.
+ * Should be caught and handled internally - never exposed to the outside world.
+ * When created, we store the `reorderResultsByValue` - this lets the ordering logic know
+ * where in the return array to place this object. (We do this so we can add extra attributes
+ * to the error object in a typesafe way)
+ */
 export class CaughtResourceError extends Error {
     cause: Error;
     reorderResultsByValue: string | number | null;

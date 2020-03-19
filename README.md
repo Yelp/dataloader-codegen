@@ -47,7 +47,7 @@ and can make a more efficient set of HTTP requests to the underlying resource.
 
 ## Usage
 
-1. Create `dataloader-config.yaml` to describe the shape and behaviour of your resources. (See the docs for more info.)
+1. Create `dataloader-config.yaml` to describe the shape and behaviour of your resources. (See [the docs](./API_DOCS.md) for detailed info.)
 
     **Example**
 
@@ -71,16 +71,19 @@ and can make a more efficient set of HTTP requests to the underlying resource.
 2. Call `dataloader-codegen` and pass in your config file:
 
     ```bash
-    $ dataloader-codegen --config swapi.dataloader-config.yaml --output swapi-loaders.js
+    $ dataloader-codegen --config swapi.dataloader-config.yaml --output __codegen__/swapi-loaders.js
     ```
 
     See `--help` for more options.
 
-3. Import the generated loaders and use them in your [resolver methods](https://www.apollographql.com/docs/graphql-tools/resolvers/) as normal!
+3. Import the generated loaders and use them in your [resolver methods](https://www.apollographql.com/docs/graphql-tools/resolvers/):
 
     ```js
-    // StarWarsAPI returns a clientlib containing fetch calls to swapi.co
-    const swapiLoaders = createSwapiLoaders.default(StarWarsAPI());
+    import getLoaders from './__codegen__/swapi-loaders';
+
+    // StarWarsAPI is a clientlib containing fetch calls to swapi.co
+    // getLoaders is the function that dataloader-codegen generates for us
+    const swapiLoaders = getLoaders(StarWarsAPI);
 
     class Planet {
         constructor(id) {
@@ -95,7 +98,7 @@ and can make a more efficient set of HTTP requests to the underlying resource.
     }
     ```
 
-    _(See the [swapi example](./examples/swapi/swapi-server.js) to see this in context.)_
+    Check out the [swapi example](./examples/swapi/swapi-server.js) to see a working example of this.
 
 ## Batch Resources
 
@@ -140,7 +143,7 @@ resources:
         newKey: user_id
 ```
 
-See the docs for more information on how to configure resources.
+See [the full docs](./API_DOCS.md) for more information on how to configure resources.
 
 ## Contributing
 
