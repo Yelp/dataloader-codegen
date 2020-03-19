@@ -9,7 +9,7 @@ describe('unPartitionResults', () => {
         ]);
     });
 
-    it('should perform inverse mapping for result with Error in resultGroups', () => {
+    it('should perform inverse mapping for result with some Error in resultGroups', () => {
         const customError = new Error('bar error');
         expect(unPartitionResults([[0, 2], [1]], [[{ foo: 'foo' }, customError], [{ baz: 'baz' }]])).toEqual([
             { foo: 'foo' },
@@ -18,9 +18,9 @@ describe('unPartitionResults', () => {
         ]);
     });
 
-    it('should perform inverse mapping for result with Error as an item in resultGroups', () => {
+    it('should perform inverse mapping for result with all Error in one resultGroup', () => {
         const customError = new Error('foo error');
-        expect(unPartitionResults([[0, 2], [1]], [customError, [{ baz: 'baz' }]])).toEqual([
+        expect(unPartitionResults([[0, 2], [1]], [[customError, customError], [{ baz: 'baz' }]])).toEqual([
             customError,
             { baz: 'baz' },
             customError,

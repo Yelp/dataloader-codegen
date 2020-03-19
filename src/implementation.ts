@@ -249,6 +249,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                         )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '));
+
+                                    // Tell flow that "response" is actually an error object.
+                                    // (This is so we can pass it as 'cause' to CaughtResourceError)
+                                    invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                                 }
                             }
                         `;
