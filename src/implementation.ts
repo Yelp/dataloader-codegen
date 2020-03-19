@@ -250,8 +250,9 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '));
 
-                                    // Tell flow that "response" is actually an error object.
-                                    // (This is so we can pass it as 'cause' to CaughtResourceError)
+                                    // Tell flow that BatchItemNotFoundError extends Error.
+                                    // It's an issue with flowgen package, but not an issue with Flow.
+                                    // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
                                     invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                                 }
                             }
