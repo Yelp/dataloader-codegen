@@ -38,12 +38,14 @@ getLoaders(resources[, options])
 
     -   **`errorHandler`**
 
-        (Optional) Provide a function to wrap the underlying resource call. Useful if you want to handle 'expected' errors (e.g. 4xxs, 5xxs) before handing over to the resolver method.
+        (Optional) Provide a function to wrap the underlying resource call. Useful if you want to handle 'expected' errors or rejected promises from the resource function (e.g. 4xxs, 5xxs) before handing over to the resolver method.
+
+        Must return an Error object.
 
         **Interface:**
 
         ```js
-        errorHandler(resourcePath: Array<string>, error: Error): Promise<Error>
+        (resourcePath: $ReadOnlyArray<string>, error: any): Promise<Error>,
         ```
 
     -   **`resourceMiddleware`**
@@ -58,7 +60,7 @@ getLoaders(resources[, options])
             **Interface**:
 
             ```js
-            before(resourcePath: Array<string>, resourceArgs: T): Promise<T>
+            (resourcePath: $ReadOnlyArray<string>, resourceArgs: T): Promise<T>
             ```
 
         -   **`after`**
@@ -68,7 +70,7 @@ getLoaders(resources[, options])
             **Interface**:
 
             ```js
-            after(resourcePath: Array<string>, response: T): Promise<T>
+            (resourcePath: $ReadOnlyArray<string>, response: T): Promise<T>
             ```
 
 ### Example

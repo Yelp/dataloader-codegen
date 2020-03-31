@@ -5,6 +5,7 @@
 
 import _ from 'lodash';
 import AggregateError from 'aggregate-error';
+import ensureError from 'ensure-error';
 import invariant from 'assert';
 import objectHash from 'object-hash';
 
@@ -294,4 +295,12 @@ export function resultsDictToList<V>(
                 `${errorPrefix(resourcePath)} Could not find key = "${String(key)}" in the response dict.`,
             ),
     );
+}
+
+/**
+ * If no errorHandler option is passed to dataloader-codegen, we will use this by default.
+ */
+export async function defaultErrorHandler(resourcePath: ReadonlyArray<string>, error: any): Promise<Error> {
+    // The error handler must return an error object. Turn all rejected strings/objects into errors.
+    return ensureError(error);
 }

@@ -148,23 +148,25 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                             // Finally, call the resource!
                             response = await ${resourceReference}(...resourceArgs);
                         } catch (error) {
+                            const errorHandler = (options && typeof options.errorHandler === 'function') ? options.errorHandler : defaultErrorHandler;
+
                             /**
-                             * Apply some default error handling to catch and handle all errors/rejected promises.
+                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
                              *
                              * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
                              * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
-                             *
-                             * We use ensureError because 'error' might actually be a string or something in the case of a rejected promise.
                              */
-                            response = ensureError(error);
-                        }
+                            response = await errorHandler(${JSON.stringify(resourcePath)}, error);
 
-                        // If there's a custom error handler, do something with the error
-                        if (options && options.errorHandler && response instanceof Error) {
-                            response = await options.errorHandler(
-                                ${JSON.stringify(resourcePath)},
-                                response
-                            );
+                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                            if (!(response instanceof Error)) {
+                                response = new Error([
+                                    \`${errorPrefix(
+                                        resourcePath,
+                                    )} Caught an error, but errorHandler did not return an Error object.\`,
+                                    \`Instead, got \${typeof response}: \${util.inspect(response)}\`,
+                                ].join(' '));
+                            }
                         }
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
