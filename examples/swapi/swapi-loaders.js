@@ -4,16 +4,19 @@
  * !!! THIS FILE IS AUTO-GENERATED. CHANGES MAY BE OVERWRITTEN !!!
  */
 
+import util from 'util';
 import _ from 'lodash';
 import invariant from 'assert';
 import DataLoader from 'dataloader';
 import {
-    CaughtResourceError,
+    BatchItemNotFoundError,
     cacheKeyOptions,
+    CaughtResourceError,
+    defaultErrorHandler,
     partitionItems,
+    resultsDictToList,
     sortByKeys,
     unPartitionResults,
-    resultsDictToList,
 } from 'dataloader-codegen/lib/runtimeHelpers';
 
 /**
@@ -34,9 +37,10 @@ type ExtractArg = <Arg, Ret>([(Arg) => Ret]) => Arg;
 type ExtractPromisedReturnValue<A> = <R>((...A) => Promise<R>) => R;
 
 export type DataLoaderCodegenOptions = {|
+    errorHandler?: (resourcePath: $ReadOnlyArray<string>, error: any) => Promise<Error>,
     resourceMiddleware?: {|
-        before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => T,
-        after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => T,
+        before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => Promise<T>,
+        after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => Promise<T>,
     |},
 |};
 
@@ -284,11 +288,40 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             resourceArgs = await options.resourceMiddleware.before(['getPlanets'], resourceArgs);
                         }
 
-                        // Finally, call the resource!
-                        let response = await resources.getPlanets(...resourceArgs);
+                        let response;
+                        try {
+                            // Finally, call the resource!
+                            response = await resources.getPlanets(...resourceArgs);
+                        } catch (error) {
+                            const errorHandler =
+                                options && typeof options.errorHandler === 'function'
+                                    ? options.errorHandler
+                                    : defaultErrorHandler;
+
+                            /**
+                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                             *
+                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                             */
+                            response = await errorHandler(['getPlanets'], error);
+
+                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                            if (!(response instanceof Error)) {
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getPlanets] Caught an error, but errorHandler did not return an Error object.`,
+                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
+                                    ].join(' '),
+                                );
+                            }
+                        }
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
                             response = await options.resourceMiddleware.after(['getPlanets'], response);
+                        }
+
+                        if (!(response instanceof Error)) {
                         }
 
                         if (!(response instanceof Error)) {
@@ -313,12 +346,17 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                 /**
                                  * We must return errors for all keys in this group :(
                                  */
-                                response = new Error(
+                                response = new BatchItemNotFoundError(
                                     [
                                         `[dataloader-codegen :: getPlanets] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
+                                // Tell flow that BatchItemNotFoundError extends Error.
+                                // It's an issue with flowgen package, but not an issue with Flow.
+                                // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
+                                invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                             }
                         }
 
@@ -511,11 +549,40 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             resourceArgs = await options.resourceMiddleware.before(['getPeople'], resourceArgs);
                         }
 
-                        // Finally, call the resource!
-                        let response = await resources.getPeople(...resourceArgs);
+                        let response;
+                        try {
+                            // Finally, call the resource!
+                            response = await resources.getPeople(...resourceArgs);
+                        } catch (error) {
+                            const errorHandler =
+                                options && typeof options.errorHandler === 'function'
+                                    ? options.errorHandler
+                                    : defaultErrorHandler;
+
+                            /**
+                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                             *
+                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                             */
+                            response = await errorHandler(['getPeople'], error);
+
+                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                            if (!(response instanceof Error)) {
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getPeople] Caught an error, but errorHandler did not return an Error object.`,
+                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
+                                    ].join(' '),
+                                );
+                            }
+                        }
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
                             response = await options.resourceMiddleware.after(['getPeople'], response);
+                        }
+
+                        if (!(response instanceof Error)) {
                         }
 
                         if (!(response instanceof Error)) {
@@ -540,12 +607,17 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                 /**
                                  * We must return errors for all keys in this group :(
                                  */
-                                response = new Error(
+                                response = new BatchItemNotFoundError(
                                     [
                                         `[dataloader-codegen :: getPeople] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
+                                // Tell flow that BatchItemNotFoundError extends Error.
+                                // It's an issue with flowgen package, but not an issue with Flow.
+                                // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
+                                invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                             }
                         }
 
@@ -738,11 +810,40 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             resourceArgs = await options.resourceMiddleware.before(['getVehicles'], resourceArgs);
                         }
 
-                        // Finally, call the resource!
-                        let response = await resources.getVehicles(...resourceArgs);
+                        let response;
+                        try {
+                            // Finally, call the resource!
+                            response = await resources.getVehicles(...resourceArgs);
+                        } catch (error) {
+                            const errorHandler =
+                                options && typeof options.errorHandler === 'function'
+                                    ? options.errorHandler
+                                    : defaultErrorHandler;
+
+                            /**
+                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                             *
+                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                             */
+                            response = await errorHandler(['getVehicles'], error);
+
+                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                            if (!(response instanceof Error)) {
+                                response = new Error(
+                                    [
+                                        `[dataloader-codegen :: getVehicles] Caught an error, but errorHandler did not return an Error object.`,
+                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
+                                    ].join(' '),
+                                );
+                            }
+                        }
 
                         if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
                             response = await options.resourceMiddleware.after(['getVehicles'], response);
+                        }
+
+                        if (!(response instanceof Error)) {
                         }
 
                         if (!(response instanceof Error)) {
@@ -767,12 +868,17 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                 /**
                                  * We must return errors for all keys in this group :(
                                  */
-                                response = new Error(
+                                response = new BatchItemNotFoundError(
                                     [
                                         `[dataloader-codegen :: getVehicles] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
+                                // Tell flow that BatchItemNotFoundError extends Error.
+                                // It's an issue with flowgen package, but not an issue with Flow.
+                                // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
+                                invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                             }
                         }
 
