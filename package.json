@@ -1,6 +1,6 @@
 {
   "name": "dataloader-codegen",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "dataloader-codegen is an opinionated JavaScript library for automatically generating DataLoaders over a set of resources (e.g. HTTP endpoints)",
   "main": "lib/index.js",
   "contributors": [
