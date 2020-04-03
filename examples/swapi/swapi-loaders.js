@@ -37,7 +37,11 @@ type ExtractArg = <Arg, Ret>([(Arg) => Ret]) => Arg;
 type ExtractPromisedReturnValue<A> = <R>((...A) => Promise<R>) => R;
 
 export type DataLoaderCodegenOptions = {|
-    errorHandler?: (resourcePath: $ReadOnlyArray<string>, error: any) => Promise<Error>,
+    errorHandler?: (
+        resourcePath: $ReadOnlyArray<string>,
+        // $FlowFixMe: We don't know what type the resource might throw, so we have to type error to "any" :(
+        error: any,
+    ) => Promise<Error>,
     resourceMiddleware?: {|
         before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => Promise<T>,
         after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => Promise<T>,
