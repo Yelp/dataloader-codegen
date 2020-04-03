@@ -546,6 +546,11 @@ crypt@~0.0.1:
   resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
   integrity sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs=
 
+dataloader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.0.0.tgz#41eaf123db115987e21ca93c005cd7753c55fe6f"
+  integrity sha512-YzhyDAwA4TaQIhM5go+vCLmU0UikghC/t9DTQYZR2M/UvZ1MdOhPezSDZcjj9uqQJOMqjLcpWtyW2iNINdlatQ==
+
 debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -759,10 +764,10 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-flow-bin@0.111.3:
-  version "0.111.3"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.111.3.tgz#8653a413400ebc966097a47c81fb4e6b722a5921"
-  integrity sha512-Gn27aRTjSFicukZ/pq3raRERmSk9UWszhIK9eNtj6843L54YtK+jk2OkQWV70+VKi9LmWyfItCkhwoIVy7L2lA==
+flow-bin@0.122.0:
+  version "0.122.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.122.0.tgz#c723a2b33b1a70bd10204704ae1dc776d5d89d79"
+  integrity sha512-my8N5jgl/A+UVby9E7NDppHdhLgRbWgKbmFZSx2MSYMRh3d9YGnM2MM+wexpUpl0ftY1IM6ZcUwaAhrypLyvlA==
 
 flow-typed@^2.6.2:
   version "2.6.2"
@@ -934,12 +939,10 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
 
-graphql@15.0.0-alpha.1:
-  version "15.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-15.0.0-alpha.1.tgz#87b9a6b8825a8863e57ea1b1f261b1d406e88c63"
-  integrity sha512-TB/CnOxBPo7+mqtYX0cuKcLYWLiwy9VgCWad9XcsrwfoGMuijiQH1CMsGKEhCirMN8FmRjm1o4C3MPn8PcOxxg==
-  dependencies:
-    iterall "^1.2.2"
+graphql@15.0.0:
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-15.0.0.tgz#042a5eb5e2506a2e2111ce41eb446a8e570b8be9"
+  integrity sha512-ZyVO1xIF9F+4cxfkdhOJINM+51B06Friuv4M66W7HzUOeFd+vNzUn4vtswYINPi6sysjf1M2Ri/rwZALqgwbaQ==
 
 has-flag@^3.0.0:
   version "3.0.0"
@@ -1249,11 +1252,6 @@ isurl@^1.0.0-alpha5:
   dependencies:
     has-to-string-tag-x "^1.2.0"
     is-object "^1.0.1"
-
-iterall@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.2.2.tgz#92d70deb8028e0c39ff3164fdbf4d8b088130cd7"
-  integrity sha512-yynBb1g+RFUPY64fTrFv7nsjRrENBQJaX2UL+2Szc9REFrSNm1rpSXHGzhmAy7a9uv3vlvgBlXnf9RqmPH1/DA==
 
 js-tokens@^4.0.0:
   version "4.0.0"

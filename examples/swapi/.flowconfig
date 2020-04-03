@@ -4,3 +4,9 @@ unclear-type
 unsafe-getters-setters
 untyped-import
 untyped-type-import
+
+[lints]
+uninitialized-instance-property=error
+
+[options]
+esproposal.optional_chaining=enable
