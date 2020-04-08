@@ -5,6 +5,8 @@
 
 dataloader-codegen is an opinionated JavaScript library for automagically generating [DataLoaders](https://github.com/graphql/dataloader) over a set of resources (e.g. HTTP endpoints), with a predictable interface, and maintains type safety.
 
+Read more about the motivation behind this library in our recent blog post: https://engineeringblog.yelp.com/2020/04/open-sourcing-dataloader-codegen.html
+
 ![header](./images/header.png)
 
 **Features**:
