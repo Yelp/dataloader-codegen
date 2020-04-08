@@ -25,6 +25,8 @@ $ yarn add --dev dataloader-codegen
 
 ## Why?
 
+_See: https://engineeringblog.yelp.com/2020/04/open-sourcing-dataloader-codegen.html_
+
 We believe the DataLoader layer should be (mostly) transparent when implementing
 a GraphQL server over a set of existing resources (e.g. HTTP API Endpoints).
 
