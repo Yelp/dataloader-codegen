@@ -8,5 +8,6 @@ swapi-loaders.js:
 flow-typed: node_modules
 	yarn flow-typed install
 
+.PHONY: build
 build: node_modules
 	yarn babel *.js -d build

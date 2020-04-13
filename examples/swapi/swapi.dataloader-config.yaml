@@ -8,20 +8,20 @@ typings:
 
 resources:
     getPlanets:
-        docsLink: https://swapi.co/documentation#planets
+        docsLink: https://swapi.dev/documentation#planets
         isBatchResource: true
         batchKey: planet_ids
         newKey: planet_id
     getPeople:
-        docsLink: https://swapi.co/documentation#people
+        docsLink: https://swapi.dev/documentation#people
         isBatchResource: true
         batchKey: people_ids
         newKey: person_id
     getVehicles:
-        docsLink: https://swapi.co/documentation#vehicles
+        docsLink: https://swapi.dev/documentation#vehicles
         isBatchResource: true
         batchKey: vehicle_ids
         newKey: vehicle_id
     getRoot:
-        docsLink: https://swapi.co/documentation#root
+        docsLink: https://swapi.dev/documentation#root
         isBatchResource: false

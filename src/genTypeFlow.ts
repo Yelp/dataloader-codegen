@@ -98,7 +98,12 @@ export function getLoaderType(resourceConfig: ResourceConfig, resourcePath: Read
     const key = getLoaderTypeKey(resourceConfig, resourcePath);
     const val = getLoaderTypeVal(resourceConfig, resourcePath);
 
-    return `DataLoader<${key}, ${val}>`;
+    return `DataLoader<
+        ${key},
+        ${val},
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
+    >`;
 }
 
 export function getLoadersTypeMap(

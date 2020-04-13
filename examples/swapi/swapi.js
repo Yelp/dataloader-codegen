@@ -1,11 +1,11 @@
 /**
- * Clientlib for a subset of data in https://swapi.co/
+ * Clientlib for a subset of data in https://swapi.dev/
  * @flow
  */
 
 const url = require('url');
 const fetch = require('node-fetch').default;
-const SWAPI_URL = 'https://swapi.co/api/';
+const SWAPI_URL = 'https://swapi.dev/api/';
 
 export type SWAPI_Planet = $ReadOnly<{|
     name: string,
