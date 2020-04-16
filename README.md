@@ -58,12 +58,12 @@ and can make a more efficient set of HTTP requests to the underlying resource.
     ```yaml
     resources:
         getPeople:
-            docsLink: https://swapi.co/documentation#people
+            docsLink: https://swapi.dev/documentation#people
             isBatchResource: true
             batchKey: people_ids
             newKey: person_id
         getPlanets:
-            docsLink: https://swapi.co/documentation#planets
+            docsLink: https://swapi.dev/documentation#planets
             isBatchResource: true
             batchKey: planet_ids
             newKey: planet_id
@@ -85,7 +85,7 @@ and can make a more efficient set of HTTP requests to the underlying resource.
     ```js
     import getLoaders from './__codegen__/swapi-loaders';
 
-    // StarWarsAPI is a clientlib containing fetch calls to swapi.co
+    // StarWarsAPI is a clientlib containing fetch calls to swapi.dev
     // getLoaders is the function that dataloader-codegen generates for us
     const swapiLoaders = getLoaders(StarWarsAPI);
 

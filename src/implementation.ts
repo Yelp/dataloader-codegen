@@ -24,6 +24,62 @@ function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: Readonly
     `;
 }
 
+function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
+    // The reference at runtime to where the underlying resource lives
+    const resourceReference = ['resources', ...resourcePath].join('.');
+
+    // Call the underlying resource, wrapped with our middleware and error handling.
+    // Uses an iife so the result variable is assignable at the callsite (for readability)
+    return `
+        (async _resourceArgs => {
+            // Make a re-assignable variable so flow/eslint doesn't complain
+            let __resourceArgs = _resourceArgs;
+
+            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                __resourceArgs = await options.resourceMiddleware.before(
+                    ${JSON.stringify(resourcePath)},
+                    __resourceArgs
+                );
+            }
+
+            let _response;
+            try {
+                // Finally, call the resource!
+                _response = await ${resourceReference}(...__resourceArgs);
+            } catch (error) {
+                const errorHandler = (options && typeof options.errorHandler === 'function') ? options.errorHandler : defaultErrorHandler;
+
+                /**
+                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                 *
+                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                 */
+                _response = await errorHandler(${JSON.stringify(resourcePath)}, error);
+
+                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                if (!(_response instanceof Error)) {
+                    _response = new Error([
+                        \`${errorPrefix(
+                            resourcePath,
+                        )} Caught an error, but errorHandler did not return an Error object.\`,
+                        \`Instead, got \${typeof _response}: \${util.inspect(_response)}\`,
+                    ].join(' '));
+                }
+            }
+
+            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                _response = await options.resourceMiddleware.after(
+                    ${JSON.stringify(resourcePath)},
+                    _response
+                );
+            }
+
+            return _response;
+        })
+    `;
+}
+
 function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === true,
@@ -36,14 +92,14 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
     return `\
         new DataLoader<
             ${getLoaderTypeKey(resourceConfig, resourcePath)},
-            ${getLoaderTypeVal(resourceConfig, resourcePath)}
+            ${getLoaderTypeVal(resourceConfig, resourcePath)},
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(${getLoaderComment(resourceConfig, resourcePath)} async (keys) => {
-            if (typeof ${resourceReference} !== 'function') {
-                return Promise.reject([
-                    '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
-                    'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
-                ].join(' '));
-            }
+            invariant(typeof ${resourceReference} === 'function', [
+                '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
+                'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
+            ].join(' '));
 
             /**
              * Chunk up the "keys" array to create a set of "request groups".
@@ -131,52 +187,16 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     }
 
                     return `
-                        let resourceArgs = [{
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [{
                             ..._.omit(requests[0], '${resourceConfig.newKey}'),
                             ${batchKeyParam},
                         }];
-
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
-                            resourceArgs = await options.resourceMiddleware.before(
-                                ${JSON.stringify(resourcePath)},
-                                resourceArgs
-                            );
-                        }
-
-                        let response;
-                        try {
-                            // Finally, call the resource!
-                            response = await ${resourceReference}(...resourceArgs);
-                        } catch (error) {
-                            const errorHandler = (options && typeof options.errorHandler === 'function') ? options.errorHandler : defaultErrorHandler;
-
-                            /**
-                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
-                             *
-                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
-                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
-                             */
-                            response = await errorHandler(${JSON.stringify(resourcePath)}, error);
-
-                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
-                            if (!(response instanceof Error)) {
-                                response = new Error([
-                                    \`${errorPrefix(
-                                        resourcePath,
-                                    )} Caught an error, but errorHandler did not return an Error object.\`,
-                                    \`Instead, got \${typeof response}: \${util.inspect(response)}\`,
-                                ].join(' '));
-                            }
-                        }
-
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
-                            response = await options.resourceMiddleware.after(
-                                ${JSON.stringify(resourcePath)},
-                                response
-                            );
-                        }
                     `;
                 })()}
+
+                let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
 
                 if (!(response instanceof Error)) {
                     ${(() => {
@@ -394,20 +414,24 @@ function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath:
     return `\
         new DataLoader<
             ${getLoaderTypeKey(resourceConfig, resourcePath)},
-            ${getLoaderTypeVal(resourceConfig, resourcePath)}
+            ${getLoaderTypeVal(resourceConfig, resourcePath)},
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(${getLoaderComment(resourceConfig, resourcePath)} async (keys) => {
-            const response = await Promise.all(keys.map(key => {
-                if (typeof ${resourceReference} !== 'function') {
-                    return Promise.reject([
-                        '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
-                        'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
-                    ].join(' '));
-                }
+            const responses = await Promise.all(keys.map(async key => {
+                invariant(typeof ${resourceReference} === 'function', [
+                    '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
+                    'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
+                ].join(' '));
 
-                return ${resourceReference}(key);
+                // For now, we assume that the dataloader key should be the first argument to the resource
+                // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                const resourceArgs = [key];
+
+                return await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
             }));
 
-            return response;
+            return responses;
         },
         {
             ...cacheKeyOptions

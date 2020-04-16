@@ -87,6 +87,8 @@ export type LoadersType = $ReadOnly<{|
             >,
             0,
         >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
     >,
     getPeople: DataLoader<
         {|
@@ -113,6 +115,8 @@ export type LoadersType = $ReadOnly<{|
             >,
             0,
         >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
     >,
     getVehicles: DataLoader<
         {|
@@ -139,6 +143,8 @@ export type LoadersType = $ReadOnly<{|
             >,
             0,
         >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
     >,
     getRoot: DataLoader<
         $Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>,
@@ -146,6 +152,8 @@ export type LoadersType = $ReadOnly<{|
             ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>]>,
             $PropertyType<ResourcesType, 'getRoot'>,
         >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
     >,
 |}>;
 
@@ -176,6 +184,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 >,
                 0,
             >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(
             /**
              * ===============================================================
@@ -186,7 +196,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *
              * ```json
              * {
-             *   "docsLink": "https://swapi.co/documentation#planets",
+             *   "docsLink": "https://swapi.dev/documentation#planets",
              *   "isBatchResource": true,
              *   "batchKey": "planet_ids",
              *   "newKey": "planet_id"
@@ -194,14 +204,13 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * ```
              */
             async keys => {
-                if (typeof resources.getPlanets !== 'function') {
-                    return Promise.reject(
-                        [
-                            '[dataloader-codegen :: getPlanets] resources.getPlanets is not a function.',
-                            'Did you pass in an instance of getPlanets to "getLoaders"?',
-                        ].join(' '),
-                    );
-                }
+                invariant(
+                    typeof resources.getPlanets === 'function',
+                    [
+                        '[dataloader-codegen :: getPlanets] resources.getPlanets is not a function.',
+                        'Did you pass in an instance of getPlanets to "getLoaders"?',
+                    ].join(' '),
+                );
 
                 /**
                  * Chunk up the "keys" array to create a set of "request groups".
@@ -281,49 +290,61 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          */
                         const requests = requestIDs.map(id => keys[id]);
 
-                        let resourceArgs = [
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'planet_id'),
                                 ['planet_ids']: requests.map(k => k['planet_id']),
                             },
                         ];
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
-                            resourceArgs = await options.resourceMiddleware.before(['getPlanets'], resourceArgs);
-                        }
+                        let response = await (async _resourceArgs => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
 
-                        let response;
-                        try {
-                            // Finally, call the resource!
-                            response = await resources.getPlanets(...resourceArgs);
-                        } catch (error) {
-                            const errorHandler =
-                                options && typeof options.errorHandler === 'function'
-                                    ? options.errorHandler
-                                    : defaultErrorHandler;
-
-                            /**
-                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
-                             *
-                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
-                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
-                             */
-                            response = await errorHandler(['getPlanets'], error);
-
-                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
-                            if (!(response instanceof Error)) {
-                                response = new Error(
-                                    [
-                                        `[dataloader-codegen :: getPlanets] Caught an error, but errorHandler did not return an Error object.`,
-                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
-                                    ].join(' '),
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(
+                                    ['getPlanets'],
+                                    __resourceArgs,
                                 );
                             }
-                        }
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
-                            response = await options.resourceMiddleware.after(['getPlanets'], response);
-                        }
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getPlanets(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getPlanets'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getPlanets] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getPlanets'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
 
                         if (!(response instanceof Error)) {
                         }
@@ -437,6 +458,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 >,
                 0,
             >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(
             /**
              * ===============================================================
@@ -447,7 +470,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *
              * ```json
              * {
-             *   "docsLink": "https://swapi.co/documentation#people",
+             *   "docsLink": "https://swapi.dev/documentation#people",
              *   "isBatchResource": true,
              *   "batchKey": "people_ids",
              *   "newKey": "person_id"
@@ -455,14 +478,13 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * ```
              */
             async keys => {
-                if (typeof resources.getPeople !== 'function') {
-                    return Promise.reject(
-                        [
-                            '[dataloader-codegen :: getPeople] resources.getPeople is not a function.',
-                            'Did you pass in an instance of getPeople to "getLoaders"?',
-                        ].join(' '),
-                    );
-                }
+                invariant(
+                    typeof resources.getPeople === 'function',
+                    [
+                        '[dataloader-codegen :: getPeople] resources.getPeople is not a function.',
+                        'Did you pass in an instance of getPeople to "getLoaders"?',
+                    ].join(' '),
+                );
 
                 /**
                  * Chunk up the "keys" array to create a set of "request groups".
@@ -542,49 +564,58 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          */
                         const requests = requestIDs.map(id => keys[id]);
 
-                        let resourceArgs = [
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'person_id'),
                                 ['people_ids']: requests.map(k => k['person_id']),
                             },
                         ];
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
-                            resourceArgs = await options.resourceMiddleware.before(['getPeople'], resourceArgs);
-                        }
+                        let response = await (async _resourceArgs => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
 
-                        let response;
-                        try {
-                            // Finally, call the resource!
-                            response = await resources.getPeople(...resourceArgs);
-                        } catch (error) {
-                            const errorHandler =
-                                options && typeof options.errorHandler === 'function'
-                                    ? options.errorHandler
-                                    : defaultErrorHandler;
-
-                            /**
-                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
-                             *
-                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
-                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
-                             */
-                            response = await errorHandler(['getPeople'], error);
-
-                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
-                            if (!(response instanceof Error)) {
-                                response = new Error(
-                                    [
-                                        `[dataloader-codegen :: getPeople] Caught an error, but errorHandler did not return an Error object.`,
-                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
-                                    ].join(' '),
-                                );
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(['getPeople'], __resourceArgs);
                             }
-                        }
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
-                            response = await options.resourceMiddleware.after(['getPeople'], response);
-                        }
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getPeople(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getPeople'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getPeople] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getPeople'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
 
                         if (!(response instanceof Error)) {
                         }
@@ -698,6 +729,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 >,
                 0,
             >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(
             /**
              * ===============================================================
@@ -708,7 +741,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *
              * ```json
              * {
-             *   "docsLink": "https://swapi.co/documentation#vehicles",
+             *   "docsLink": "https://swapi.dev/documentation#vehicles",
              *   "isBatchResource": true,
              *   "batchKey": "vehicle_ids",
              *   "newKey": "vehicle_id"
@@ -716,14 +749,13 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * ```
              */
             async keys => {
-                if (typeof resources.getVehicles !== 'function') {
-                    return Promise.reject(
-                        [
-                            '[dataloader-codegen :: getVehicles] resources.getVehicles is not a function.',
-                            'Did you pass in an instance of getVehicles to "getLoaders"?',
-                        ].join(' '),
-                    );
-                }
+                invariant(
+                    typeof resources.getVehicles === 'function',
+                    [
+                        '[dataloader-codegen :: getVehicles] resources.getVehicles is not a function.',
+                        'Did you pass in an instance of getVehicles to "getLoaders"?',
+                    ].join(' '),
+                );
 
                 /**
                  * Chunk up the "keys" array to create a set of "request groups".
@@ -803,49 +835,61 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          */
                         const requests = requestIDs.map(id => keys[id]);
 
-                        let resourceArgs = [
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'vehicle_id'),
                                 ['vehicle_ids']: requests.map(k => k['vehicle_id']),
                             },
                         ];
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
-                            resourceArgs = await options.resourceMiddleware.before(['getVehicles'], resourceArgs);
-                        }
+                        let response = await (async _resourceArgs => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
 
-                        let response;
-                        try {
-                            // Finally, call the resource!
-                            response = await resources.getVehicles(...resourceArgs);
-                        } catch (error) {
-                            const errorHandler =
-                                options && typeof options.errorHandler === 'function'
-                                    ? options.errorHandler
-                                    : defaultErrorHandler;
-
-                            /**
-                             * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
-                             *
-                             * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
-                             * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
-                             */
-                            response = await errorHandler(['getVehicles'], error);
-
-                            // Check that errorHandler actually returned an Error object, and turn it into one if not.
-                            if (!(response instanceof Error)) {
-                                response = new Error(
-                                    [
-                                        `[dataloader-codegen :: getVehicles] Caught an error, but errorHandler did not return an Error object.`,
-                                        `Instead, got ${typeof response}: ${util.inspect(response)}`,
-                                    ].join(' '),
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(
+                                    ['getVehicles'],
+                                    __resourceArgs,
                                 );
                             }
-                        }
 
-                        if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
-                            response = await options.resourceMiddleware.after(['getVehicles'], response);
-                        }
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getVehicles(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getVehicles'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getVehicles] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getVehicles'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
 
                         if (!(response instanceof Error)) {
                         }
@@ -940,6 +984,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>]>,
                 $PropertyType<ResourcesType, 'getRoot'>,
             >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
         >(
             /**
              * ===============================================================
@@ -950,28 +996,73 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *
              * ```json
              * {
-             *   "docsLink": "https://swapi.co/documentation#root",
+             *   "docsLink": "https://swapi.dev/documentation#root",
              *   "isBatchResource": false
              * }
              * ```
              */
             async keys => {
-                const response = await Promise.all(
-                    keys.map(key => {
-                        if (typeof resources.getRoot !== 'function') {
-                            return Promise.reject(
-                                [
-                                    '[dataloader-codegen :: getRoot] resources.getRoot is not a function.',
-                                    'Did you pass in an instance of getRoot to "getLoaders"?',
-                                ].join(' '),
-                            );
-                        }
+                const responses = await Promise.all(
+                    keys.map(async key => {
+                        invariant(
+                            typeof resources.getRoot === 'function',
+                            [
+                                '[dataloader-codegen :: getRoot] resources.getRoot is not a function.',
+                                'Did you pass in an instance of getRoot to "getLoaders"?',
+                            ].join(' '),
+                        );
 
-                        return resources.getRoot(key);
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [key];
+
+                        return await (async _resourceArgs => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(['getRoot'], __resourceArgs);
+                            }
+
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getRoot(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getRoot'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getRoot] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getRoot'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
                     }),
                 );
 
-                return response;
+                return responses;
             },
             {
                 ...cacheKeyOptions,

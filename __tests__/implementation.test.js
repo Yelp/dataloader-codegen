@@ -939,7 +939,7 @@ test('middleware can transform the request args and the resource response', asyn
     });
 });
 
-test('returning custom errors from error handler is supported', async () => {
+test('[isBatchResource: true] returning custom errors from error handler is supported', async () => {
     class MyCustomError extends Error {
         constructor(...args) {
             super(...args);
@@ -992,6 +992,73 @@ test('returning custom errors from error handler is supported', async () => {
                         extra_stuff: 'lorem ipsum',
                     },
                 ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async getLoaders => {
+        const loaders = getLoaders(resources, { errorHandler });
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
+
+        expect(results).toMatchObject([
+            expect.toBeError(/hello from custom error object/, 'MyCustomError'),
+            { foo_id: 2, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+            expect.toBeError(/hello from custom error object/, 'MyCustomError'),
+            { foo_id: 4, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+            { foo_id: 5, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+        ]);
+
+        expect(results[0]).toHaveProperty('foo', 'bar');
+        expect(results[2]).toHaveProperty('foo', 'bar');
+    });
+});
+
+test('[isBatchResource: false] returning custom errors from error handler is supported', async () => {
+    class MyCustomError extends Error {
+        constructor(...args) {
+            super(...args);
+            this.name = this.constructor.name;
+            this.foo = 'bar';
+            Error.captureStackTrace(this, MyCustomError);
+        }
+    }
+
+    function errorHandler(resourcePath, error) {
+        expect(resourcePath).toEqual(['foo']);
+        expect(error.message).toBe('yikes');
+        return new MyCustomError('hello from custom error object');
+    }
+
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: false,
+                docsLink: 'example.com/docs/bar',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_id, include_extra_info }) => {
+            if ([1, 3].includes(foo_id)) {
+                expect(include_extra_info).toBe(false);
+                throw new Error('yikes');
+            }
+
+            if ([2, 4, 5].includes(foo_id)) {
+                expect(include_extra_info).toBe(true);
+                return Promise.resolve({
+                    foo_id,
+                    foo_value: 'greetings',
+                    extra_stuff: 'lorem ipsum',
+                });
             }
         },
     };
