@@ -84,7 +84,7 @@ test('non batch endpoint', async () => {
             ),
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ bar_id: 1 }, { bar_id: 2 }]);
@@ -118,7 +118,7 @@ test('batch endpoint', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -154,7 +154,7 @@ test('batch endpoint (with reorderResultsByKey)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -192,7 +192,7 @@ test('batch endpoint (with nestedPath)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -228,7 +228,7 @@ test('batch endpoint (with commaSeparatedBatchKey)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -275,7 +275,7 @@ test('batch endpoint (multiple requests)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -334,7 +334,7 @@ test('batch endpoint that rejects', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -398,7 +398,7 @@ test('batch endpoint (multiple requests, default error handling)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -467,7 +467,7 @@ test('batch endpoint (multiple requests, custom error handling)', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources, { errorHandler });
 
         const results = await loaders.foo.loadMany([
@@ -534,7 +534,7 @@ test('batch endpoint (multiple requests, error handling, nestedPath)', async () 
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -585,7 +585,7 @@ test('batch endpoint (multiple requests, error handling - non array response)', 
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -650,7 +650,7 @@ test('batch endpoint (multiple requests, error handling, with reordering)', asyn
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -716,7 +716,7 @@ test('batch endpoint without reorderResultsByKey throws error for response with 
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -785,7 +785,7 @@ test('batch endpoint with reorderResultsByKey handles response with non existant
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
@@ -825,13 +825,13 @@ test('batch endpoint with isResponseDictionary handles a response that returns a
             expect(foo_ids).toEqual([1, 2, 3]);
             return Promise.resolve({
                 2: { foo_id: 2, foo_value: 'world' },
-                '1': { foo_id: 1, foo_value: 'hello' },
+                1: { foo_id: 1, foo_value: 'hello' },
                 3: { foo_id: 3, foo_value: '!' },
             });
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -860,13 +860,13 @@ test('batch endpoint with isResponseDictionary handles a response that returns a
         foo: ({ foo_ids }) => {
             expect(foo_ids).toEqual([1, 2, 3]);
             return Promise.resolve({
-                '1': { foo_id: 1, foo_value: 'hello' },
+                1: { foo_id: 1, foo_value: 'hello' },
                 3: { foo_id: 3, foo_value: '!' },
             });
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
@@ -927,7 +927,7 @@ test('middleware can transform the request args and the resource response', asyn
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources, { resourceMiddleware: { before, after } });
 
         const results = await loaders.foo.loadMany([{ foo_id: 100 }, { foo_id: 200 }, { foo_id: 300 }]);
@@ -996,7 +996,7 @@ test('[isBatchResource: true] returning custom errors from error handler is supp
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources, { errorHandler });
 
         const results = await loaders.foo.loadMany([
@@ -1063,7 +1063,7 @@ test('[isBatchResource: false] returning custom errors from error handler is sup
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources, { errorHandler });
 
         const results = await loaders.foo.loadMany([
@@ -1144,7 +1144,7 @@ test('bail if errorHandler does not return an error', async () => {
         },
     };
 
-    await createDataLoaders(config, async getLoaders => {
+    await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources, { errorHandler });
 
         const results = await loaders.foo.loadMany([

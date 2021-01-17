@@ -9,13 +9,13 @@ function getLoaders(config: object, paths: Array<Array<string>>, current: Array<
         return getLoaderImplementation(_.get(config, current.join('.')), current);
     }
 
-    const nextValues = _.uniq(paths.map(p => p[0]));
+    const nextValues = _.uniq(paths.map((p) => p[0]));
 
     const objectProperties: Array<string> = nextValues.map(
-        nextVal =>
+        (nextVal) =>
             `${nextVal}: ${getLoaders(
                 config,
-                paths.filter(p => p[0] === nextVal).map(p => p.slice(1)),
+                paths.filter((p) => p[0] === nextVal).map((p) => p.slice(1)),
                 [...current, nextVal],
             )},`,
     );
@@ -40,7 +40,7 @@ export default function codegen(
     runtimeHelpers: string = 'dataloader-codegen/lib/runtimeHelpers',
 ) {
     const types = getResourcePaths(config.resources)
-        .map(resourcePath => getLoaderType(_.get(config.resources, resourcePath.join('.')), resourcePath))
+        .map((resourcePath) => getLoaderType(_.get(config.resources, resourcePath.join('.')), resourcePath))
         .join('\n');
 
     const { printResourceTypeImports, printResourcesType } = getResourceTypings(config);

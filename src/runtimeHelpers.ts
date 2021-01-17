@@ -177,7 +177,7 @@ export function sortByKeys<V>({
     // Loop through the keys and for each one retrieve proper item. For missing
     // items, generate an BatchItemNotFoundError. (This can be caught specifically in resolvers.)
     return keys.map(
-        key =>
+        (key) =>
             itemsMap.get(String(key)) ||
             new BatchItemNotFoundError(
                 `${errorPrefix(resourcePath)} Response did not contain item with ${prop} = ${String(key)}`,
@@ -243,8 +243,8 @@ export function unPartitionResults<T>(
 
     // Now that we have a sorted array, return the actual results!
     return sortedResults
-        .map(r => r.result)
-        .map(result => {
+        .map((r) => r.result)
+        .map((result) => {
             if (result instanceof CaughtResourceError) {
                 return result.cause;
             } else {
@@ -289,7 +289,7 @@ export function resultsDictToList<V>(
     resourcePath: ReadonlyArray<string>,
 ): ReadonlyArray<V | Error> {
     return keys.map(
-        key =>
+        (key) =>
             response[String(key)] ||
             new BatchItemNotFoundError(
                 `${errorPrefix(resourcePath)} Could not find key = "${String(key)}" in the response dict.`,

@@ -6,7 +6,7 @@ import { errorPrefix } from './runtimeHelpers';
 function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
     const configComment = JSON.stringify(resourceConfig, null, 2)
         .split('\n')
-        .map(line => `* ${line}`)
+        .map((line) => `* ${line}`)
         .join('\n');
 
     return `
