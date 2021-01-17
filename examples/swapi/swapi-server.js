@@ -72,7 +72,7 @@ const createSWAPIServer = () => {
     return { schema, root };
 };
 
-const runQuery = query => {
+const runQuery = (query) => {
     const { schema, root } = createSWAPIServer();
     return graphql(schema, query, root);
 };
@@ -91,6 +91,6 @@ runQuery(/* GraphQL */ `
             name
         }
     }
-`).then(result => {
+`).then((result) => {
     console.log(JSON.stringify(result, null, 4));
 });

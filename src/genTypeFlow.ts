@@ -115,13 +115,13 @@ export function getLoadersTypeMap(
         return getLoaderType(_.get(config, current.join('.')), current);
     }
 
-    const nextValues = _.uniq(paths.map(p => p[0]));
+    const nextValues = _.uniq(paths.map((p) => p[0]));
 
     const objectProperties: ReadonlyArray<string> = nextValues.map(
-        nextVal =>
+        (nextVal) =>
             `${nextVal}: ${getLoadersTypeMap(
                 config,
-                paths.filter(p => p[0] === nextVal).map(p => p.slice(1)),
+                paths.filter((p) => p[0] === nextVal).map((p) => p.slice(1)),
                 [...current, nextVal],
             )},`,
     );

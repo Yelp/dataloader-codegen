@@ -203,7 +203,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * }
              * ```
              */
-            async keys => {
+            async (keys) => {
                 invariant(
                     typeof resources.getPlanets === 'function',
                     [
@@ -280,7 +280,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
-                    requestGroups.map(async requestIDs => {
+                    requestGroups.map(async (requestIDs) => {
                         /**
                          * Select a set of elements in "keys", where all non-batch
                          * keys should be identical.
@@ -288,18 +288,18 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * We're going to smoosh all these together into one payload to
                          * send to the resource as a batch request!
                          */
-                        const requests = requestIDs.map(id => keys[id]);
+                        const requests = requestIDs.map((id) => keys[id]);
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'planet_id'),
-                                ['planet_ids']: requests.map(k => k['planet_id']),
+                                ['planet_ids']: requests.map((k) => k['planet_id']),
                             },
                         ];
 
-                        let response = await (async _resourceArgs => {
+                        let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
 
@@ -396,7 +396,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * @see https://github.com/graphql/dataloader#caching-errors
                          */
                         if (response instanceof Error) {
-                            response = requestIDs.map(requestId => {
+                            response = requestIDs.map((requestId) => {
                                 /**
                                  * Since we're returning an error object and not the
                                  * expected return type from the resource, this element
@@ -477,7 +477,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * }
              * ```
              */
-            async keys => {
+            async (keys) => {
                 invariant(
                     typeof resources.getPeople === 'function',
                     [
@@ -554,7 +554,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
-                    requestGroups.map(async requestIDs => {
+                    requestGroups.map(async (requestIDs) => {
                         /**
                          * Select a set of elements in "keys", where all non-batch
                          * keys should be identical.
@@ -562,18 +562,18 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * We're going to smoosh all these together into one payload to
                          * send to the resource as a batch request!
                          */
-                        const requests = requestIDs.map(id => keys[id]);
+                        const requests = requestIDs.map((id) => keys[id]);
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'person_id'),
-                                ['people_ids']: requests.map(k => k['person_id']),
+                                ['people_ids']: requests.map((k) => k['person_id']),
                             },
                         ];
 
-                        let response = await (async _resourceArgs => {
+                        let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
 
@@ -667,7 +667,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * @see https://github.com/graphql/dataloader#caching-errors
                          */
                         if (response instanceof Error) {
-                            response = requestIDs.map(requestId => {
+                            response = requestIDs.map((requestId) => {
                                 /**
                                  * Since we're returning an error object and not the
                                  * expected return type from the resource, this element
@@ -748,7 +748,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * }
              * ```
              */
-            async keys => {
+            async (keys) => {
                 invariant(
                     typeof resources.getVehicles === 'function',
                     [
@@ -825,7 +825,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
-                    requestGroups.map(async requestIDs => {
+                    requestGroups.map(async (requestIDs) => {
                         /**
                          * Select a set of elements in "keys", where all non-batch
                          * keys should be identical.
@@ -833,18 +833,18 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * We're going to smoosh all these together into one payload to
                          * send to the resource as a batch request!
                          */
-                        const requests = requestIDs.map(id => keys[id]);
+                        const requests = requestIDs.map((id) => keys[id]);
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [
                             {
                                 ..._.omit(requests[0], 'vehicle_id'),
-                                ['vehicle_ids']: requests.map(k => k['vehicle_id']),
+                                ['vehicle_ids']: requests.map((k) => k['vehicle_id']),
                             },
                         ];
 
-                        let response = await (async _resourceArgs => {
+                        let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
 
@@ -941,7 +941,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                          * @see https://github.com/graphql/dataloader#caching-errors
                          */
                         if (response instanceof Error) {
-                            response = requestIDs.map(requestId => {
+                            response = requestIDs.map((requestId) => {
                                 /**
                                  * Since we're returning an error object and not the
                                  * expected return type from the resource, this element
@@ -1001,9 +1001,9 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              * }
              * ```
              */
-            async keys => {
+            async (keys) => {
                 const responses = await Promise.all(
-                    keys.map(async key => {
+                    keys.map(async (key) => {
                         invariant(
                             typeof resources.getRoot === 'function',
                             [
@@ -1016,7 +1016,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [key];
 
-                        return await (async _resourceArgs => {
+                        return await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
 

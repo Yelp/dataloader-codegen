@@ -64,14 +64,20 @@ export type SWAPIClientlibTypes = {|
     getRoot: ({||}) => Promise<SWAPI_Root>,
 |};
 
-module.exports = function(): SWAPIClientlibTypes {
+module.exports = function (): SWAPIClientlibTypes {
     return {
         getPlanets: ({ planet_ids }) =>
-            Promise.all(planet_ids.map(id => fetch(url.resolve(SWAPI_URL, `planets/${id}`)).then(res => res.json()))),
+            Promise.all(
+                planet_ids.map((id) => fetch(url.resolve(SWAPI_URL, `planets/${id}`)).then((res) => res.json())),
+            ),
         getPeople: ({ people_ids }) =>
-            Promise.all(people_ids.map(id => fetch(url.resolve(SWAPI_URL, `people/${id}`)).then(res => res.json()))),
+            Promise.all(
+                people_ids.map((id) => fetch(url.resolve(SWAPI_URL, `people/${id}`)).then((res) => res.json())),
+            ),
         getVehicles: ({ vehicle_ids }) =>
-            Promise.all(vehicle_ids.map(id => fetch(url.resolve(SWAPI_URL, `vehicles/${id}`)).then(res => res.json()))),
-        getRoot: ({}) => fetch(SWAPI_URL).then(res => res.json()),
+            Promise.all(
+                vehicle_ids.map((id) => fetch(url.resolve(SWAPI_URL, `vehicles/${id}`)).then((res) => res.json())),
+            ),
+        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
     };
 };
