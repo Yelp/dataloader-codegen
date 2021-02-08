@@ -1139,10 +1139,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/prettier@^1.18.3":
-  version "1.18.3"
-  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.18.3.tgz#64ff53329ce16139f17c3db9d3e0487199972cd8"
-  integrity sha512-48rnerQdcZ26odp+HOvDGX8IcUkYOCuMc2BodWYTe956MqkHlOGAG4oFQ83cjZ0a4GAgj7mb4GUClxYd2Hlodg==
+"@types/prettier@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.2.0.tgz#a4e8205a4955690eef712a6d0394a1d2e121e721"
+  integrity sha512-O3SQC6+6AySHwrspYn2UvC6tjo6jCTMMmylxZUFhE1CulVu5l3AxU6ca9lrJDTQDVllF62LIxVSx5fuYL6LiZg==
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
