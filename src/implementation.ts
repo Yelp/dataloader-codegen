@@ -27,7 +27,6 @@ function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: Readonly
 function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
     // The reference at runtime to where the underlying resource lives
     const resourceReference = ['resources', ...resourcePath].join('.');
-
     // Call the underlying resource, wrapped with our middleware and error handling.
     // Uses an iife so the result variable is assignable at the callsite (for readability)
     return `
@@ -165,8 +164,16 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              *
              * We'll refer to each element in the group as a "request ID".
              */
-            const requestGroups = partitionItems('${resourceConfig.newKey}', keys);
-
+            const requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
+        resourceConfig.secondNewKey
+    }'], keys);
+            console.log('lllllll');
+            console.log(requestGroups);
+            console.log(keys);
+            const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
+        resourceConfig.newKey
+    }', '${resourceConfig.secondNewKey}'], keys);
+            console.log(groupByBatchKey);
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
                 /**
@@ -177,26 +184,37 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                  * send to the resource as a batch request!
                  */
                 const requests = requestIDs.map(id => keys[id]);
+                console.log('rrrrrrrrr');
+                console.log(requests[0]);
 
                 ${(() => {
-                    const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
+                    const { batchKey, newKey, secondBatchKey, secondNewKey, commaSeparatedBatchKey } = resourceConfig;
 
                     let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
                     if (commaSeparatedBatchKey === true) {
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
+                    let secondBatchKeyParam = `['${secondBatchKey}']: requests.map(k => k['${secondNewKey}'])`;
+                    if (commaSeparatedBatchKey === true) {
+                        secondBatchKeyParam = `${secondBatchKeyParam}.join(',')`;
+                    }
                     return `
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [{
-                            ..._.omit(requests[0], '${resourceConfig.newKey}'),
+                            ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondNewKey}'),
                             ${batchKeyParam},
+                            ${secondBatchKeyParam},
                         }];
                     `;
                 })()}
-
+                console.log('fffffffff');
+                const batchKeyList = resourceArgs[0]['${resourceConfig.batchKey}'];
+                console.log(batchKeyList);
                 let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
+                console.log('ggggggg');
+                console.log(response);
 
                 if (!(response instanceof Error)) {
                     ${(() => {
@@ -284,22 +302,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                 * we don't know _which_ key's response is missing. Therefore
                                 * it's unsafe to return the response array back.
                                 */
-                                if (response.length !== requests.length) {
-                                    /**
-                                    * We must return errors for all keys in this group :(
-                                    */
-                                    response = new BatchItemNotFoundError([
-                                        \`${errorPrefix(
-                                            resourcePath,
-                                        )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
-                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                    ].join(' '));
 
-                                    // Tell flow that BatchItemNotFoundError extends Error.
-                                    // It's an issue with flowgen package, but not an issue with Flow.
-                                    // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
-                                    invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
-                                }
                             }
                         `;
                     } else {
@@ -386,9 +389,12 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
 
                 return response;
             }))
-
+            console.log('vvvvvvvvvv');
+            console.log(groupByBatchKey);
+            console.log(requestGroups);
+            console.log(groupedResults);
             // Split the results back up into the order that they were requested
-            return unPartitionResults(requestGroups, groupedResults);
+            return unPartitionResultsByBatchKeyList(groupByBatchKey, requestGroups,  groupedResults);
          },
          {
              ${

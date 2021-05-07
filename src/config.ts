@@ -20,6 +20,8 @@ export interface BatchResourceConfig {
     isBatchResource: true;
     batchKey: string;
     newKey: string;
+    secondBatchKey: string;
+    secondNewKey: string;
     reorderResultsByKey?: string;
     nestedPath?: string;
     commaSeparatedBatchKey?: boolean;

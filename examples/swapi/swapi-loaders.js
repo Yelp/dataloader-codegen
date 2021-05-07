@@ -277,6 +277,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * We'll refer to each element in the group as a "request ID".
                  */
                 const requestGroups = partitionItems('planet_id', keys);
+                console.log('lllllll');
+                console.log(requestGroups);
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -299,6 +301,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
+                        console.log('fffffffff');
+                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -345,7 +349,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-
+                        console.log('ggggggg');
+                        console.log(response);
                         if (!(response instanceof Error)) {
                         }
 
@@ -551,6 +556,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * We'll refer to each element in the group as a "request ID".
                  */
                 const requestGroups = partitionItems('person_id', keys);
+                console.log('lllllll');
+                console.log(requestGroups);
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -573,6 +580,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
+                        console.log('fffffffff');
+                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -616,7 +625,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-
+                        console.log('ggggggg');
+                        console.log(response);
                         if (!(response instanceof Error)) {
                         }
 
@@ -822,6 +832,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * We'll refer to each element in the group as a "request ID".
                  */
                 const requestGroups = partitionItems('vehicle_id', keys);
+                console.log('lllllll');
+                console.log(requestGroups);
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -844,6 +856,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
+                        console.log('fffffffff');
+                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -890,7 +904,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-
+                        console.log('ggggggg');
+                        console.log(response);
                         if (!(response instanceof Error)) {
                         }
 

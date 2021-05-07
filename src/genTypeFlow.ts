@@ -40,7 +40,8 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
     // TODO: We assume that the resource accepts a single dict argument. Let's
     // make this configurable to handle resources that use seperate arguments.
     const resourceArgs = getResourceArg(resourceConfig, resourcePath);
-
+    console.log('resourceArgs');
+    console.log(resourceArgs);
     return resourceConfig.isBatchResource
         ? `
         {|

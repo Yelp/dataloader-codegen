@@ -62,9 +62,12 @@ export default function codegen(
             CaughtResourceError,
             defaultErrorHandler,
             partitionItems,
+            partitionItemsWithMoreKeys,
+            partitionItemsByBatchKey,
             resultsDictToList,
             sortByKeys,
             unPartitionResults,
+            unPartitionResultsByBatchKeyList,
         } from '${runtimeHelpers}';
 
 
