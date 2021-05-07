@@ -57,43 +57,43 @@ async function createDataLoaders(config, cb) {
     );
 }
 
-test('non batch endpoint', async () => {
-    const config = {
-        resources: {
-            foo: {
-                isBatchResource: false,
-                docsLink: 'example.com/docs/foo',
-            },
-        },
-    };
+// test('non batch endpoint', async () => {
+//     const config = {
+//         resources: {
+//             foo: {
+//                 isBatchResource: false,
+//                 docsLink: 'example.com/docs/foo',
+//             },
+//         },
+//     };
 
-    const resources = {
-        foo: jest
-            .fn()
-            .mockReturnValueOnce(
-                Promise.resolve({
-                    message: 'knock knock',
-                    message_suffix: '!',
-                }),
-            )
-            .mockReturnValueOnce(
-                Promise.resolve({
-                    message: "who's there",
-                    message_suffix: '?',
-                }),
-            ),
-    };
+//     const resources = {
+//         foo: jest
+//             .fn()
+//             .mockReturnValueOnce(
+//                 Promise.resolve({
+//                     message: 'knock knock',
+//                     message_suffix: '!',
+//                 }),
+//             )
+//             .mockReturnValueOnce(
+//                 Promise.resolve({
+//                     message: "who's there",
+//                     message_suffix: '?',
+//                 }),
+//             ),
+//     };
 
-    await createDataLoaders(config, async (getLoaders) => {
-        const loaders = getLoaders(resources);
+//     await createDataLoaders(config, async (getLoaders) => {
+//         const loaders = getLoaders(resources);
 
-        const results = await loaders.foo.loadMany([{ bar_id: 1 }, { bar_id: 2 }]);
-        expect(results).toEqual([
-            { message: 'knock knock', message_suffix: '!' },
-            { message: "who's there", message_suffix: '?' },
-        ]);
-    });
-});
+//         const results = await loaders.foo.loadMany([{ bar_id: 1 }, { bar_id: 2 }]);
+//         expect(results).toEqual([
+//             { message: 'knock knock', message_suffix: '!' },
+//             { message: "who's there", message_suffix: '?' },
+//         ]);
+//     });
+// });
 
 // test('batch endpoint', async () => {
 //     const config = {
@@ -240,63 +240,7 @@ test('non batch endpoint', async () => {
 //     });
 // });
 
-test('batch endpoint (multiple requests)', async () => {
-    const config = {
-        resources: {
-            foo: {
-                isBatchResource: true,
-                docsLink: 'example.com/docs/bar',
-                batchKey: 'foo_ids',
-                newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
-            },
-        },
-    };
-
-    const resources = {
-        foo: ({ foo_ids, properties, include_extra_info }) => {
-            if (_.isEqual(foo_ids, [2, 1])) {
-                expect(include_extra_info).toBe(false);
-                return Promise.resolve([
-                    { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
-                    { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
-                ]);
-            }
-
-            if (_.isEqual(foo_ids, [3])) {
-                expect(include_extra_info).toBe(true);
-                return Promise.resolve([
-                    {
-                        foo_id: 3,
-                        photo: 'photo3',
-                        id: 'id3',
-                        name: 'name3',
-                        extra_stuff: 'lorem ipsum',
-                    },
-                ]);
-            }
-        },
-    };
-
-    await createDataLoaders(config, async (getLoaders) => {
-        const loaders = getLoaders(resources);
-
-        const results = await loaders.foo.loadMany([
-            { foo_id: 2, property: 'name', include_extra_info: false },
-            { foo_id: 1, property: 'photo', include_extra_info: false },
-            { foo_id: 3, property: 'photo', include_extra_info: true },
-        ]);
-
-        expect(results).toEqual([
-            { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
-            { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
-            { foo_id: 3, photo: 'photo3', id: 'id3', name: 'name3', extra_stuff: 'lorem ipsum' },
-        ]);
-    });
-});
-
-// test('batch endpoint that rejects', async () => {
+// test('batch endpoint (multiple requests)', async () => {
 //     const config = {
 //         resources: {
 //             foo: {
@@ -310,26 +254,19 @@ test('batch endpoint (multiple requests)', async () => {
 
 //     const resources = {
 //         foo: ({ foo_ids, include_extra_info }) => {
-//             if (_.isEqual(foo_ids, [1, 3])) {
+//             if (_.isEqual(foo_ids, [1, 2])) {
 //                 expect(include_extra_info).toBe(false);
-//                 return Promise.reject('yikes');
+//                 return Promise.resolve([
+//                     { foo_id: 1, foo_value: 'hello' },
+//                     { foo_id: 2, foo_value: 'world' },
+//                 ]);
 //             }
 
-//             if (_.isEqual(foo_ids, [2, 4, 5])) {
+//             if (_.isEqual(foo_ids, [3])) {
 //                 expect(include_extra_info).toBe(true);
 //                 return Promise.resolve([
 //                     {
-//                         foo_id: 2,
-//                         foo_value: 'greetings',
-//                         extra_stuff: 'lorem ipsum',
-//                     },
-//                     {
-//                         foo_id: 4,
-//                         foo_value: 'greetings',
-//                         extra_stuff: 'lorem ipsum',
-//                     },
-//                     {
-//                         foo_id: 5,
+//                         foo_id: 3,
 //                         foo_value: 'greetings',
 //                         extra_stuff: 'lorem ipsum',
 //                     },
@@ -343,22 +280,137 @@ test('batch endpoint (multiple requests)', async () => {
 
 //         const results = await loaders.foo.loadMany([
 //             { foo_id: 1, include_extra_info: false },
-//             { foo_id: 2, include_extra_info: true },
-//             { foo_id: 3, include_extra_info: false },
-//             { foo_id: 4, include_extra_info: true },
-//             { foo_id: 5, include_extra_info: true },
+//             { foo_id: 2, include_extra_info: false },
+//             { foo_id: 3, include_extra_info: true },
 //         ]);
 
-//         // NonError comes from the default error handler which uses ensure-error
-//         expect(results).toMatchObject([
-//             expect.toBeError(/yikes/, 'NonError'),
-//             { foo_id: 2, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
-//             expect.toBeError(/yikes/, 'NonError'),
-//             { foo_id: 4, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
-//             { foo_id: 5, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+//         expect(results).toEqual([
+//             { foo_id: 1, foo_value: 'hello' },
+//             { foo_id: 2, foo_value: 'world' },
+//             { foo_id: 3, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
 //         ]);
 //     });
 // });
+
+// test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
+//     const config = {
+//         resources: {
+//             foo: {
+//                 isBatchResource: true,
+//                 docsLink: 'example.com/docs/bar',
+//                 batchKey: 'foo_ids',
+//                 newKey: 'foo_id',
+//                 secondaryBatchKey: 'properties',
+//                 secondaryNewKey: 'property',
+//             },
+//         },
+//     };
+
+//     const resources = {
+//         foo: ({ foo_ids, properties, include_extra_info }) => {
+//             if (_.isEqual(foo_ids, [2, 1])) {
+//                 expect(include_extra_info).toBe(false);
+//                 return Promise.resolve([
+//                     { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
+//                     { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
+//                 ]);
+//             }
+
+//             if (_.isEqual(foo_ids, [3])) {
+//                 expect(include_extra_info).toBe(true);
+//                 return Promise.resolve([
+//                     {
+//                         foo_id: 3,
+//                         photo: 'photo3',
+//                         id: 'id3',
+//                         name: 'name3',
+//                         extra_stuff: 'lorem ipsum',
+//                     },
+//                 ]);
+//             }
+//         },
+//     };
+
+//     await createDataLoaders(config, async (getLoaders) => {
+//         const loaders = getLoaders(resources);
+
+//         const results = await loaders.foo.loadMany([
+//             { foo_id: 2, property: 'name', include_extra_info: false },
+//             { foo_id: 1, property: 'photo', include_extra_info: false },
+//             { foo_id: 3, property: 'photo', include_extra_info: true },
+//         ]);
+
+//         expect(results).toEqual([
+//             { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
+//             { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
+//             { foo_id: 3, photo: 'photo3', id: 'id3', name: 'name3', extra_stuff: 'lorem ipsum' },
+//         ]);
+//     });
+// });
+
+test('batch endpoint that rejects', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [1, 3])) {
+                expect(include_extra_info).toBe(false);
+                return Promise.reject('yikes');
+            }
+
+            if (_.isEqual(foo_ids, [2, 4, 5])) {
+                expect(include_extra_info).toBe(true);
+                return Promise.resolve([
+                    {
+                        foo_id: 2,
+                        foo_value: 'greetings',
+                        extra_stuff: 'lorem ipsum',
+                    },
+                    {
+                        foo_id: 4,
+                        foo_value: 'greetings',
+                        extra_stuff: 'lorem ipsum',
+                    },
+                    {
+                        foo_id: 5,
+                        foo_value: 'greetings',
+                        extra_stuff: 'lorem ipsum',
+                    },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: true },
+            { foo_id: 3, include_extra_info: false },
+            { foo_id: 4, include_extra_info: true },
+            { foo_id: 5, include_extra_info: true },
+        ]);
+
+        // NonError comes from the default error handler which uses ensure-error
+        expect(results).toMatchObject([
+            expect.toBeError(/yikes/, 'NonError'),
+            { foo_id: 2, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+            expect.toBeError(/yikes/, 'NonError'),
+            { foo_id: 4, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+            { foo_id: 5, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+        ]);
+    });
+});
 
 // test('batch endpoint (multiple requests, default error handling)', async () => {
 //     const config = {

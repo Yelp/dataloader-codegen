@@ -27,6 +27,7 @@ function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: Readonly
 function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
     // The reference at runtime to where the underlying resource lives
     const resourceReference = ['resources', ...resourcePath].join('.');
+
     // Call the underlying resource, wrapped with our middleware and error handling.
     // Uses an iife so the result variable is assignable at the callsite (for readability)
     return `
@@ -164,12 +165,15 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              *
              * We'll refer to each element in the group as a "request ID".
              */
-            const requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
+            let requestGroups;
+            if ('${resourceConfig.secondaryNewKey}' && '${resourceConfig.secondaryBatchKey}') {
+                requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
         resourceConfig.secondaryNewKey
     }'], keys);
-            const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
-        resourceConfig.newKey
-    }', '${resourceConfig.secondaryNewKey}'], keys);
+            } else {
+                requestGroups = partitionItems('${resourceConfig.newKey}', keys);
+            }
+
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
                 /**
@@ -195,22 +199,34 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
-                    let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
-                    if (commaSeparatedBatchKey === true) {
-                        secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
+                    if (secondaryNewKey && secondaryBatchKey) {
+                        let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
+                        if (commaSeparatedBatchKey === true) {
+                            secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
+                        }
+                        return `
+                            // For now, we assume that the dataloader key should be the first argument to the resource
+                            // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                            const resourceArgs = [{
+                                ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'),
+                                ${batchKeyParam},
+                                ${secondaryBatchKeyParam},
+                            }];
+                        `;
+                    } else {
+                        return `
+                            // For now, we assume that the dataloader key should be the first argument to the resource
+                            // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                            const resourceArgs = [{
+                                ..._.omit(requests[0], '${resourceConfig.newKey}'),
+                                ${batchKeyParam},
+                            }];
+                        `;
                     }
-                    return `
-                        // For now, we assume that the dataloader key should be the first argument to the resource
-                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [{
-                            ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'),
-                            ${batchKeyParam},
-                            ${secondaryBatchKeyParam},
-                        }];
-                    `;
                 })()}
                 let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
-
+                console.log('rrrrrr');
+                console.log(response instanceof Error);
                 if (!(response instanceof Error)) {
                     ${(() => {
                         if (typeof resourceConfig.nestedPath === 'string') {
@@ -285,9 +301,18 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 }
 
                 ${(() => {
-                    const { reorderResultsByKey, isResponseDictionary } = resourceConfig;
+                    const {
+                        reorderResultsByKey,
+                        isResponseDictionary,
+                        secondaryBatchKey,
+                        secondaryNewKey,
+                    } = resourceConfig;
 
-                    if (!isResponseDictionary && reorderResultsByKey == null) {
+                    if (
+                        !isResponseDictionary &&
+                        reorderResultsByKey == null &&
+                        !(secondaryBatchKey && secondaryNewKey)
+                    ) {
                         return `
                             if (!(response instanceof Error)) {
                                 /**
@@ -297,7 +322,21 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                 * we don't know _which_ key's response is missing. Therefore
                                 * it's unsafe to return the response array back.
                                 */
-
+                                if (response.length !== requests.length) {
+                                    /**
+                                    * We must return errors for all keys in this group :(
+                                    */
+                                    response = new BatchItemNotFoundError([
+                                        \`${errorPrefix(
+                                            resourcePath,
+                                        )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
+                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
+                                    ].join(' '));
+                                    // Tell flow that BatchItemNotFoundError extends Error.
+                                    // It's an issue with flowgen package, but not an issue with Flow.
+                                    // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
+                                    invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
+                                }
                             }
                         `;
                     } else {
@@ -384,8 +423,20 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
 
                 return response;
             }))
-            // Split the results back up into the order that they were requested
-            return unPartitionResultsByBatchKeyList(groupByBatchKey, requestGroups,  groupedResults);
+            console.log('requestGroups');
+            console.log(requestGroups);
+            console.log('groupedResults');
+            console.log(groupedResults);
+            if ('${resourceConfig.secondaryNewKey}' && '${resourceConfig.secondaryBatchKey}') {
+                const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
+        resourceConfig.newKey
+    }', '${resourceConfig.secondaryNewKey}'], keys);
+
+                // Split the results back up into the order that they were requested
+                return unPartitionResultsByBatchKeyList(groupByBatchKey, requestGroups,  groupedResults);
+            }else {
+                return unPartitionResults(requestGroups, groupedResults);
+            }
          },
          {
              ${
