@@ -322,7 +322,17 @@ export function unPartitionResultsByBatchKeyList<T>(
         return ids.map(function (id, j) {
             console.log('.......');
             console.log(groupByBatchKey[i][j]);
-            return { order: id, result: resultGroups[i][j] };
+            for (const element of Object.values(resultGroups)[i]) {
+                if (groupByBatchKey[i][j] in element || Object.values(element).includes(groupByBatchKey[i][j])) {
+                    return { order: id, result: element };
+                }
+
+                // if (element.has(groupByBatchKey[i][j])) {
+                //     return { order: id, result: element};
+                // }
+            }
+            //console.log(Object.values(resultGroups)[i].includes());
+            // return { order: id, result: resultGroups[i][j] };
         });
     });
     console.log('zippedGroups');

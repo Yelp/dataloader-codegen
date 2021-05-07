@@ -259,8 +259,8 @@ test('batch endpoint (multiple requests)', async () => {
             if (_.isEqual(foo_ids, [2, 1])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
-                    { foo_id: 1, photo: 'hello', id: 'world', name: 'greetings' },
-                    { foo_id: 2, photo: 'hello', id: 'world', name: 'greetings' },
+                    { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
+                    { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
                 ]);
             }
 
@@ -269,9 +269,9 @@ test('batch endpoint (multiple requests)', async () => {
                 return Promise.resolve([
                     {
                         foo_id: 3,
-                        photo: 'hello',
-                        id: 'world',
-                        name: 'greetings',
+                        photo: 'photo3',
+                        id: 'id3',
+                        name: 'name3',
                         extra_stuff: 'lorem ipsum',
                     },
                 ]);
@@ -289,10 +289,9 @@ test('batch endpoint (multiple requests)', async () => {
         ]);
 
         expect(results).toEqual([
-            { foo_id: 1, photo: 'hello' },
-
-            { foo_id: 3, name: 'greetings', extra_stuff: 'lorem ipsum' },
-            { foo_id: 2, id: 'world' },
+            { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
+            { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
+            { foo_id: 3, photo: 'photo3', id: 'id3', name: 'name3', extra_stuff: 'lorem ipsum' },
         ]);
     });
 });
