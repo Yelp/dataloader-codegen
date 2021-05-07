@@ -101,8 +101,6 @@ export function partitionItemsWithMoreKeys(
     const groups: {
         [key: string]: Array<number>;
     } = {};
-    console.log('bbbbbbb');
-    console.log(items);
     items.forEach((item, i) => {
         const hash = objectHash(_.omit(item, ignoreKey), { algorithm: 'passthrough' });
         groups[hash] = groups[hash] || [];
@@ -320,24 +318,13 @@ export function unPartitionResultsByBatchKeyList<T>(
      */
     const zippedGroups = requestGroups.map(function (ids, i) {
         return ids.map(function (id, j) {
-            console.log('.......');
-            console.log(groupByBatchKey[i][j]);
             for (const element of Object.values(resultGroups)[i]) {
                 if (groupByBatchKey[i][j] in element || Object.values(element).includes(groupByBatchKey[i][j])) {
                     return { order: id, result: element };
                 }
-
-                // if (element.has(groupByBatchKey[i][j])) {
-                //     return { order: id, result: element};
-                // }
             }
-            //console.log(Object.values(resultGroups)[i].includes());
-            // return { order: id, result: resultGroups[i][j] };
         });
     });
-    console.log('zippedGroups');
-
-    console.log(_.flatten(zippedGroups));
     /**
      * Flatten and sort the groups - e.g.:
      * ```js
@@ -351,20 +338,14 @@ export function unPartitionResultsByBatchKeyList<T>(
     const sortedResults: ReadonlyArray<{ order: number; result: T | Error }> = _.sortBy(_.flatten(zippedGroups), [
         'order',
     ]);
-    console.log('sortedResults');
-    console.log(sortedResults);
 
     // Now that we have a sorted array, return the actual results!
     return sortedResults
         .map((r) => r.result)
         .map((result) => {
             if (result instanceof CaughtResourceError) {
-                console.log('nnnnn');
-                console.log(result.cause);
                 return result.cause;
             } else {
-                console.log('mmmmm');
-                console.log(result);
                 return result;
             }
         });

@@ -248,8 +248,8 @@ test('batch endpoint (multiple requests)', async () => {
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondBatchKey: 'properties',
-                secondNewKey: 'property',
+                secondaryBatchKey: 'properties',
+                secondaryNewKey: 'property',
             },
         },
     };

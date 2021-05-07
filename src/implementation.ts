@@ -165,15 +165,11 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * We'll refer to each element in the group as a "request ID".
              */
             const requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
-        resourceConfig.secondNewKey
+        resourceConfig.secondaryNewKey
     }'], keys);
-            console.log('lllllll');
-            console.log(requestGroups);
-            console.log(keys);
             const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
-    }', '${resourceConfig.secondNewKey}'], keys);
-            console.log(groupByBatchKey);
+    }', '${resourceConfig.secondaryNewKey}'], keys);
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
                 /**
@@ -184,37 +180,36 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                  * send to the resource as a batch request!
                  */
                 const requests = requestIDs.map(id => keys[id]);
-                console.log('rrrrrrrrr');
-                console.log(requests[0]);
 
                 ${(() => {
-                    const { batchKey, newKey, secondBatchKey, secondNewKey, commaSeparatedBatchKey } = resourceConfig;
+                    const {
+                        batchKey,
+                        newKey,
+                        secondaryBatchKey,
+                        secondaryNewKey,
+                        commaSeparatedBatchKey,
+                    } = resourceConfig;
 
                     let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
                     if (commaSeparatedBatchKey === true) {
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
-                    let secondBatchKeyParam = `['${secondBatchKey}']: requests.map(k => k['${secondNewKey}'])`;
+                    let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
                     if (commaSeparatedBatchKey === true) {
-                        secondBatchKeyParam = `${secondBatchKeyParam}.join(',')`;
+                        secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
                     }
                     return `
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [{
-                            ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondNewKey}'),
+                            ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'),
                             ${batchKeyParam},
-                            ${secondBatchKeyParam},
+                            ${secondaryBatchKeyParam},
                         }];
                     `;
                 })()}
-                console.log('fffffffff');
-                const batchKeyList = resourceArgs[0]['${resourceConfig.batchKey}'];
-                console.log(batchKeyList);
                 let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
-                console.log('ggggggg');
-                console.log(response);
 
                 if (!(response instanceof Error)) {
                     ${(() => {
@@ -389,10 +384,6 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
 
                 return response;
             }))
-            console.log('vvvvvvvvvv');
-            console.log(groupByBatchKey);
-            console.log(requestGroups);
-            console.log(groupedResults);
             // Split the results back up into the order that they were requested
             return unPartitionResultsByBatchKeyList(groupByBatchKey, requestGroups,  groupedResults);
          },
