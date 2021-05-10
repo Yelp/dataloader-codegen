@@ -166,7 +166,9 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * We'll refer to each element in the group as a "request ID".
              */
             let requestGroups;
-            if ('${resourceConfig.secondaryNewKey}' && '${resourceConfig.secondaryBatchKey}') {
+            if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
+        resourceConfig.secondaryBatchKey
+    }' !== 'undefined') {
                 requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
         resourceConfig.secondaryNewKey
     }'], keys);
@@ -199,7 +201,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
-                    if (secondaryNewKey && secondaryBatchKey) {
+                    if (secondaryNewKey !== undefined && secondaryBatchKey !== undefined) {
                         let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
                         if (commaSeparatedBatchKey === true) {
                             secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
@@ -225,8 +227,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     }
                 })()}
                 let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
-                console.log('rrrrrr');
-                console.log(response instanceof Error);
+
                 if (!(response instanceof Error)) {
                     ${(() => {
                         if (typeof resourceConfig.nestedPath === 'string') {
@@ -311,7 +312,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     if (
                         !isResponseDictionary &&
                         reorderResultsByKey == null &&
-                        !(secondaryBatchKey && secondaryNewKey)
+                        !(secondaryBatchKey !== undefined && secondaryNewKey !== undefined)
                     ) {
                         return `
                             if (!(response instanceof Error)) {
@@ -423,11 +424,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
 
                 return response;
             }))
-            console.log('requestGroups');
-            console.log(requestGroups);
-            console.log('groupedResults');
-            console.log(groupedResults);
-            if ('${resourceConfig.secondaryNewKey}' && '${resourceConfig.secondaryBatchKey}') {
+
+            if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
+        resourceConfig.secondaryBatchKey
+    }' !== 'undefined') {
                 const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
     }', '${resourceConfig.secondaryNewKey}'], keys);

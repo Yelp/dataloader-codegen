@@ -260,8 +260,6 @@ export function unPartitionResults<T>(
      * ```
      */
     const zippedGroups = requestGroups.map((ids, i) => ids.map((id, j) => ({ order: id, result: resultGroups[i][j] })));
-    console.log('zippedGroups');
-    console.log(zippedGroups);
 
     /**
      * Flatten and sort the groups - e.g.:
@@ -276,20 +274,14 @@ export function unPartitionResults<T>(
     const sortedResults: ReadonlyArray<{ order: number; result: T | Error }> = _.sortBy(_.flatten(zippedGroups), [
         'order',
     ]);
-    console.log('sortedResults');
-    console.log(sortedResults);
 
     // Now that we have a sorted array, return the actual results!
     return sortedResults
         .map((r) => r.result)
         .map((result) => {
             if (result instanceof CaughtResourceError) {
-                console.log('nnnnn');
-                console.log(result.cause);
                 return result.cause;
             } else {
-                console.log('mmmmm');
-                console.log(result);
                 return result;
             }
         });
