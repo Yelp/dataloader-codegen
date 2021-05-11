@@ -169,9 +169,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
             if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
         resourceConfig.secondaryBatchKey
     }' !== 'undefined') {
-                requestGroups = partitionItemsWithMoreKeys(['${resourceConfig.newKey}', '${
-        resourceConfig.secondaryNewKey
-    }'], keys);
+                requestGroups = partitionItems(['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
             } else {
                 requestGroups = partitionItems('${resourceConfig.newKey}', keys);
             }
@@ -428,12 +426,12 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
             if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
         resourceConfig.secondaryBatchKey
     }' !== 'undefined') {
-                const groupByBatchKey = partitionItemsByBatchKey('${resourceConfig.newKey}', ['${
+                const batchKeyPartition = getBatchKeyForPartitionItems('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
     }', '${resourceConfig.secondaryNewKey}'], keys);
 
                 // Split the results back up into the order that they were requested
-                return unPartitionResultsByBatchKeyList(groupByBatchKey, requestGroups,  groupedResults);
+                return unPartitionResultsByBatchKeyPartition(batchKeyPartition, requestGroups,  groupedResults);
             }else {
                 return unPartitionResults(requestGroups, groupedResults);
             }
