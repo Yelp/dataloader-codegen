@@ -429,10 +429,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 const batchKeyPartition = getBatchKeyForPartitionItems('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
     }', '${resourceConfig.secondaryNewKey}'], keys);
-
                 // Split the results back up into the order that they were requested
                 return unPartitionResultsByBatchKeyPartition(batchKeyPartition, requestGroups,  groupedResults);
             }else {
+                // Split the results back up into the order that they were requested
                 return unPartitionResults(requestGroups, groupedResults);
             }
          },

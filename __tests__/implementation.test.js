@@ -311,8 +311,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
             if (_.isEqual(foo_ids, [2, 1])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
-                    { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
-                    { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
+                    { foo_id: 1, rating: 3, name: 'Burger King' },
+                    { foo_id: 2, rating: 4, name: 'In N Out' },
                 ]);
             }
 
@@ -321,9 +321,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
                 return Promise.resolve([
                     {
                         foo_id: 3,
-                        photo: 'photo3',
-                        id: 'id3',
-                        name: 'name3',
+                        rating: 5,
+                        name: 'Shake Shack',
                         extra_stuff: 'lorem ipsum',
                     },
                 ]);
@@ -336,14 +335,70 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
 
         const results = await loaders.foo.loadMany([
             { foo_id: 2, property: 'name', include_extra_info: false },
-            { foo_id: 1, property: 'photo', include_extra_info: false },
-            { foo_id: 3, property: 'photo', include_extra_info: true },
+            { foo_id: 1, property: 'rating', include_extra_info: false },
+            { foo_id: 3, property: 'rating', include_extra_info: true },
         ]);
 
         expect(results).toEqual([
-            { foo_id: 2, photo: 'photo2', id: 'id2', name: 'name2' },
-            { foo_id: 1, photo: 'photo1', id: 'id1', name: 'name1' },
-            { foo_id: 3, photo: 'photo3', id: 'id3', name: 'name3', extra_stuff: 'lorem ipsum' },
+            { foo_id: 2, rating: 4, name: 'In N Out' },
+            { foo_id: 1, rating: 3, name: 'Burger King' },
+            { foo_id: 3, rating: 5, name: 'Shake Shack', extra_stuff: 'lorem ipsum' },
+        ]);
+    });
+});
+
+test('batch endpoint (multiple requests) with secondaryBatchKey different response structure', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                secondaryBatchKey: 'properties',
+                secondaryNewKey: 'property',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, properties, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [2, 1])) {
+                expect(include_extra_info).toBe(false);
+                return Promise.resolve([
+                    { 1: { rating: 3, name: 'Burger King' } },
+                    { 2: { rating: 4, name: 'In N Out' } },
+                ]);
+            }
+
+            if (_.isEqual(foo_ids, [3])) {
+                expect(include_extra_info).toBe(true);
+                return Promise.resolve([
+                    {
+                        3: {
+                            rating: 5,
+                            name: 'Shake Shack',
+                            extra_stuff: 'lorem ipsum',
+                        },
+                    },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 2, property: 'name', include_extra_info: false },
+            { foo_id: 1, property: 'rating', include_extra_info: false },
+            { foo_id: 3, property: 'rating', include_extra_info: true },
+        ]);
+
+        expect(results).toEqual([
+            { 2: { rating: 4, name: 'In N Out' } },
+            { 1: { rating: 3, name: 'Burger King' } },
+            { 3: { rating: 5, name: 'Shake Shack', extra_stuff: 'lorem ipsum' } },
         ]);
     });
 });
