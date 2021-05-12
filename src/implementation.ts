@@ -166,9 +166,9 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * We'll refer to each element in the group as a "request ID".
              */
             let requestGroups;
-            if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
-        resourceConfig.secondaryBatchKey
-    }' !== 'undefined') {
+            if (${typeof resourceConfig.secondaryNewKey === 'string'} &&  ${
+        typeof resourceConfig.secondaryBatchKey === 'string'
+    }) {
                 requestGroups = partitionItems(['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
             } else {
                 requestGroups = partitionItems('${resourceConfig.newKey}', keys);
@@ -199,7 +199,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
-                    if (secondaryNewKey !== undefined && secondaryBatchKey !== undefined) {
+                    if (typeof secondaryNewKey === 'string' && typeof secondaryBatchKey === 'string') {
                         let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
                         if (commaSeparatedBatchKey === true) {
                             secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
@@ -310,7 +310,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     if (
                         !isResponseDictionary &&
                         reorderResultsByKey == null &&
-                        !(secondaryBatchKey !== undefined && secondaryNewKey !== undefined)
+                        !(typeof secondaryNewKey === 'string' && typeof secondaryBatchKey === 'string')
                     ) {
                         return `
                             if (!(response instanceof Error)) {
@@ -423,15 +423,20 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return response;
             }))
 
-            if ('${resourceConfig.secondaryNewKey}' !== 'undefined' && '${
-        resourceConfig.secondaryBatchKey
-    }' !== 'undefined') {
-                const batchKeyPartition = getBatchKeyForPartitionItems('${resourceConfig.newKey}', ['${
+            if (${typeof resourceConfig.secondaryNewKey === 'string'} &&  ${
+        typeof resourceConfig.secondaryBatchKey === 'string'
+    }) {
+                const batchKeyPartition = getBatchKeysForPartitionItems('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
     }', '${resourceConfig.secondaryNewKey}'], keys);
+                const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems('${
+                    resourceConfig.secondaryNewKey
+                }', ['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
                 // Split the results back up into the order that they were requested
-                return unPartitionResultsByBatchKeyPartition(batchKeyPartition, requestGroups,  groupedResults);
-            }else {
+                return unPartitionResultsByBatchKeyPartition('${
+                    resourceConfig.newKey
+                }', batchKeyPartition, secondaryBatchKeyPartiion, requestGroups,  groupedResults);
+            } else {
                 // Split the results back up into the order that they were requested
                 return unPartitionResults(requestGroups, groupedResults);
             }

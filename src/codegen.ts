@@ -61,7 +61,7 @@ export default function codegen(
             cacheKeyOptions,
             CaughtResourceError,
             defaultErrorHandler,
-            getBatchKeyForPartitionItems,
+            getBatchKeysForPartitionItems,
             partitionItems,
             resultsDictToList,
             sortByKeys,

@@ -340,9 +340,9 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
         ]);
 
         expect(results).toEqual([
-            { foo_id: 2, rating: 4, name: 'In N Out' },
-            { foo_id: 1, rating: 3, name: 'Burger King' },
-            { foo_id: 3, rating: 5, name: 'Shake Shack', extra_stuff: 'lorem ipsum' },
+            { foo_id: 2, name: 'In N Out' },
+            { foo_id: 1, rating: 3 },
+            { foo_id: 3, rating: 5 },
         ]);
     });
 });
@@ -363,7 +363,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey different respon
 
     const resources = {
         foo: ({ foo_ids, properties, include_extra_info }) => {
-            if (_.isEqual(foo_ids, [2, 1])) {
+            if (_.isEqual(foo_ids, [2, 1]) && _.isEqual(properties, ['name', 'rating'])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
                     { 1: { rating: 3, name: 'Burger King' } },
@@ -371,13 +371,12 @@ test('batch endpoint (multiple requests) with secondaryBatchKey different respon
                 ]);
             }
 
-            if (_.isEqual(foo_ids, [3])) {
+            if (_.isEqual(foo_ids, [3]) && _.isEqual(properties, ['rating'])) {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {
                         3: {
                             rating: 5,
-                            name: 'Shake Shack',
                             extra_stuff: 'lorem ipsum',
                         },
                     },
@@ -395,11 +394,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey different respon
             { foo_id: 3, property: 'rating', include_extra_info: true },
         ]);
 
-        expect(results).toEqual([
-            { 2: { rating: 4, name: 'In N Out' } },
-            { 1: { rating: 3, name: 'Burger King' } },
-            { 3: { rating: 5, name: 'Shake Shack', extra_stuff: 'lorem ipsum' } },
-        ]);
+        expect(results).toEqual([{ 2: { name: 'In N Out' } }, { 1: { rating: 3 } }, { 3: { rating: 5 } }]);
     });
 });
 
