@@ -36,18 +36,38 @@ function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
         >`;
 }
 
+export function getNewKeyTypeFromBatchKeySetType(batchKey: string, resourceArgs: string) {
+    return `\
+        $Call<
+            ExtractArg,
+            [$PropertyType<$PropertyType<${resourceArgs}, '${batchKey}'>, 'has'>]
+        >`;
+}
+
 export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
     // TODO: We assume that the resource accepts a single dict argument. Let's
     // make this configurable to handle resources that use seperate arguments.
     const resourceArgs = getResourceArg(resourceConfig, resourcePath);
 
-    return resourceConfig.isBatchResource
-        ? `
-        {|
-            ...$Diff<${resourceArgs}, { ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'> }>,
-            ...{| ${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0> |}
-        |}`
-        : resourceArgs;
+    if (resourceConfig.isBatchResource) {
+        let newKeyType = `${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>`;
+
+        if (resourceConfig.uniqueBatchKeys) {
+            newKeyType = `${resourceConfig.newKey}: ${getNewKeyTypeFromBatchKeySetType(
+                resourceConfig.batchKey,
+                resourceArgs,
+            )}`;
+        }
+
+        return `{|
+            ...$Diff<${resourceArgs}, {
+                ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>
+            }>,
+            ...{| ${newKeyType} |}
+        |}`;
+    }
+
+    return resourceArgs;
 }
 
 export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
