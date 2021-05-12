@@ -13,10 +13,12 @@ import {
     cacheKeyOptions,
     CaughtResourceError,
     defaultErrorHandler,
+    getBatchKeysForPartitionItems,
     partitionItems,
     resultsDictToList,
     sortByKeys,
     unPartitionResults,
+    unPartitionResultsByBatchKeyPartition,
 } from 'dataloader-codegen/lib/runtimeHelpers';
 
 /**
@@ -276,9 +278,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *
                  * We'll refer to each element in the group as a "request ID".
                  */
-                const requestGroups = partitionItems('planet_id', keys);
-                console.log('lllllll');
-                console.log(requestGroups);
+                let requestGroups;
+                if (false && false) {
+                    requestGroups = partitionItems(['planet_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('planet_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -301,8 +306,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
-                        console.log('fffffffff');
-                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -349,8 +352,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-                        console.log('ggggggg');
-                        console.log(response);
+
                         if (!(response instanceof Error)) {
                         }
 
@@ -382,7 +384,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
-
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -431,8 +432,29 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                if (false && false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'planet_id',
+                        ['planet_id', 'undefined'],
+                        keys,
+                    );
+                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['planet_id', 'undefined'],
+                        keys,
+                    );
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResultsByBatchKeyPartition(
+                        'planet_id',
+                        batchKeyPartition,
+                        secondaryBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -555,9 +577,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *
                  * We'll refer to each element in the group as a "request ID".
                  */
-                const requestGroups = partitionItems('person_id', keys);
-                console.log('lllllll');
-                console.log(requestGroups);
+                let requestGroups;
+                if (false && false) {
+                    requestGroups = partitionItems(['person_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('person_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -580,8 +605,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
-                        console.log('fffffffff');
-                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -625,8 +648,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-                        console.log('ggggggg');
-                        console.log(response);
+
                         if (!(response instanceof Error)) {
                         }
 
@@ -658,7 +680,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
-
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -707,8 +728,29 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                if (false && false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'person_id',
+                        ['person_id', 'undefined'],
+                        keys,
+                    );
+                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['person_id', 'undefined'],
+                        keys,
+                    );
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResultsByBatchKeyPartition(
+                        'person_id',
+                        batchKeyPartition,
+                        secondaryBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -831,9 +873,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *
                  * We'll refer to each element in the group as a "request ID".
                  */
-                const requestGroups = partitionItems('vehicle_id', keys);
-                console.log('lllllll');
-                console.log(requestGroups);
+                let requestGroups;
+                if (false && false) {
+                    requestGroups = partitionItems(['vehicle_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('vehicle_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -856,8 +901,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             },
                         ];
 
-                        console.log('fffffffff');
-                        console.log(resourceArgs);
                         let response = await (async (_resourceArgs) => {
                             // Make a re-assignable variable so flow/eslint doesn't complain
                             let __resourceArgs = _resourceArgs;
@@ -904,8 +947,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                             return _response;
                         })(resourceArgs);
-                        console.log('ggggggg');
-                        console.log(response);
+
                         if (!(response instanceof Error)) {
                         }
 
@@ -937,7 +979,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
-
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -986,8 +1027,29 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                if (false && false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'vehicle_id',
+                        ['vehicle_id', 'undefined'],
+                        keys,
+                    );
+                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['vehicle_id', 'undefined'],
+                        keys,
+                    );
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResultsByBatchKeyPartition(
+                        'vehicle_id',
+                        batchKeyPartition,
+                        secondaryBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
