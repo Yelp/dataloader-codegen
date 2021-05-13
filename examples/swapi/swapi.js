@@ -43,6 +43,23 @@ export type SWAPI_Person = $ReadOnly<{|
     url: string,
 |}>;
 
+export type SWAPI_Film = $ReadOnly<{|
+    title: string,
+    episode_id: number,
+    opening_crawl: string,
+    director: string,
+    producer: string,
+    release_date: string,
+    species: $ReadOnlyArray<string>,
+    starships: $ReadOnlyArray<string>,
+    vehicles: $ReadOnlyArray<string>,
+    characters: $ReadOnlyArray<string>,
+    planets: $ReadOnlyArray<string>,
+    url: string,
+    created: string,
+    edited: string,
+|}>;
+
 export type SWAPI_Vehicle = $ReadOnly<{|
     name: string,
     key: string,
@@ -61,6 +78,7 @@ export type SWAPIClientlibTypes = {|
     getPlanets: ({| planet_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Planet>>,
     getPeople: ({| people_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Person>>,
     getVehicles: ({| vehicle_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Vehicle>>,
+    getFilms: ({| film_ids: Set<number> |}) => Promise<$ReadOnlyArray<SWAPI_Film>>,
     getRoot: ({||}) => Promise<SWAPI_Root>,
 |};
 
@@ -77,6 +95,10 @@ module.exports = function (): SWAPIClientlibTypes {
         getVehicles: ({ vehicle_ids }) =>
             Promise.all(
                 vehicle_ids.map((id) => fetch(url.resolve(SWAPI_URL, `vehicles/${id}`)).then((res) => res.json())),
+            ),
+        getFilms: ({ film_ids }) =>
+            Promise.all(
+                [...film_ids].map((id) => fetch(url.resolve(SWAPI_URL, `films/${id}`)).then((res) => res.json())),
             ),
         getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
     };
