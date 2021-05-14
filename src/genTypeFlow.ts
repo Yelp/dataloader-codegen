@@ -36,6 +36,10 @@ function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
         >`;
 }
 
+/**
+ * Extract the type T from a Set<T> resource (in this case a batchKey's resource)
+ * using its `.has(T)`'s function paremeter type
+ */
 export function getNewKeyTypeFromBatchKeySetType(batchKey: string, resourceArgs: string) {
     return `\
         $Call<
@@ -50,9 +54,14 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
     const resourceArgs = getResourceArg(resourceConfig, resourcePath);
 
     if (resourceConfig.isBatchResource) {
+        // Extract newKeyType from the batch key's Array's type
         let newKeyType = `${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>`;
 
         if (resourceConfig.isBatchKeyASet) {
+            /**
+             * New key's type has to be extracted differently if the batch key's resource
+             * expects them in the form of a Set
+             */
             newKeyType = `${resourceConfig.newKey}: ${getNewKeyTypeFromBatchKeySetType(
                 resourceConfig.batchKey,
                 resourceArgs,
