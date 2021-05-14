@@ -843,7 +843,7 @@ test('batch endpoint with isResponseDictionary handles a response that returns a
     });
 });
 
-test('batch endpoint with uniqueBatchKeys handles a response', async () => {
+test('batch endpoint with isBatchKeyASet handles a response', async () => {
     const config = {
         resources: {
             foo: {
@@ -851,7 +851,7 @@ test('batch endpoint with uniqueBatchKeys handles a response', async () => {
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                uniqueBatchKeys: true,
+                isBatchKeyASet: true,
             },
         },
     };

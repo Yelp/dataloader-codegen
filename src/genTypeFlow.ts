@@ -52,7 +52,7 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
     if (resourceConfig.isBatchResource) {
         let newKeyType = `${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>`;
 
-        if (resourceConfig.uniqueBatchKeys) {
+        if (resourceConfig.isBatchKeyASet) {
             newKeyType = `${resourceConfig.newKey}: ${getNewKeyTypeFromBatchKeySetType(
                 resourceConfig.batchKey,
                 resourceArgs,

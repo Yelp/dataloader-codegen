@@ -1057,7 +1057,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "isBatchResource": true,
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
-             *   "uniqueBatchKeys": true
+             *   "isBatchKeyASet": true
              * }
              * ```
              */

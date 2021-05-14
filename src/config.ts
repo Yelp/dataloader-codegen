@@ -25,7 +25,7 @@ export interface BatchResourceConfig {
     commaSeparatedBatchKey?: boolean;
     // TODO: Assert somehow/somewhere that both isResponseDictionary and reorderResultsByKey aren't set
     isResponseDictionary?: boolean;
-    uniqueBatchKeys?: boolean;
+    isBatchKeyASet?: boolean;
 }
 
 export interface NonBatchResourceConfig {

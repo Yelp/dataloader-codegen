@@ -94,9 +94,9 @@
                     "type": "boolean",
                     "description": "(Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false"
                 },
-                "uniqueBatchKeys": {
+                "isBatchKeyASet": {
                     "type": "boolean",
-                    "description": "(Optional) Set to true if the batchKey is expected to be a unique Set instead of an Array. Default: false"
+                    "description": "(Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). Default: false"
                 }
             }
         },
