@@ -5,7 +5,7 @@ minimal: node_modules build
 
 venv: Makefile requirements-dev.txt
 	rm -rf venv
-	virtualenv venv --python=$(PYTHON3)
+	$(PYTHON3) -m venv venv
 	venv/bin/pip install -r requirements-dev.txt
 
 node_modules: package.json yarn.lock
