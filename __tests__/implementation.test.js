@@ -843,6 +843,59 @@ test('batch endpoint with isResponseDictionary handles a response that returns a
     });
 });
 
+test('batch endpoint with isBatchKeyASet handles a response', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                isBatchKeyASet: true,
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [1, 2])) {
+                expect(include_extra_info).toBe(false);
+                return Promise.resolve([
+                    { foo_id: 1, foo_value: 'hello' },
+                    { foo_id: 2, foo_value: 'world' },
+                ]);
+            }
+
+            if (_.isEqual(foo_ids, [3])) {
+                expect(include_extra_info).toBe(true);
+                return Promise.resolve([
+                    {
+                        foo_id: 3,
+                        foo_value: 'greetings',
+                        extra_stuff: 'lorem ipsum',
+                    },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, include_extra_info: false },
+            { foo_id: 2, include_extra_info: false },
+            { foo_id: 3, include_extra_info: true },
+        ]);
+
+        expect(results).toEqual([
+            { foo_id: 1, foo_value: 'hello' },
+            { foo_id: 2, foo_value: 'world' },
+            { foo_id: 3, foo_value: 'greetings', extra_stuff: 'lorem ipsum' },
+        ]);
+    });
+});
+
 test('batch endpoint with isResponseDictionary handles a response that returns a dictionary, with a missing item', async () => {
     const config = {
         resources: {

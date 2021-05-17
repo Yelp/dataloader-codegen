@@ -14,8 +14,15 @@ const createSWAPIServer = () => {
             diameter: String
         }
 
+        type Film {
+            title: String
+            episodeNumber: Int
+            director: String
+        }
+
         type Query {
             planet(id: Int): Planet
+            film(id: Int): Film
         }
     `);
 
@@ -63,9 +70,56 @@ const createSWAPIServer = () => {
         }
     }
 
+    class FilmModel {
+        id: number;
+
+        constructor(id: number) {
+            this.id = id;
+        }
+
+        async title() {
+            const response = await swapiLoaders.getFilms.load({ film_id: this.id });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.title;
+            }
+        }
+
+        async episodeNumber() {
+            const response = await swapiLoaders.getFilms.load({ film_id: this.id });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.episode_id;
+            }
+        }
+
+        async director() {
+            const response = await swapiLoaders.getFilms.load({ film_id: this.id });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.director;
+            }
+        }
+    }
+
     const root = {
         planet: ({ id }) => {
             return new PlanetModel(id);
+        },
+        film: ({ id }) => {
+            return new FilmModel(id);
         },
     };
 
@@ -89,6 +143,17 @@ runQuery(/* GraphQL */ `
         }
         dagobah: planet(id: 5) {
             name
+        }
+
+        meh: film(id: 1) {
+            title
+            episodeNumber
+            director
+        }
+        theBest: film(id: 4) {
+            title
+            episodeNumber
+            director
         }
     }
 `).then((result) => {
