@@ -433,9 +433,9 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     resourceConfig.secondaryNewKey
                 }', ['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
                 // Split the results back up into the order that they were requested
-                return unPartitionResultsByBatchKeyPartition('${
-                    resourceConfig.newKey
-                }', batchKeyPartition, secondaryBatchKeyPartiion, requestGroups,  groupedResults);
+                return unPartitionResultsByBatchKeyPartition('${resourceConfig.newKey}', '${
+        resourceConfig.secondaryBatchKey
+    }', batchKeyPartition, secondaryBatchKeyPartiion, requestGroups,  groupedResults);
             } else {
                 // Split the results back up into the order that they were requested
                 return unPartitionResults(requestGroups, groupedResults);

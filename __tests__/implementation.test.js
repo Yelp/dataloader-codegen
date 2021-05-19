@@ -347,6 +347,62 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
     });
 });
 
+test('batch endpoint (multiple requests) with secondaryBatchKey returned in a nested object ', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                secondaryBatchKey: 'properties',
+                secondaryNewKey: 'property',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, properties, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [2, 1])) {
+                expect(include_extra_info).toBe(false);
+                return Promise.resolve([
+                    { foo_id: 1, properties: { rating: 3, name: 'Burger King' } },
+                    { foo_id: 2, properties: { rating: 4, name: 'In N Out' } },
+                ]);
+            }
+
+            if (_.isEqual(foo_ids, [3])) {
+                expect(include_extra_info).toBe(true);
+                return Promise.resolve([
+                    {
+                        foo_id: 3,
+                        properties: {
+                            rating: 5,
+                            name: 'Shake Shack',
+                        },
+                    },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 2, property: 'name', include_extra_info: false },
+            { foo_id: 1, property: 'rating', include_extra_info: false },
+            { foo_id: 3, property: 'rating', include_extra_info: true },
+        ]);
+
+        expect(results).toEqual([
+            { foo_id: 2, properties: { name: 'In N Out' } },
+            { foo_id: 1, properties: { rating: 3 } },
+            { foo_id: 3, properties: { rating: 5 } },
+        ]);
+    });
+});
+
 test('batch endpoint (multiple requests) with secondaryBatchKey that rejects', async () => {
     const config = {
         resources: {
@@ -531,7 +587,10 @@ test('batch endpoint with secondaryBatchKey without reorderResultsByKey throws e
 
         expect(results).toMatchObject([
             { foo_id: 1, name: 'Shake Shack' },
-            expect.toBeError('Could not find key = "2" in the response dict.', 'BatchItemNotFoundError'),
+            expect.toBeError(
+                'Could not find key = "2" in the response dict. Or your response does not follow the type we support.',
+                'BatchItemNotFoundError',
+            ),
             { foo_id: 3, rating: 3 },
             { foo_id: 4, rating: 3.5 },
         ]);
