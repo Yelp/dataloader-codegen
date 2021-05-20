@@ -93,6 +93,7 @@ resources:
             nestedPath: ?string               (can only use if isBatchResource=true)
             commaSeparatedBatchKey: ?string   (can only use if isBatchResource=true)
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
+            isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
 
 typings:
     language: flow
@@ -113,16 +114,17 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 
 #### `resources` Parameters
 
-| Key                      | Value Description                                                                                                                                                                                                                                       |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `isBatchResource`        | Is this a batch resource? (Can you pass it a list of keys and get a list of results back?)                                                                                                                                                              |
-| `docsLink`               | The URL for the documentation of the resource. Useful for others to verify information is correct, and may be used in stack traces.                                                                                                                     |
-| `batchKey`               | The argument to the resource that represents the list of entities we want to fetch. (e.g. 'user_ids')                                                                                                                                                   |
-| `newKey`                 | The argument we'll replace the batchKey with - should be a singular version of the `batchKey` (e.g. 'user_id')                                                                                                                                          |
-| `reorderResultsByKey`    | (Optional) If the resource itself does not guarantee ordering, use this to specify which key in the response objects corresponds to an element in `batchKey`. Transforms and re-order the response to the same order as requested from the DataLoaders. |
-| `nestedPath`             | (Optional) If the resource returns the list of results in a nested path (e.g. `{ results: [ 1, 2, 3 ] }`), this tells the DataLoader where in the response to find the results. (e.g. 'results').                                                       |
-| `commaSeparatedBatchKey` | (Optional) Set to true if the interface of the resource takes the batch key as a comma separated list (rather than an array of IDs, as is more common). Default: false                                                                                  |
-| `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                 |
+| Key                      | Value Description                                                                                                                                                                                                                                        |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isBatchResource`        | Is this a batch resource? (Can you pass it a list of keys and get a list of results back?)                                                                                                                                                               |
+| `docsLink`               | The URL for the documentation of the resource. Useful for others to verify information is correct, and may be used in stack traces.                                                                                                                      |
+| `batchKey`               | The argument to the resource that represents the list of entities we want to fetch. (e.g. 'user_ids')                                                                                                                                                    |
+| `newKey`                 | The argument we'll replace the batchKey with - should be a singular version of the `batchKey` (e.g. 'user_id')                                                                                                                                           |
+| `reorderResultsByKey`    | (Optional) If the resource itself does not guarantee ordering, use this to specify which key in the response objects corresponds to an element in `batchKey`. Transforms and re-order the response to the same order as requested from the DataLoaders.  |
+| `nestedPath`             | (Optional) If the resource returns the list of results in a nested path (e.g. `{ results: [ 1, 2, 3 ] }`), this tells the DataLoader where in the response to find the results. (e.g. 'results').                                                        |
+| `commaSeparatedBatchKey` | (Optional) Set to true if the interface of the resource takes the batch key as a comma separated list (rather than an array of IDs, as is more common). Default: false                                                                                   |
+| `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                  |
+| `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
 
 ### `typings`
 

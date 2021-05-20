@@ -93,6 +93,10 @@
                 "isResponseDictionary": {
                     "type": "boolean",
                     "description": "(Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false"
+                },
+                "isBatchKeyASet": {
+                    "type": "boolean",
+                    "description": "(Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false"
                 }
             }
         },

@@ -36,18 +36,47 @@ function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
         >`;
 }
 
+/**
+ * Extract the type T from a Set<T> resource (in this case a batchKey's resource)
+ * using its `.has(T)`'s function paremeter type
+ */
+export function getNewKeyTypeFromBatchKeySetType(batchKey: string, resourceArgs: string) {
+    return `\
+        $Call<
+            ExtractArg,
+            [$PropertyType<$PropertyType<${resourceArgs}, '${batchKey}'>, 'has'>]
+        >`;
+}
+
 export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
     // TODO: We assume that the resource accepts a single dict argument. Let's
     // make this configurable to handle resources that use seperate arguments.
     const resourceArgs = getResourceArg(resourceConfig, resourcePath);
 
-    return resourceConfig.isBatchResource
-        ? `
-        {|
-            ...$Diff<${resourceArgs}, { ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'> }>,
-            ...{| ${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0> |}
-        |}`
-        : resourceArgs;
+    if (resourceConfig.isBatchResource) {
+        // Extract newKeyType from the batch key's Array's type
+        let newKeyType = `${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>`;
+
+        if (resourceConfig.isBatchKeyASet) {
+            /**
+             * New key's type has to be extracted differently if the batch key's resource
+             * expects them in the form of a Set
+             */
+            newKeyType = `${resourceConfig.newKey}: ${getNewKeyTypeFromBatchKeySetType(
+                resourceConfig.batchKey,
+                resourceArgs,
+            )}`;
+        }
+
+        return `{|
+            ...$Diff<${resourceArgs}, {
+                ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>
+            }>,
+            ...{| ${newKeyType} |}
+        |}`;
+    }
+
+    return resourceArgs;
 }
 
 export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
