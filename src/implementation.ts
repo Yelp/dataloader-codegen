@@ -166,10 +166,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * We'll refer to each element in the group as a "request ID".
              */
             let requestGroups;
-            if (${typeof resourceConfig.secondaryNewKey === 'string'} &&  ${
-        typeof resourceConfig.secondaryBatchKey === 'string'
+            if (${typeof resourceConfig.propertyNewKey === 'string'} &&  ${
+        typeof resourceConfig.propertyBatchKey === 'string'
     }) {
-                requestGroups = partitionItems(['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
+                requestGroups = partitionItems(['${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'], keys);
             } else {
                 requestGroups = partitionItems('${resourceConfig.newKey}', keys);
             }
@@ -189,8 +189,8 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     const {
                         batchKey,
                         newKey,
-                        secondaryBatchKey,
-                        secondaryNewKey,
+                        propertyBatchKey,
+                        propertyNewKey,
                         commaSeparatedBatchKey,
                     } = resourceConfig;
 
@@ -199,18 +199,18 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
 
-                    if (typeof secondaryNewKey === 'string' && typeof secondaryBatchKey === 'string') {
-                        let secondaryBatchKeyParam = `['${secondaryBatchKey}']: requests.map(k => k['${secondaryNewKey}'])`;
+                    if (typeof propertyNewKey === 'string' && typeof propertyBatchKey === 'string') {
+                        let propertyBatchKeyParam = `['${propertyBatchKey}']: requests.map(k => k['${propertyNewKey}'])`;
                         if (commaSeparatedBatchKey === true) {
-                            secondaryBatchKeyParam = `${secondaryBatchKeyParam}.join(',')`;
+                            propertyBatchKeyParam = `${propertyBatchKeyParam}.join(',')`;
                         }
                         return `
                             // For now, we assume that the dataloader key should be the first argument to the resource
                             // @see https://github.com/Yelp/dataloader-codegen/issues/56
                             const resourceArgs = [{
-                                ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'),
+                                ..._.omit(requests[0], '${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'),
                                 ${batchKeyParam},
-                                ${secondaryBatchKeyParam},
+                                ${propertyBatchKeyParam},
                             }];
                         `;
                     } else {
@@ -303,14 +303,14 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     const {
                         reorderResultsByKey,
                         isResponseDictionary,
-                        secondaryBatchKey,
-                        secondaryNewKey,
+                        propertyBatchKey,
+                        propertyNewKey,
                     } = resourceConfig;
 
                     if (
                         !isResponseDictionary &&
                         reorderResultsByKey == null &&
-                        !(typeof secondaryNewKey === 'string' && typeof secondaryBatchKey === 'string')
+                        !(typeof propertyNewKey === 'string' && typeof propertyBatchKey === 'string')
                     ) {
                         return `
                             if (!(response instanceof Error)) {
@@ -423,19 +423,19 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return response;
             }))
 
-            if (${typeof resourceConfig.secondaryNewKey === 'string'} &&  ${
-        typeof resourceConfig.secondaryBatchKey === 'string'
+            if (${typeof resourceConfig.propertyNewKey === 'string'} &&  ${
+        typeof resourceConfig.propertyBatchKey === 'string'
     }) {
                 const batchKeyPartition = getBatchKeysForPartitionItems('${resourceConfig.newKey}', ['${
         resourceConfig.newKey
-    }', '${resourceConfig.secondaryNewKey}'], keys);
-                const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems('${
-                    resourceConfig.secondaryNewKey
-                }', ['${resourceConfig.newKey}', '${resourceConfig.secondaryNewKey}'], keys);
+    }', '${resourceConfig.propertyNewKey}'], keys);
+                const propertyBatchKeyPartiion = getBatchKeysForPartitionItems('${resourceConfig.propertyNewKey}', ['${
+        resourceConfig.newKey
+    }', '${resourceConfig.propertyNewKey}'], keys);
                 // Split the results back up into the order that they were requested
                 return unPartitionResultsByBatchKeyPartition('${resourceConfig.newKey}', '${
-        resourceConfig.secondaryBatchKey
-    }', batchKeyPartition, secondaryBatchKeyPartiion, requestGroups,  groupedResults);
+        resourceConfig.propertyBatchKey
+    }', batchKeyPartition, propertyBatchKeyPartiion, requestGroups,  groupedResults);
             } else {
                 // Split the results back up into the order that they were requested
                 return unPartitionResults(requestGroups, groupedResults);

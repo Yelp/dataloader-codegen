@@ -292,7 +292,7 @@ test('batch endpoint (multiple requests)', async () => {
     });
 });
 
-test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
+test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
     const config = {
         resources: {
             foo: {
@@ -300,8 +300,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
@@ -347,7 +347,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey', async () => {
     });
 });
 
-test('batch endpoint (multiple requests) with secondaryBatchKey returned in a nested object ', async () => {
+test('batch endpoint (multiple requests) with propertyBatchKey returned in a nested object ', async () => {
     const config = {
         resources: {
             foo: {
@@ -355,8 +355,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey returned in a ne
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
@@ -403,7 +403,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey returned in a ne
     });
 });
 
-test('batch endpoint (multiple requests) with secondaryBatchKey that rejects', async () => {
+test('batch endpoint (multiple requests) with propertyBatchKey that rejects', async () => {
     const config = {
         resources: {
             foo: {
@@ -411,8 +411,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey that rejects', a
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
@@ -468,7 +468,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey that rejects', a
     });
 });
 
-test('batch endpoint (multiple requests) with secondaryBatchKey error handling', async () => {
+test('batch endpoint (multiple requests) with propertyBatchKey error handling', async () => {
     const config = {
         resources: {
             foo: {
@@ -476,8 +476,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey error handling',
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
@@ -533,7 +533,7 @@ test('batch endpoint (multiple requests) with secondaryBatchKey error handling',
     });
 });
 
-test('batch endpoint with secondaryBatchKey without reorderResultsByKey throws error for response with non existant items', async () => {
+test('batch endpoint with propertyBatchKey without reorderResultsByKey throws error for response with non existant items', async () => {
     const config = {
         resources: {
             foo: {
@@ -541,8 +541,8 @@ test('batch endpoint with secondaryBatchKey without reorderResultsByKey throws e
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
@@ -597,7 +597,7 @@ test('batch endpoint with secondaryBatchKey without reorderResultsByKey throws e
     });
 });
 
-test('batch endpoint (multiple requests) with secondaryBatchKey different response structure', async () => {
+test('batch endpoint (multiple requests) with propertyBatchKey different response structure', async () => {
     const config = {
         resources: {
             foo: {
@@ -605,8 +605,8 @@ test('batch endpoint (multiple requests) with secondaryBatchKey different respon
                 docsLink: 'example.com/docs/bar',
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
-                secondaryBatchKey: 'properties',
-                secondaryNewKey: 'property',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
             },
         },
     };
