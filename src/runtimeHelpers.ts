@@ -396,6 +396,7 @@ export function unPartitionResultsByBatchKeyPartition<T>(
                     }
                 }
                 if (result === null) {
+                    console.log('ffff');
                     return {
                         order: id,
                         result: new BatchItemNotFoundError(
