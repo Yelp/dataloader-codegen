@@ -8,4 +8,4 @@ After merging your PR to master, you may want to release a new version of **data
 2. Update version in [package.json](package.json) directly in <https://github.com/Yelp/dataloader-codegen/edit/master/package.json> and commit changes
 3. Draft a new release in <https://github.com/Yelp/dataloader-codegen/releases/new> with the following format. Remember to use tag `vX.Y.Z` instead of `X.Y.Z`
    ![release](./images/release.png)
-4. That's it. **Github Actions** will start a releasing process like **TBD** (we're in the process of switching right now)
+4. That's it. **Github Actions** will start a release process [like this](https://github.com/Yelp/dataloader-codegen/runs/2643208483?check_suite_focus=true#step:5:33).
