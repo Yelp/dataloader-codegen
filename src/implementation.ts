@@ -423,19 +423,28 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return response;
             }))
 
-            if (${typeof resourceConfig.propertyNewKey === 'string'} &&  ${
-        typeof resourceConfig.propertyBatchKey === 'string'
-    }) {
-                const batchKeyPartition = getBatchKeysForPartitionItems('${resourceConfig.newKey}', ['${
-        resourceConfig.newKey
-    }', '${resourceConfig.propertyNewKey}'], keys);
-                const propertyBatchKeyPartiion = getBatchKeysForPartitionItems('${resourceConfig.propertyNewKey}', ['${
-        resourceConfig.newKey
-    }', '${resourceConfig.propertyNewKey}'], keys);
-                // Split the results back up into the order that they were requested
-                return unPartitionResultsByBatchKeyPartition('${resourceConfig.newKey}', '${
-        resourceConfig.propertyBatchKey
-    }', batchKeyPartition, propertyBatchKeyPartiion, requestGroups,  groupedResults);
+            if (
+                ${typeof resourceConfig.propertyNewKey === 'string'} &&
+                ${typeof resourceConfig.propertyBatchKey === 'string'}) {
+                const batchKeyPartition = getBatchKeysForPartitionItems(
+                    '${resourceConfig.newKey}',
+                    ['${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'],
+                    keys
+                );
+                const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                    '${resourceConfig.propertyNewKey}',
+                    ['${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'],
+                    keys
+                );
+                // Split the results back up into the order that they were requested when there is propertyBatchKey
+                return unPartitionResultsByBatchKeyPartition(
+                    '${resourceConfig.newKey}',
+                    '${resourceConfig.propertyBatchKey}',
+                    batchKeyPartition,
+                    propertyBatchKeyPartiion,
+                    requestGroups,
+                    groupedResults
+                );
             } else {
                 // Split the results back up into the order that they were requested
                 return unPartitionResults(requestGroups, groupedResults);
@@ -493,6 +502,5 @@ export default function getLoaderImplementation(resourceConfig: ResourceConfig, 
     const loader = resourceConfig.isBatchResource
         ? getBatchLoader(resourceConfig, resourcePath)
         : getNonBatchLoader(resourceConfig, resourcePath);
-
     return loader;
 }

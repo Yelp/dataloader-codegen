@@ -100,11 +100,11 @@
                 },
                 "propertyBatchKey": {
                     "type": "string",
-                    "description": "The argument to the resource that represents the list of properties we want to fetch. (e.g. 'properties', 'features')"
+                    "description": "(Optional) The argument to the resource that represents the nested list of optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
                 },
                 "propertyNewKey": {
                     "type": "string",
-                    "description": "The argument we'll replace the propertyBatchKey with - should be a singular version of the batchKey (e.g. 'property', 'feature')"
+                    "description": "(Optional) The argument we'll replace the propertyBatchKey with - should be a singular version of the propertyBatchKey (e.g. usually 'property' or 'feature')"
                 }
             }
         },

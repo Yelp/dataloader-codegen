@@ -1632,7 +1632,7 @@ test('batch endpoint with propertyBatchKey with isResponseDictionary with a miss
             });
         },
     };
-    console.log('aaaa');
+
     await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
 
@@ -1700,5 +1700,163 @@ test('batch endpoint (multiple requests) with propertyBatchKey different respons
         ]);
 
         expect(results).toEqual([{ 2: { name: 'In N Out' } }, { 1: { rating: 3 } }, { 3: { rating: 5 } }]);
+    });
+});
+
+test('batch endpoint with propertyBatchKey with reorderResultsByKey handles response with non existant items', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                reorderResultsByKey: 'foo_id',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, bar }) => {
+            if (_.isEqual(foo_ids, [1, 2, 3])) {
+                return Promise.resolve([
+                    { foo_id: 3, properties: { rating: 4, name: 'Shake Shack' } },
+                    { foo_id: 1, properties: { rating: 3, name: 'Burger King' } },
+                    // deliberately omit 2
+                ]);
+            } else if (_.isEqual(foo_ids, [4])) {
+                return Promise.resolve([{ foo_id: 4, properties: { rating: 5, name: 'In N Out' } }]);
+            }
+        },
+    };
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, property: 'rating', bar: true },
+            { foo_id: 2, property: 'name', bar: true },
+            { foo_id: 3, property: 'rating', bar: true },
+            { foo_id: 4, property: 'rating', bar: false },
+        ]);
+
+        expect(results).toMatchObject([
+            { foo_id: 1, properties: { rating: 3 } },
+            expect.toBeError(
+                'Could not find key = "2" in the response dict. Or your response does not follow the type we support.',
+                'BatchItemNotFoundError',
+            ),
+            { foo_id: 3, properties: { rating: 4 } },
+            { foo_id: 4, properties: { rating: 5 } },
+        ]);
+    });
+});
+
+test('batch endpoint with propertyBatchKey (multiple requests, error handling - non array response)', async () => {
+    const config = {
+        eek: true,
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [1, 3])) {
+                expect(include_extra_info).toBe(false);
+                return new Error('yikes');
+            }
+
+            if (_.isEqual(foo_ids, [2, 4, 5])) {
+                expect(include_extra_info).toBe(true);
+                // Deliberately returning an object, not an array
+                return Promise.resolve({
+                    foo: 'bar',
+                });
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, property: 'name', include_extra_info: false },
+            { foo_id: 2, property: 'rating', include_extra_info: true },
+            { foo_id: 3, property: 'rating', include_extra_info: false },
+            { foo_id: 4, property: 'name', include_extra_info: true },
+            { foo_id: 5, property: 'name', include_extra_info: true },
+        ]);
+
+        expect(results).toMatchObject([
+            expect.toBeError('yikes'),
+            expect.toBeError('[dataloader-codegen :: foo] Expected response to be an array'),
+            expect.toBeError('yikes'),
+            expect.toBeError('[dataloader-codegen :: foo] Expected response to be an array'),
+            expect.toBeError('[dataloader-codegen :: foo] Expected response to be an array'),
+        ]);
+    });
+});
+
+test('batch endpoint with propertyBatchKey (multiple requests, error handling, with reordering)', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                reorderResultsByKey: 'foo_id',
+                propertyBatchKey: 'properties',
+                propertyNewKey: 'property',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, include_extra_info }) => {
+            if (_.isEqual(foo_ids, [1, 3])) {
+                expect(include_extra_info).toBe(false);
+                return new Error('yikes');
+            }
+
+            if (_.isEqual(foo_ids, [2, 4, 5])) {
+                expect(include_extra_info).toBe(true);
+                // return items deliberately out of order
+                return Promise.resolve([
+                    { foo_id: 4, properties: { rating: 4, name: 'Shake Shack' } },
+                    { foo_id: 5, properties: { rating: 3, name: 'Burger King' } },
+                    { foo_id: 2, properties: { rating: 5, name: 'In N Out' } },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, property: 'name', include_extra_info: false },
+            { foo_id: 2, property: 'rating', include_extra_info: true },
+            { foo_id: 3, property: 'rating', include_extra_info: false },
+            { foo_id: 4, property: 'name', include_extra_info: true },
+            { foo_id: 5, property: 'name', include_extra_info: true },
+        ]);
+
+        expect(results).toEqual([
+            expect.toBeError(/yikes/),
+            { foo_id: 2, properties: { rating: 5 } },
+            expect.toBeError(/yikes/),
+            { foo_id: 4, properties: { name: 'Shake Shack' } },
+            { foo_id: 5, properties: { name: 'Burger King' } },
+        ]);
     });
 });

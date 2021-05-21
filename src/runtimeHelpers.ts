@@ -348,7 +348,6 @@ export function unPartitionResultsByBatchKeyPartition<T>(
      * ]
      * ```
      */
-
     const zippedGroups: ReadonlyArray<ReadonlyArray<{ order: number; result: T | Error }>> = requestGroups.map(
         (ids, i) => {
             return ids.map((id, j) => {
@@ -363,7 +362,10 @@ export function unPartitionResultsByBatchKeyPartition<T>(
                     if (Object.values(element).includes(batchKeyPartition[i][j])) {
                         // case 2, propertyBatchKey is returned in a nested object
                         // { bar_id: 2, properties: {name: 'Burger King', rating: 3 }}
-                        if (propertyBatchKey in element && propertyBatchKeyPartion[i][j] in element[propertyBatchKey]) {
+                        if (
+                            element.hasOwnProperty(propertyBatchKey) &&
+                            element[propertyBatchKey].hasOwnProperty(propertyBatchKeyPartion[i][j])
+                        ) {
                             result = element;
                             result[propertyBatchKey] = {
                                 [propertyBatchKeyPartion[i][j]]:
@@ -383,8 +385,8 @@ export function unPartitionResultsByBatchKeyPartition<T>(
                     // case 4, the value of newKey is the key and its properties are its values.
                     // { 2: { name: 'Burger King', rating: 3 }}
                     if (
-                        batchKeyPartition[i][j] in element &&
-                        propertyBatchKeyPartion[i][j] in element[batchKeyPartition[i][j]]
+                        element.hasOwnProperty(batchKeyPartition[i][j]) &&
+                        element[batchKeyPartition[i][j]].hasOwnProperty(propertyBatchKeyPartion[i][j])
                     ) {
                         result = {
                             [batchKeyPartition[i][j]]: {
@@ -395,8 +397,8 @@ export function unPartitionResultsByBatchKeyPartition<T>(
                         break;
                     }
                 }
+
                 if (result === null) {
-                    console.log('ffff');
                     return {
                         order: id,
                         result: new BatchItemNotFoundError(
