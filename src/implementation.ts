@@ -163,6 +163,20 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * Returns:
              * \`[ [ 0, 2 ], [ 1 ] ]\`
              *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * \`\`\`js
+             * partitionItems([
+             *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+             *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+             *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+             * ], 'bar_id')
+             * \`\`\`
+             *
+             * Returns:
+             * \`[ [ 0, 2 ], [ 1 ] ]\`
              * We'll refer to each element in the group as a "request ID".
              */
             let requestGroups;
@@ -310,6 +324,11 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     if (
                         !isResponseDictionary &&
                         reorderResultsByKey == null &&
+                        /**
+                         * When there's propertyBatchKey and propertyNewKey, the resource might
+                         * contain less number of items that we requested. It's valid, so we
+                         * should skip the check.
+                         */
                         !(typeof propertyNewKey === 'string' && typeof propertyBatchKey === 'string')
                     ) {
                         return `
@@ -331,6 +350,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                                         )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '));
+
                                     // Tell flow that BatchItemNotFoundError extends Error.
                                     // It's an issue with flowgen package, but not an issue with Flow.
                                     // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -423,6 +443,41 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return response;
             }))
 
+            /**
+             *  When there's propertyBatchKey and propertyNewKey, the resource might
+             *  contain less number of items that we requested. We need the value of batchKey and
+             *  propertyBatchKey in requests group to help us split the results back up into the
+             *  order that they were requested.
+             *
+             *
+             *  Example:
+             *
+             *  getBatchKeyForPartitionItems(
+             *    'bar_id',
+             *    ['bar_id', 'property'],
+             *    [
+             *      { bar_id: 2, property: 'name', include_extra_info: true },
+             *      { bar_id: 3, property: 'rating', include_extra_info: false },
+             *      { bar_id: 4, property: 'rating', include_extra_info: true },
+             *    ])
+             *
+             *
+             *  Returns:
+             *  [ [ 2, 4 ], [ 3 ] ]
+             *
+             *  getBatchKeyForPartitionItems(
+             *    'property',
+             *    ['bar_id', 'property'],
+             *    [
+             *      { bar_id: 2, property: 'name', include_extra_info: true },
+             *      { bar_id: 3, property: 'rating', include_extra_info: false },
+             *      { bar_id: 4, property: 'rating', include_extra_info: true },
+             *    ])
+             *
+             *
+             *  Returns:
+             *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+             */
             if (
                 ${typeof resourceConfig.propertyNewKey === 'string'} &&
                 ${typeof resourceConfig.propertyBatchKey === 'string'}) {
@@ -436,7 +491,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                     ['${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'],
                     keys
                 );
-                // Split the results back up into the order that they were requested when there is propertyBatchKey
+
                 return unPartitionResultsByBatchKeyPartition(
                     '${resourceConfig.newKey}',
                     '${resourceConfig.propertyBatchKey}',

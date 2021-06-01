@@ -299,19 +299,54 @@ export function unPartitionResults<T>(
 
 /**
  * Perform the inverse mapping from partitionItems on the nested results we get
- * back from the service. This function is only called when we have propertyBatchKey.
- * We assume the newKey is inside the response here.
+ * back from the service. This function is only called when we have propertyBatchKey and propertyNewKey.
+ * We only three different kind of response contract.
+ *
+ * Case 1: propertyBatchKey is returned in a nested object, newKey is at the top level.
+ * If we have 'bar_id' as newKey and 'properties' as propertyBatchKey,
+ * the resultGroups should look like this:
+ * [
+ *      [ { bar_id: 2, properties: { name: 'Burger King', rating: 3 } } ],
+ *      [ { bar_id: 1, properties: { name: 'In N Out', rating: 4 } }  ]
+ * ],
+ *
+ * Case 2: propertyBatchKey is not returned in a nested object, but spread at top level as well.
+ * If we have 'bar_id' as newKey and 'properties' as propertyBatchKey,
+ * the resultGroups should look like this:
+ * [
+ *      [ { bar_id: 2, name: 'Burger King', rating: 3 } ],
+ *      [ { bar_id: 1, name: 'In N Out', rating: 4 } ]
+ * ],
+ *
+ * Case 3: newKey and its properties are returned as a key-value pair at the top level.
+ * If we have 'bar_id' as newKey and 'properties' as propertyBatchKey,
+ * the resultGroups should look like this:
+ * [
+ *      [ { 2: { name: 'Burger King', rating: 3 } } ],
+ *      [ { 1: { name: 'In N Out', rating: 4 } }  ]
+ * ],
+ *
+ * IMPORTANT NOTE: The contract must have a one-to-one correspondence between the input propertyBatchKey and the output propertyBatchKey.
+ * i.e. if we have property: 'name' in the request, the response must have 'name' in it, and no extra data assciated with it.
  *
  * Example
+ * Request args:
+ * [
+ *      { bar_id: 2, property: 'name', include_extra_info: true },
+ *      { bar_id: 1, property: 'rating', include_extra_info: false },
+ *      { bar_id: 2, property: 'rating', include_extra_info: true },
+ * ]
+ *
  * ```js
  * unPartitionResultsByBatchKeyPartition(
- *   'bar_id',
- *   [ ['name', 'rating'], ['rating'] ],
- *   [ [2, 2], [1] ],
- *   [ [0, 2], [1] ],
- *   [
+ *   newKey = 'bar_id',
+ *   propertyBatchKey =  'properties',
+ *   batchKeyPartition = [ [2, 2], [1] ],
+ *   propertyBatchKeyPartion = [ ['name', 'rating'], ['rating'] ],
+ *   requestGroups = [ [0, 2], [1] ],
+ *   resultGroups = [
  *      [ { bar_id: 2, name: 'Burger King', rating: 3 } ],
- *      [ { bar_id: 1, name: 'In N Out', rating: 4 }  ]
+ *      [ { bar_id: 1, name: 'In N Out', rating: 4 } ]
  *   ],
  * )
  * ```
@@ -352,57 +387,73 @@ export function unPartitionResultsByBatchKeyPartition<T>(
         (ids, i) => {
             return ids.map((id, j) => {
                 let result = null;
-                for (const element of Object.values(resultGroups)[i]) {
-                    // case 1, error in the result.
-                    if (element instanceof CaughtResourceError) {
-                        result = element;
+                for (const resultElement of Object.values(resultGroups)[i]) {
+                    // There's error in the result we should return
+                    if (resultElement instanceof CaughtResourceError) {
+                        result = resultElement;
                         break;
                     }
-                    // newKey has its own key-value pair at the response top level.
-                    if (Object.values(element).includes(batchKeyPartition[i][j])) {
-                        // case 2, propertyBatchKey is returned in a nested object
-                        // { bar_id: 2, properties: {name: 'Burger King', rating: 3 }}
+                    // newKey is returned at the response top level.
+                    if (Object.values(resultElement).includes(batchKeyPartition[i][j])) {
+                        /**
+                         * Case 1: propertyBatchKey is returned in a nested object, newKey is at the top level.
+                         * e.g.: { bar_id: 2, properties: { name: 'Burger King', rating: 3 } }
+                         * If requested property exist in resultElement, we restructure data, so that we only return
+                         * the property we asked for.
+                         */
                         if (
-                            element.hasOwnProperty(propertyBatchKey) &&
-                            element[propertyBatchKey].hasOwnProperty(propertyBatchKeyPartion[i][j])
+                            resultElement.hasOwnProperty(propertyBatchKey) &&
+                            resultElement[propertyBatchKey].hasOwnProperty(propertyBatchKeyPartion[i][j])
                         ) {
-                            result = element;
+                            result = resultElement;
                             result[propertyBatchKey] = {
                                 [propertyBatchKeyPartion[i][j]]:
-                                    element[propertyBatchKey][propertyBatchKeyPartion[i][j]],
+                                    resultElement[propertyBatchKey][propertyBatchKeyPartion[i][j]],
                             };
-                        }
-                        // case 3, propertyBatchKey is not returned in a nested object, but also at the top level.
-                        // { bar_id: 2, name: 'Burger King', rating: 3 }
-                        else {
+                        } else {
+                            /**
+                             * Case 2: propertyBatchKey is not returned in a nested object, but spread at top level as well.
+                             * e.g.: { bar_id: 2, name: 'Burger King', rating: 3 }
+                             * We restructure data, so that we only leave newKey and the property we asked for at the top level.
+                             */
                             result = Object.assign(
                                 {},
-                                ...[newKey, propertyBatchKeyPartion[i][j]].map((key) => ({ [key]: element[key] })),
+                                ...[newKey, propertyBatchKeyPartion[i][j]].map((key) => ({
+                                    [key]: resultElement[key],
+                                })),
                             );
                         }
                         break;
                     }
-                    // case 4, the value of newKey is the key and its properties are its values.
-                    // { 2: { name: 'Burger King', rating: 3 }}
+                    /**
+                     * Case 3: newKey and its properties are returned as a key-value pair at the top level.
+                     * e.g.: { 2: { name: 'Burger King', rating: 3 } }
+                     * If requested property exist in resultElement, we restructure data, so that we only return
+                     * the property we asked for.
+                     */
                     if (
-                        element.hasOwnProperty(batchKeyPartition[i][j]) &&
-                        element[batchKeyPartition[i][j]].hasOwnProperty(propertyBatchKeyPartion[i][j])
+                        resultElement.hasOwnProperty(batchKeyPartition[i][j]) &&
+                        resultElement[batchKeyPartition[i][j]].hasOwnProperty(propertyBatchKeyPartion[i][j])
                     ) {
                         result = {
                             [batchKeyPartition[i][j]]: {
                                 [propertyBatchKeyPartion[i][j]]:
-                                    element[batchKeyPartition[i][j]][propertyBatchKeyPartion[i][j]],
+                                    resultElement[batchKeyPartition[i][j]][propertyBatchKeyPartion[i][j]],
                             },
                         };
                         break;
                     }
                 }
 
+                // If requested property doesn't exist in resultElement, we should throw BatchItemNotFoundError error.
                 if (result === null) {
                     return {
                         order: id,
                         result: new BatchItemNotFoundError(
-                            `Could not find key = "${batchKeyPartition[i][j]}" in the response dict. Or your response does not follow the type we support.`,
+                            [
+                                `Could not find newKey = "${batchKeyPartition[i][j]}" and propertyNewKey = "${propertyBatchKeyPartion[i][j]}" in the response dict.`,
+                                `Or your endpoint does not follow the contract we support.`,
+                            ].join(' '),
                         ),
                     };
                 } else {
