@@ -68,6 +68,16 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
             )}`;
         }
 
+        if (typeof resourceConfig.propertyNewKey === 'string' && typeof resourceConfig.propertyBatchKey === 'string') {
+            return `{|
+                ...$Diff<${resourceArgs}, {
+                    ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>,
+                    ${resourceConfig.propertyBatchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.propertyBatchKey}'>
+                }>,
+                ...{| ${newKeyType},  ${resourceConfig.propertyNewKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.propertyBatchKey}'>, 0> |},
+            |}`;
+        }
+
         return `{|
             ...$Diff<${resourceArgs}, {
                 ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>

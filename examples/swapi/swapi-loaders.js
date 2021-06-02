@@ -178,6 +178,42 @@ export type LoadersType = $ReadOnly<{|
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
         string,
     >,
+    getFilmsV2: DataLoader<
+        {|
+            ...$Diff<
+                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                {
+                    film_ids: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                        'film_ids',
+                    >,
+                    properties: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                        'properties',
+                    >,
+                },
+            >,
+            ...{|
+                film_id: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'film_ids'>,
+                    0,
+                >,
+                property: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'properties'>,
+                    0,
+                >,
+            |},
+        |},
+        $ElementType<
+            $Call<
+                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
+                $PropertyType<ResourcesType, 'getFilmsV2'>,
+            >,
+            0,
+        >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
+    >,
     getRoot: DataLoader<
         $Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>,
         $Call<
@@ -306,6 +342,20 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * Returns:
                  * `[ [ 0, 2 ], [ 1 ] ]`
                  *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
                  * We'll refer to each element in the group as a "request ID".
                  */
                 let requestGroups;
@@ -414,6 +464,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -462,22 +513,58 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
                 if (false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'planet_id',
                         ['planet_id', 'undefined'],
                         keys,
                     );
-                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'undefined',
                         ['planet_id', 'undefined'],
                         keys,
                     );
-                    // Split the results back up into the order that they were requested
+
                     return unPartitionResultsByBatchKeyPartition(
                         'planet_id',
+                        'undefined',
                         batchKeyPartition,
-                        secondaryBatchKeyPartiion,
+                        propertyBatchKeyPartiion,
                         requestGroups,
                         groupedResults,
                     );
@@ -605,6 +692,20 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * Returns:
                  * `[ [ 0, 2 ], [ 1 ] ]`
                  *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
                  * We'll refer to each element in the group as a "request ID".
                  */
                 let requestGroups;
@@ -710,6 +811,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -758,22 +860,58 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
                 if (false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'person_id',
                         ['person_id', 'undefined'],
                         keys,
                     );
-                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'undefined',
                         ['person_id', 'undefined'],
                         keys,
                     );
-                    // Split the results back up into the order that they were requested
+
                     return unPartitionResultsByBatchKeyPartition(
                         'person_id',
+                        'undefined',
                         batchKeyPartition,
-                        secondaryBatchKeyPartiion,
+                        propertyBatchKeyPartiion,
                         requestGroups,
                         groupedResults,
                     );
@@ -901,6 +1039,20 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * Returns:
                  * `[ [ 0, 2 ], [ 1 ] ]`
                  *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
                  * We'll refer to each element in the group as a "request ID".
                  */
                 let requestGroups;
@@ -1009,6 +1161,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '),
                                 );
+
                                 // Tell flow that BatchItemNotFoundError extends Error.
                                 // It's an issue with flowgen package, but not an issue with Flow.
                                 // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
@@ -1057,22 +1210,58 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
                 if (false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'vehicle_id',
                         ['vehicle_id', 'undefined'],
                         keys,
                     );
-                    const secondaryBatchKeyPartiion = getBatchKeysForPartitionItems(
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'undefined',
                         ['vehicle_id', 'undefined'],
                         keys,
                     );
-                    // Split the results back up into the order that they were requested
+
                     return unPartitionResultsByBatchKeyPartition(
                         'vehicle_id',
+                        'undefined',
                         batchKeyPartition,
-                        secondaryBatchKeyPartiion,
+                        propertyBatchKeyPartiion,
                         requestGroups,
                         groupedResults,
                     );
@@ -1209,9 +1398,28 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  * Returns:
                  * `[ [ 0, 2 ], [ 1 ] ]`
                  *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
                  * We'll refer to each element in the group as a "request ID".
                  */
-                const requestGroups = partitionItems('film_id', keys);
+                let requestGroups;
+                if (false && false) {
+                    requestGroups = partitionItems(['film_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -1356,8 +1564,392 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
+                if (false && false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'undefined'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['film_id', 'undefined'],
+                        keys,
+                    );
+
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'undefined',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
+            },
+            {
+                ...cacheKeyOptions,
+            },
+        ),
+        getFilmsV2: new DataLoader<
+            {|
+                ...$Diff<
+                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                    {
+                        film_ids: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                            'film_ids',
+                        >,
+                        properties: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
+                            'properties',
+                        >,
+                    },
+                >,
+                ...{|
+                    film_id: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'film_ids'>,
+                        0,
+                    >,
+                    property: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'properties'>,
+                        0,
+                    >,
+                |},
+            |},
+            $ElementType<
+                $Call<
+                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
+                    $PropertyType<ResourcesType, 'getFilmsV2'>,
+                >,
+                0,
+            >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
+        >(
+            /**
+             * ===============================================================
+             * Generated DataLoader: getFilmsV2
+             * ===============================================================
+             *
+             * Resource Config:
+             *
+             * ```json
+             * {
+             *   "docsLink": "https://swapi.dev/documentation#films",
+             *   "isBatchResource": true,
+             *   "batchKey": "film_ids",
+             *   "newKey": "film_id",
+             *   "propertyBatchKey": "properties",
+             *   "propertyNewKey": "property"
+             * }
+             * ```
+             */
+            async (keys) => {
+                invariant(
+                    typeof resources.getFilmsV2 === 'function',
+                    [
+                        '[dataloader-codegen :: getFilmsV2] resources.getFilmsV2 is not a function.',
+                        'Did you pass in an instance of getFilmsV2 to "getLoaders"?',
+                    ].join(' '),
+                );
+
+                /**
+                 * Chunk up the "keys" array to create a set of "request groups".
+                 *
+                 * We're about to hit a batch resource. In addition to the batch
+                 * key, the resource may take other arguments too. When batching
+                 * up requests, we'll want to look out for where those other
+                 * arguments differ, and send multiple requests so we don't get
+                 * back the wrong info.
+                 *
+                 * In other words, we'll potentially want to send _multiple_
+                 * requests to the underlying resource batch method in this
+                 * dataloader body.
+                 *
+                 * ~~~ Why? ~~~
+                 *
+                 * Consider what happens when we get called with arguments where
+                 * the non-batch keys differ.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
+                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
+                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
+                 * ```
+                 *
+                 * If we collected everything up and tried to send the one
+                 * request to the resource as a batch request, how do we know
+                 * what the value for "include_private_data" should be? We're
+                 * going to have to group these up up and send two requests to
+                 * the resource to make sure we're requesting the right stuff.
+                 *
+                 * e.g. We'd need to make the following set of underlying resource
+                 * calls:
+                 *
+                 * ```js
+                 * foo({ foo_ids: [ 2 ], include_private_data: true });
+                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+                 * ```
+                 *
+                 * ~~~ tl;dr ~~~
+                 *
+                 * When we have calls to .load with differing non batch key args,
+                 * we'll need to send multiple requests to the underlying
+                 * resource to make sure we get the right results back.
+                 *
+                 * Let's create the request groups, where each element in the
+                 * group refers to a position in "keys" (i.e. a call to .load)
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { bar_id: 7, include_extra_info: true },
+                 *   { bar_id: 8, include_extra_info: false },
+                 *   { bar_id: 9, include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 * We'll refer to each element in the group as a "request ID".
+                 */
+                let requestGroups;
+                if (true && true) {
+                    requestGroups = partitionItems(['film_id', 'property'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
+
+                // Map the request groups to a list of Promises - one for each request
+                const groupedResults = await Promise.all(
+                    requestGroups.map(async (requestIDs) => {
+                        /**
+                         * Select a set of elements in "keys", where all non-batch
+                         * keys should be identical.
+                         *
+                         * We're going to smoosh all these together into one payload to
+                         * send to the resource as a batch request!
+                         */
+                        const requests = requestIDs.map((id) => keys[id]);
+
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
+                            {
+                                ..._.omit(requests[0], 'film_id', 'property'),
+                                ['film_ids']: requests.map((k) => k['film_id']),
+                                ['properties']: requests.map((k) => k['property']),
+                            },
+                        ];
+
+                        let response = await (async (_resourceArgs) => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(
+                                    ['getFilmsV2'],
+                                    __resourceArgs,
+                                );
+                            }
+
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getFilmsV2(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getFilmsV2'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getFilmsV2] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getFilmsV2'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
+
+                        if (!(response instanceof Error)) {
+                        }
+
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getFilmsV2]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
+                        }
+
+                        /**
+                         * If the resource returns an Error, we'll want to copy and
+                         * return that error as the return value for every request in
+                         * this group.
+                         *
+                         * This allow the error to be cached, and allows the rest of the
+                         * requests made by this DataLoader to succeed.
+                         *
+                         * @see https://github.com/graphql/dataloader#caching-errors
+                         */
+                        if (response instanceof Error) {
+                            response = requestIDs.map((requestId) => {
+                                /**
+                                 * Since we're returning an error object and not the
+                                 * expected return type from the resource, this element
+                                 * would be unsortable, since it wouldn't have the
+                                 * "reorderResultsByKey" attribute.
+                                 *
+                                 * Let's add it to the error object, as "reorderResultsByValue".
+                                 *
+                                 * (If we didn't specify that this resource needs
+                                 * sorting, then this will be "null" and won't be used.)
+                                 */
+                                const reorderResultsByValue = null;
+
+                                // Tell flow that "response" is actually an error object.
+                                // (This is so we can pass it as 'cause' to CaughtResourceError)
+                                invariant(response instanceof Error, 'expected response to be an error');
+
+                                return new CaughtResourceError(
+                                    `[dataloader-codegen :: getFilmsV2] Caught error during call to resource. Error: ${response.stack}`,
+                                    response,
+                                    reorderResultsByValue,
+                                );
+                            });
+                        }
+
+                        return response;
+                    }),
+                );
+
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
+                if (true && true) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'property',
+                        ['film_id', 'property'],
+                        keys,
+                    );
+
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'properties',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,

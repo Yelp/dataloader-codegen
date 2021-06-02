@@ -20,9 +20,16 @@ const createSWAPIServer = () => {
             director: String
         }
 
+        type FilmV2 {
+            title: String
+            episodeNumber: Int
+            director: String
+        }
+
         type Query {
             planet(id: Int): Planet
             film(id: Int): Film
+            filmv2(id: Int): FilmV2
         }
     `);
 
@@ -114,12 +121,59 @@ const createSWAPIServer = () => {
         }
     }
 
+    class FilmModelV2 {
+        id: number;
+
+        constructor(id: number) {
+            this.id = id;
+        }
+
+        async title() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, property: 'title' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.title;
+            }
+        }
+
+        async episodeNumber() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, property: 'episode_id' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.episode_id;
+            }
+        }
+
+        async director() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, property: 'director' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.director;
+            }
+        }
+    }
+
     const root = {
         planet: ({ id }) => {
             return new PlanetModel(id);
         },
         film: ({ id }) => {
             return new FilmModel(id);
+        },
+        filmv2: ({ id }) => {
+            return new FilmModelV2(id);
         },
     };
 
@@ -151,6 +205,12 @@ runQuery(/* GraphQL */ `
             director
         }
         theBest: film(id: 4) {
+            title
+            episodeNumber
+            director
+        }
+
+        theBestV2: filmv2(id: 4) {
             title
             episodeNumber
             director

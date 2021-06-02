@@ -28,6 +28,13 @@ resources:
         batchKey: film_ids
         newKey: film_id
         isBatchKeyASet: true
+    getFilmsV2:
+        docsLink: https://swapi.dev/documentation#films
+        isBatchResource: true
+        batchKey: film_ids
+        newKey: film_id
+        propertyBatchKey: properties
+        propertyNewKey: property
     getRoot:
         docsLink: https://swapi.dev/documentation#root
         isBatchResource: false
