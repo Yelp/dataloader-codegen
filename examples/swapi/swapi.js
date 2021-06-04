@@ -64,11 +64,13 @@ export type SWAPI_Film = $ReadOnly<{|
 |}>;
 
 export type SWAPI_Film_V2 = $ReadOnly<{|
-    film_id: number,
-    title: string,
-    episode_id: number,
-    director: string,
-    producer: string,
+    properties: $ReadOnlyArray<{|
+        film_id: number,
+        title: string,
+        episode_id: number,
+        director: string,
+        producer: string,
+    |}>,
 |}>;
 
 export type SWAPI_Film_V3 = $ReadOnly<{|
@@ -82,7 +84,7 @@ export type SWAPI_Film_V3 = $ReadOnly<{|
 |}>;
 
 export type SWAPI_Film_V4 = $ReadOnly<{|
-    number: {|
+    [number]: {|
         title: string,
         episode_id: number,
         director: string,
@@ -109,10 +111,12 @@ export type SWAPIClientlibTypes = {|
     getPeople: ({| people_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Person>>,
     getVehicles: ({| vehicle_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Vehicle>>,
     getFilms: ({| film_ids: Set<number> |}) => Promise<$ReadOnlyArray<SWAPI_Film>>,
+    getRoot: ({||}) => Promise<SWAPI_Root>,
+    // create fake resource with different interfaces to test batch properties feature
     getFilmsV2: ({|
         film_ids: $ReadOnlyArray<number>,
         properties: $ReadOnlyArray<string>,
-    |}) => Promise<$ReadOnlyArray<SWAPI_Film_V2>>,
+    |}) => Promise<SWAPI_Film_V2>,
     getFilmsV3: ({|
         film_ids: $ReadOnlyArray<number>,
         properties: $ReadOnlyArray<string>,
@@ -121,7 +125,6 @@ export type SWAPIClientlibTypes = {|
         film_ids: $ReadOnlyArray<number>,
         properties: $ReadOnlyArray<string>,
     |}) => Promise<$ReadOnlyArray<SWAPI_Film_V4>>,
-    getRoot: ({||}) => Promise<SWAPI_Root>,
 |};
 
 module.exports = function (): SWAPIClientlibTypes {
@@ -142,8 +145,9 @@ module.exports = function (): SWAPIClientlibTypes {
             Promise.all(
                 [...film_ids].map((id) => fetch(url.resolve(SWAPI_URL, `films/${id}`)).then((res) => res.json())),
             ),
+        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
         getFilmsV2: ({ film_ids, properties }) => {
-            return {
+            return Promise.resolve({
                 properties: [
                     {
                         film_id: 4,
@@ -153,10 +157,10 @@ module.exports = function (): SWAPIClientlibTypes {
                         title: 'The Phantom Menace',
                     },
                 ],
-            };
+            });
         },
         getFilmsV3: ({ film_ids, properties }) => {
-            return [
+            return Promise.resolve([
                 {
                     film_id: 4,
                     properties: {
@@ -166,10 +170,10 @@ module.exports = function (): SWAPIClientlibTypes {
                         title: 'The Phantom Menace',
                     },
                 },
-            ];
+            ]);
         },
         getFilmsV4: ({ film_ids, properties }) => {
-            return [
+            return Promise.resolve([
                 {
                     4: {
                         director: 'George Lucas',
@@ -178,8 +182,7 @@ module.exports = function (): SWAPIClientlibTypes {
                         title: 'The Phantom Menace',
                     },
                 },
-            ];
+            ]);
         },
-        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
     };
 };

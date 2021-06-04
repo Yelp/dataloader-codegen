@@ -214,40 +214,37 @@ const createSWAPIServer = () => {
 
         async title() {
             const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'title' });
-            const stringId = this.id.toString();
 
             if (response instanceof Error) {
                 return response;
             }
 
             if (response) {
-                return response[stringId].title;
+                return response[this.id].title;
             }
         }
 
         async episodeNumber() {
             const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'episode_id' });
-            const stringId = this.id.toString();
 
             if (response instanceof Error) {
                 return response;
             }
 
             if (response) {
-                return response[stringId].episode_id;
+                return response[this.id].episode_id;
             }
         }
 
         async director() {
             const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'director' });
-            const stringId = this.id.toString();
 
             if (response instanceof Error) {
                 return response;
             }
 
             if (response) {
-                return response[stringId].director;
+                return response[this.id].director;
             }
         }
     }
