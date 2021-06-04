@@ -63,12 +63,31 @@ export type SWAPI_Film = $ReadOnly<{|
     edited: string,
 |}>;
 
-export type SWAPI_Film_v2 = $ReadOnly<{|
+export type SWAPI_Film_V2 = $ReadOnly<{|
     film_id: number,
     title: string,
     episode_id: number,
     director: string,
     producer: string,
+|}>;
+
+export type SWAPI_Film_V3 = $ReadOnly<{|
+    film_id: number,
+    properties: {|
+        title: string,
+        episode_id: number,
+        director: string,
+        producer: string,
+    |},
+|}>;
+
+export type SWAPI_Film_V4 = $ReadOnly<{|
+    number: {|
+        title: string,
+        episode_id: number,
+        director: string,
+        producer: string,
+    |},
 |}>;
 
 export type SWAPI_Vehicle = $ReadOnly<{|
@@ -93,7 +112,15 @@ export type SWAPIClientlibTypes = {|
     getFilmsV2: ({|
         film_ids: $ReadOnlyArray<number>,
         properties: $ReadOnlyArray<string>,
-    |}) => $ReadOnlyArray<SWAPI_Film_v2>,
+    |}) => Promise<$ReadOnlyArray<SWAPI_Film_V2>>,
+    getFilmsV3: ({|
+        film_ids: $ReadOnlyArray<number>,
+        properties: $ReadOnlyArray<string>,
+    |}) => Promise<$ReadOnlyArray<SWAPI_Film_V3>>,
+    getFilmsV4: ({|
+        film_ids: $ReadOnlyArray<number>,
+        properties: $ReadOnlyArray<string>,
+    |}) => Promise<$ReadOnlyArray<SWAPI_Film_V4>>,
     getRoot: ({||}) => Promise<SWAPI_Root>,
 |};
 
@@ -116,13 +143,40 @@ module.exports = function (): SWAPIClientlibTypes {
                 [...film_ids].map((id) => fetch(url.resolve(SWAPI_URL, `films/${id}`)).then((res) => res.json())),
             ),
         getFilmsV2: ({ film_ids, properties }) => {
+            return {
+                properties: [
+                    {
+                        film_id: 4,
+                        director: 'George Lucas',
+                        producer: 'Rick McCallum',
+                        episode_id: 1,
+                        title: 'The Phantom Menace',
+                    },
+                ],
+            };
+        },
+        getFilmsV3: ({ film_ids, properties }) => {
             return [
                 {
                     film_id: 4,
-                    director: 'George Lucas',
-                    producer: 'Rick McCallum',
-                    episode_id: 1,
-                    title: 'The Phantom Menace',
+                    properties: {
+                        director: 'George Lucas',
+                        producer: 'Rick McCallum',
+                        episode_id: 1,
+                        title: 'The Phantom Menace',
+                    },
+                },
+            ];
+        },
+        getFilmsV4: ({ film_ids, properties }) => {
+            return [
+                {
+                    4: {
+                        director: 'George Lucas',
+                        producer: 'Rick McCallum',
+                        episode_id: 1,
+                        title: 'The Phantom Menace',
+                    },
                 },
             ];
         },

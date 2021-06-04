@@ -35,6 +35,21 @@ resources:
         newKey: film_id
         propertyBatchKey: properties
         propertyNewKey: property
+        nestedPath: properties
+    getFilmsV3:
+        docsLink: https://swapi.dev/documentation#films
+        isBatchResource: true
+        batchKey: film_ids
+        newKey: film_id
+        propertyBatchKey: properties
+        propertyNewKey: property
+    getFilmsV4:
+        docsLink: https://swapi.dev/documentation#films
+        isBatchResource: true
+        batchKey: film_ids
+        newKey: film_id
+        propertyBatchKey: properties
+        propertyNewKey: property
     getRoot:
         docsLink: https://swapi.dev/documentation#root
         isBatchResource: false

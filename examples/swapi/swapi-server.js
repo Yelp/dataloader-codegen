@@ -20,16 +20,12 @@ const createSWAPIServer = () => {
             director: String
         }
 
-        type FilmV2 {
-            title: String
-            episodeNumber: Int
-            director: String
-        }
-
         type Query {
             planet(id: Int): Planet
             film(id: Int): Film
-            filmv2(id: Int): FilmV2
+            filmv2(id: Int): Film
+            filmv3(id: Int): Film
+            filmv4(id: Int): Film
         }
     `);
 
@@ -165,6 +161,97 @@ const createSWAPIServer = () => {
         }
     }
 
+    class FilmModelV3 {
+        id: number;
+
+        constructor(id: number) {
+            this.id = id;
+        }
+
+        async title() {
+            const response = await swapiLoaders.getFilmsV3.load({ film_id: this.id, property: 'title' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.properties.title;
+            }
+        }
+
+        async episodeNumber() {
+            const response = await swapiLoaders.getFilmsV3.load({ film_id: this.id, property: 'episode_id' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.properties.episode_id;
+            }
+        }
+
+        async director() {
+            const response = await swapiLoaders.getFilmsV3.load({ film_id: this.id, property: 'director' });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.properties.director;
+            }
+        }
+    }
+
+    class FilmModelV4 {
+        id: number;
+
+        constructor(id: number) {
+            this.id = id;
+        }
+
+        async title() {
+            const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'title' });
+            const stringId = this.id.toString();
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response[stringId].title;
+            }
+        }
+
+        async episodeNumber() {
+            const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'episode_id' });
+            const stringId = this.id.toString();
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response[stringId].episode_id;
+            }
+        }
+
+        async director() {
+            const response = await swapiLoaders.getFilmsV4.load({ film_id: this.id, property: 'director' });
+            const stringId = this.id.toString();
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response[stringId].director;
+            }
+        }
+    }
+
     const root = {
         planet: ({ id }) => {
             return new PlanetModel(id);
@@ -174,6 +261,12 @@ const createSWAPIServer = () => {
         },
         filmv2: ({ id }) => {
             return new FilmModelV2(id);
+        },
+        filmv3: ({ id }) => {
+            return new FilmModelV3(id);
+        },
+        filmv4: ({ id }) => {
+            return new FilmModelV4(id);
         },
     };
 
@@ -211,6 +304,16 @@ runQuery(/* GraphQL */ `
         }
 
         theBestV2: filmv2(id: 4) {
+            title
+            episodeNumber
+            director
+        }
+        theBestV3: filmv3(id: 4) {
+            title
+            episodeNumber
+            director
+        }
+        theBestV4: filmv4(id: 4) {
             title
             episodeNumber
             director

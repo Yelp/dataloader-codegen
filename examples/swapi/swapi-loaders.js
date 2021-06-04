@@ -204,10 +204,85 @@ export type LoadersType = $ReadOnly<{|
                 >,
             |},
         |},
+        $PropertyType<
+            $ElementType<
+                $Call<
+                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
+                    $PropertyType<ResourcesType, 'getFilmsV2'>,
+                >,
+                0,
+            >,
+            'properties',
+        >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
+    >,
+    getFilmsV3: DataLoader<
+        {|
+            ...$Diff<
+                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                {
+                    film_ids: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                        'film_ids',
+                    >,
+                    properties: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                        'properties',
+                    >,
+                },
+            >,
+            ...{|
+                film_id: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>, 'film_ids'>,
+                    0,
+                >,
+                property: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>, 'properties'>,
+                    0,
+                >,
+            |},
+        |},
         $ElementType<
             $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
-                $PropertyType<ResourcesType, 'getFilmsV2'>,
+                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>]>,
+                $PropertyType<ResourcesType, 'getFilmsV3'>,
+            >,
+            0,
+        >,
+        // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+        string,
+    >,
+    getFilmsV4: DataLoader<
+        {|
+            ...$Diff<
+                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                {
+                    film_ids: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                        'film_ids',
+                    >,
+                    properties: $PropertyType<
+                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                        'properties',
+                    >,
+                },
+            >,
+            ...{|
+                film_id: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>, 'film_ids'>,
+                    0,
+                >,
+                property: $ElementType<
+                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>, 'properties'>,
+                    0,
+                >,
+            |},
+        |},
+        $ElementType<
+            $Call<
+                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>]>,
+                $PropertyType<ResourcesType, 'getFilmsV4'>,
             >,
             0,
         >,
@@ -1650,12 +1725,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     >,
                 |},
             |},
-            $ElementType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
-                    $PropertyType<ResourcesType, 'getFilmsV2'>,
+            $PropertyType<
+                $ElementType<
+                    $Call<
+                        ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
+                        $PropertyType<ResourcesType, 'getFilmsV2'>,
+                    >,
+                    0,
                 >,
-                0,
+                'properties',
             >,
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
             string,
@@ -1674,7 +1752,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
              *   "propertyBatchKey": "properties",
-             *   "propertyNewKey": "property"
+             *   "propertyNewKey": "property",
+             *   "nestedPath": "properties"
              * }
              * ```
              */
@@ -1842,6 +1921,40 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                         })(resourceArgs);
 
                         if (!(response instanceof Error)) {
+                            /**
+                             * Un-nest the actual data from the resource return value.
+                             *
+                             * e.g.
+                             * ```js
+                             * {
+                             *   foos: [
+                             *     { id: 1, value: 'hello' },
+                             *     { id: 2, value: 'world' },
+                             *   ]
+                             * }
+                             * ```
+                             *
+                             * Becomes
+                             *
+                             * ```js
+                             * [
+                             *   { id: 1, value: 'hello' },
+                             *   { id: 2, value: 'world' },
+                             * ]
+                             * ```
+                             */
+                            response = _.get(
+                                response,
+                                'properties',
+                                new Error(
+                                    [
+                                        '[dataloader-codegen :: getFilmsV2]',
+                                        'Tried to un-nest the response from the resource, but',
+                                        ".get(response, 'properties')",
+                                        'was empty!',
+                                    ].join(' '),
+                                ),
+                            );
                         }
 
                         if (!(response instanceof Error)) {
@@ -1885,6 +1998,668 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                                 return new CaughtResourceError(
                                     `[dataloader-codegen :: getFilmsV2] Caught error during call to resource. Error: ${response.stack}`,
+                                    response,
+                                    reorderResultsByValue,
+                                );
+                            });
+                        }
+
+                        return response;
+                    }),
+                );
+
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
+                if (true && true) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'property',
+                        ['film_id', 'property'],
+                        keys,
+                    );
+
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'properties',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
+            },
+            {
+                ...cacheKeyOptions,
+            },
+        ),
+        getFilmsV3: new DataLoader<
+            {|
+                ...$Diff<
+                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                    {
+                        film_ids: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                            'film_ids',
+                        >,
+                        properties: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>,
+                            'properties',
+                        >,
+                    },
+                >,
+                ...{|
+                    film_id: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>, 'film_ids'>,
+                        0,
+                    >,
+                    property: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>, 'properties'>,
+                        0,
+                    >,
+                |},
+            |},
+            $ElementType<
+                $Call<
+                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV3'>]>]>,
+                    $PropertyType<ResourcesType, 'getFilmsV3'>,
+                >,
+                0,
+            >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
+        >(
+            /**
+             * ===============================================================
+             * Generated DataLoader: getFilmsV3
+             * ===============================================================
+             *
+             * Resource Config:
+             *
+             * ```json
+             * {
+             *   "docsLink": "https://swapi.dev/documentation#films",
+             *   "isBatchResource": true,
+             *   "batchKey": "film_ids",
+             *   "newKey": "film_id",
+             *   "propertyBatchKey": "properties",
+             *   "propertyNewKey": "property"
+             * }
+             * ```
+             */
+            async (keys) => {
+                invariant(
+                    typeof resources.getFilmsV3 === 'function',
+                    [
+                        '[dataloader-codegen :: getFilmsV3] resources.getFilmsV3 is not a function.',
+                        'Did you pass in an instance of getFilmsV3 to "getLoaders"?',
+                    ].join(' '),
+                );
+
+                /**
+                 * Chunk up the "keys" array to create a set of "request groups".
+                 *
+                 * We're about to hit a batch resource. In addition to the batch
+                 * key, the resource may take other arguments too. When batching
+                 * up requests, we'll want to look out for where those other
+                 * arguments differ, and send multiple requests so we don't get
+                 * back the wrong info.
+                 *
+                 * In other words, we'll potentially want to send _multiple_
+                 * requests to the underlying resource batch method in this
+                 * dataloader body.
+                 *
+                 * ~~~ Why? ~~~
+                 *
+                 * Consider what happens when we get called with arguments where
+                 * the non-batch keys differ.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
+                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
+                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
+                 * ```
+                 *
+                 * If we collected everything up and tried to send the one
+                 * request to the resource as a batch request, how do we know
+                 * what the value for "include_private_data" should be? We're
+                 * going to have to group these up up and send two requests to
+                 * the resource to make sure we're requesting the right stuff.
+                 *
+                 * e.g. We'd need to make the following set of underlying resource
+                 * calls:
+                 *
+                 * ```js
+                 * foo({ foo_ids: [ 2 ], include_private_data: true });
+                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+                 * ```
+                 *
+                 * ~~~ tl;dr ~~~
+                 *
+                 * When we have calls to .load with differing non batch key args,
+                 * we'll need to send multiple requests to the underlying
+                 * resource to make sure we get the right results back.
+                 *
+                 * Let's create the request groups, where each element in the
+                 * group refers to a position in "keys" (i.e. a call to .load)
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { bar_id: 7, include_extra_info: true },
+                 *   { bar_id: 8, include_extra_info: false },
+                 *   { bar_id: 9, include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 * We'll refer to each element in the group as a "request ID".
+                 */
+                let requestGroups;
+                if (true && true) {
+                    requestGroups = partitionItems(['film_id', 'property'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
+
+                // Map the request groups to a list of Promises - one for each request
+                const groupedResults = await Promise.all(
+                    requestGroups.map(async (requestIDs) => {
+                        /**
+                         * Select a set of elements in "keys", where all non-batch
+                         * keys should be identical.
+                         *
+                         * We're going to smoosh all these together into one payload to
+                         * send to the resource as a batch request!
+                         */
+                        const requests = requestIDs.map((id) => keys[id]);
+
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
+                            {
+                                ..._.omit(requests[0], 'film_id', 'property'),
+                                ['film_ids']: requests.map((k) => k['film_id']),
+                                ['properties']: requests.map((k) => k['property']),
+                            },
+                        ];
+
+                        let response = await (async (_resourceArgs) => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(
+                                    ['getFilmsV3'],
+                                    __resourceArgs,
+                                );
+                            }
+
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getFilmsV3(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getFilmsV3'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getFilmsV3] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getFilmsV3'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
+
+                        if (!(response instanceof Error)) {
+                        }
+
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getFilmsV3]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
+                        }
+
+                        /**
+                         * If the resource returns an Error, we'll want to copy and
+                         * return that error as the return value for every request in
+                         * this group.
+                         *
+                         * This allow the error to be cached, and allows the rest of the
+                         * requests made by this DataLoader to succeed.
+                         *
+                         * @see https://github.com/graphql/dataloader#caching-errors
+                         */
+                        if (response instanceof Error) {
+                            response = requestIDs.map((requestId) => {
+                                /**
+                                 * Since we're returning an error object and not the
+                                 * expected return type from the resource, this element
+                                 * would be unsortable, since it wouldn't have the
+                                 * "reorderResultsByKey" attribute.
+                                 *
+                                 * Let's add it to the error object, as "reorderResultsByValue".
+                                 *
+                                 * (If we didn't specify that this resource needs
+                                 * sorting, then this will be "null" and won't be used.)
+                                 */
+                                const reorderResultsByValue = null;
+
+                                // Tell flow that "response" is actually an error object.
+                                // (This is so we can pass it as 'cause' to CaughtResourceError)
+                                invariant(response instanceof Error, 'expected response to be an error');
+
+                                return new CaughtResourceError(
+                                    `[dataloader-codegen :: getFilmsV3] Caught error during call to resource. Error: ${response.stack}`,
+                                    response,
+                                    reorderResultsByValue,
+                                );
+                            });
+                        }
+
+                        return response;
+                    }),
+                );
+
+                /**
+                 *  When there's propertyBatchKey and propertyNewKey, the resource might
+                 *  contain less number of items that we requested. We need the value of batchKey and
+                 *  propertyBatchKey in requests group to help us split the results back up into the
+                 *  order that they were requested.
+                 *
+                 *
+                 *  Example:
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'bar_id',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 2, 4 ], [ 3 ] ]
+                 *
+                 *  getBatchKeyForPartitionItems(
+                 *    'property',
+                 *    ['bar_id', 'property'],
+                 *    [
+                 *      { bar_id: 2, property: 'name', include_extra_info: true },
+                 *      { bar_id: 3, property: 'rating', include_extra_info: false },
+                 *      { bar_id: 4, property: 'rating', include_extra_info: true },
+                 *    ])
+                 *
+                 *
+                 *  Returns:
+                 *  [ [ 'name', 'rating' ], [ 'rating' ] ]
+                 */
+                if (true && true) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'property',
+                        ['film_id', 'property'],
+                        keys,
+                    );
+
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'properties',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
+            },
+            {
+                ...cacheKeyOptions,
+            },
+        ),
+        getFilmsV4: new DataLoader<
+            {|
+                ...$Diff<
+                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                    {
+                        film_ids: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                            'film_ids',
+                        >,
+                        properties: $PropertyType<
+                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>,
+                            'properties',
+                        >,
+                    },
+                >,
+                ...{|
+                    film_id: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>, 'film_ids'>,
+                        0,
+                    >,
+                    property: $ElementType<
+                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>, 'properties'>,
+                        0,
+                    >,
+                |},
+            |},
+            $ElementType<
+                $Call<
+                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV4'>]>]>,
+                    $PropertyType<ResourcesType, 'getFilmsV4'>,
+                >,
+                0,
+            >,
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
+        >(
+            /**
+             * ===============================================================
+             * Generated DataLoader: getFilmsV4
+             * ===============================================================
+             *
+             * Resource Config:
+             *
+             * ```json
+             * {
+             *   "docsLink": "https://swapi.dev/documentation#films",
+             *   "isBatchResource": true,
+             *   "batchKey": "film_ids",
+             *   "newKey": "film_id",
+             *   "propertyBatchKey": "properties",
+             *   "propertyNewKey": "property"
+             * }
+             * ```
+             */
+            async (keys) => {
+                invariant(
+                    typeof resources.getFilmsV4 === 'function',
+                    [
+                        '[dataloader-codegen :: getFilmsV4] resources.getFilmsV4 is not a function.',
+                        'Did you pass in an instance of getFilmsV4 to "getLoaders"?',
+                    ].join(' '),
+                );
+
+                /**
+                 * Chunk up the "keys" array to create a set of "request groups".
+                 *
+                 * We're about to hit a batch resource. In addition to the batch
+                 * key, the resource may take other arguments too. When batching
+                 * up requests, we'll want to look out for where those other
+                 * arguments differ, and send multiple requests so we don't get
+                 * back the wrong info.
+                 *
+                 * In other words, we'll potentially want to send _multiple_
+                 * requests to the underlying resource batch method in this
+                 * dataloader body.
+                 *
+                 * ~~~ Why? ~~~
+                 *
+                 * Consider what happens when we get called with arguments where
+                 * the non-batch keys differ.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
+                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
+                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
+                 * ```
+                 *
+                 * If we collected everything up and tried to send the one
+                 * request to the resource as a batch request, how do we know
+                 * what the value for "include_private_data" should be? We're
+                 * going to have to group these up up and send two requests to
+                 * the resource to make sure we're requesting the right stuff.
+                 *
+                 * e.g. We'd need to make the following set of underlying resource
+                 * calls:
+                 *
+                 * ```js
+                 * foo({ foo_ids: [ 2 ], include_private_data: true });
+                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+                 * ```
+                 *
+                 * ~~~ tl;dr ~~~
+                 *
+                 * When we have calls to .load with differing non batch key args,
+                 * we'll need to send multiple requests to the underlying
+                 * resource to make sure we get the right results back.
+                 *
+                 * Let's create the request groups, where each element in the
+                 * group refers to a position in "keys" (i.e. a call to .load)
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { bar_id: 7, include_extra_info: true },
+                 *   { bar_id: 8, include_extra_info: false },
+                 *   { bar_id: 9, include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 *
+                 * We could also have more than one batch key.
+                 *
+                 * Example:
+                 *
+                 * ```js
+                 * partitionItems([
+                 *   { [bar_id: 7, property: 'property_1'], include_extra_info: true },
+                 *   { [bar_id: 8, property: 'property_2'], include_extra_info: false },
+                 *   { [bar_id: 9, property: 'property_3'], include_extra_info: true },
+                 * ], 'bar_id')
+                 * ```
+                 *
+                 * Returns:
+                 * `[ [ 0, 2 ], [ 1 ] ]`
+                 * We'll refer to each element in the group as a "request ID".
+                 */
+                let requestGroups;
+                if (true && true) {
+                    requestGroups = partitionItems(['film_id', 'property'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
+
+                // Map the request groups to a list of Promises - one for each request
+                const groupedResults = await Promise.all(
+                    requestGroups.map(async (requestIDs) => {
+                        /**
+                         * Select a set of elements in "keys", where all non-batch
+                         * keys should be identical.
+                         *
+                         * We're going to smoosh all these together into one payload to
+                         * send to the resource as a batch request!
+                         */
+                        const requests = requestIDs.map((id) => keys[id]);
+
+                        // For now, we assume that the dataloader key should be the first argument to the resource
+                        // @see https://github.com/Yelp/dataloader-codegen/issues/56
+                        const resourceArgs = [
+                            {
+                                ..._.omit(requests[0], 'film_id', 'property'),
+                                ['film_ids']: requests.map((k) => k['film_id']),
+                                ['properties']: requests.map((k) => k['property']),
+                            },
+                        ];
+
+                        let response = await (async (_resourceArgs) => {
+                            // Make a re-assignable variable so flow/eslint doesn't complain
+                            let __resourceArgs = _resourceArgs;
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
+                                __resourceArgs = await options.resourceMiddleware.before(
+                                    ['getFilmsV4'],
+                                    __resourceArgs,
+                                );
+                            }
+
+                            let _response;
+                            try {
+                                // Finally, call the resource!
+                                _response = await resources.getFilmsV4(...__resourceArgs);
+                            } catch (error) {
+                                const errorHandler =
+                                    options && typeof options.errorHandler === 'function'
+                                        ? options.errorHandler
+                                        : defaultErrorHandler;
+
+                                /**
+                                 * Apply some error handling to catch and handle all errors/rejected promises. errorHandler must return an Error object.
+                                 *
+                                 * If we let errors here go unhandled here, it will bubble up and DataLoader will return an error for all
+                                 * keys requested. We can do slightly better by returning the error object for just the keys in this batch request.
+                                 */
+                                _response = await errorHandler(['getFilmsV4'], error);
+
+                                // Check that errorHandler actually returned an Error object, and turn it into one if not.
+                                if (!(_response instanceof Error)) {
+                                    _response = new Error(
+                                        [
+                                            `[dataloader-codegen :: getFilmsV4] Caught an error, but errorHandler did not return an Error object.`,
+                                            `Instead, got ${typeof _response}: ${util.inspect(_response)}`,
+                                        ].join(' '),
+                                    );
+                                }
+                            }
+
+                            if (options && options.resourceMiddleware && options.resourceMiddleware.after) {
+                                _response = await options.resourceMiddleware.after(['getFilmsV4'], _response);
+                            }
+
+                            return _response;
+                        })(resourceArgs);
+
+                        if (!(response instanceof Error)) {
+                        }
+
+                        if (!(response instanceof Error)) {
+                            if (!Array.isArray(response)) {
+                                response = new Error(
+                                    ['[dataloader-codegen :: getFilmsV4]', 'Expected response to be an array!'].join(
+                                        ' ',
+                                    ),
+                                );
+                            }
+                        }
+
+                        /**
+                         * If the resource returns an Error, we'll want to copy and
+                         * return that error as the return value for every request in
+                         * this group.
+                         *
+                         * This allow the error to be cached, and allows the rest of the
+                         * requests made by this DataLoader to succeed.
+                         *
+                         * @see https://github.com/graphql/dataloader#caching-errors
+                         */
+                        if (response instanceof Error) {
+                            response = requestIDs.map((requestId) => {
+                                /**
+                                 * Since we're returning an error object and not the
+                                 * expected return type from the resource, this element
+                                 * would be unsortable, since it wouldn't have the
+                                 * "reorderResultsByKey" attribute.
+                                 *
+                                 * Let's add it to the error object, as "reorderResultsByValue".
+                                 *
+                                 * (If we didn't specify that this resource needs
+                                 * sorting, then this will be "null" and won't be used.)
+                                 */
+                                const reorderResultsByValue = null;
+
+                                // Tell flow that "response" is actually an error object.
+                                // (This is so we can pass it as 'cause' to CaughtResourceError)
+                                invariant(response instanceof Error, 'expected response to be an error');
+
+                                return new CaughtResourceError(
+                                    `[dataloader-codegen :: getFilmsV4] Caught error during call to resource. Error: ${response.stack}`,
                                     response,
                                     reorderResultsByValue,
                                 );
