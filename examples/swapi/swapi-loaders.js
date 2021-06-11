@@ -623,7 +623,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (false && false) {
+                if (false && false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'planet_id',
                         ['planet_id', 'undefined'],
@@ -637,6 +637,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                     return unPartitionResultsByBatchKeyPartition(
                         'planet_id',
+                        'undefined',
                         'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
@@ -970,7 +971,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (false && false) {
+                if (false && false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'person_id',
                         ['person_id', 'undefined'],
@@ -984,6 +985,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                     return unPartitionResultsByBatchKeyPartition(
                         'person_id',
+                        'undefined',
                         'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
@@ -1320,7 +1322,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (false && false) {
+                if (false && false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems(
                         'vehicle_id',
                         ['vehicle_id', 'undefined'],
@@ -1334,6 +1336,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                     return unPartitionResultsByBatchKeyPartition(
                         'vehicle_id',
+                        'undefined',
                         'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
@@ -1674,7 +1677,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (false && false) {
+                if (false && false && false) {
                     const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'undefined'], keys);
                     const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'undefined',
@@ -1684,6 +1687,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
+                        'undefined',
                         'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
@@ -1753,7 +1757,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "newKey": "film_id",
              *   "propertyBatchKey": "properties",
              *   "propertyNewKey": "property",
-             *   "nestedPath": "properties"
+             *   "nestedPath": "properties",
+             *   "mergePropertyConfig": "PropertyAtTopLevel"
              * }
              * ```
              */
@@ -2043,7 +2048,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (true && true) {
+                if (true && true && true) {
                     const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
                     const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'property',
@@ -2054,6 +2059,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
                         'properties',
+                        'PropertyAtTopLevel',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
@@ -2118,7 +2124,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
              *   "propertyBatchKey": "properties",
-             *   "propertyNewKey": "property"
+             *   "propertyNewKey": "property",
+             *   "mergePropertyConfig": "PropertyInNestedObject"
              * }
              * ```
              */
@@ -2374,7 +2381,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (true && true) {
+                if (true && true && true) {
                     const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
                     const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'property',
@@ -2385,6 +2392,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
                         'properties',
+                        'PropertyInNestedObject',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
@@ -2449,7 +2457,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
              *   "propertyBatchKey": "properties",
-             *   "propertyNewKey": "property"
+             *   "propertyNewKey": "property",
+             *   "mergePropertyConfig": "IdPropertyPair"
              * }
              * ```
              */
@@ -2705,7 +2714,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                  *  Returns:
                  *  [ [ 'name', 'rating' ], [ 'rating' ] ]
                  */
-                if (true && true) {
+                if (true && true && true) {
                     const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'property'], keys);
                     const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
                         'property',
@@ -2716,6 +2725,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
                         'properties',
+                        'IdPropertyPair',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,

@@ -36,6 +36,7 @@ resources:
         propertyBatchKey: properties
         propertyNewKey: property
         nestedPath: properties
+        mergePropertyConfig: PropertyAtTopLevel
     getFilmsV3:
         docsLink: https://swapi.dev/documentation#films
         isBatchResource: true
@@ -43,6 +44,7 @@ resources:
         newKey: film_id
         propertyBatchKey: properties
         propertyNewKey: property
+        mergePropertyConfig: PropertyInNestedObject
     getFilmsV4:
         docsLink: https://swapi.dev/documentation#films
         isBatchResource: true
@@ -50,6 +52,7 @@ resources:
         newKey: film_id
         propertyBatchKey: properties
         propertyNewKey: property
+        mergePropertyConfig: IdPropertyPair
     getRoot:
         docsLink: https://swapi.dev/documentation#root
         isBatchResource: false

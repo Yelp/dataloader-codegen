@@ -105,6 +105,10 @@
                 "propertyNewKey": {
                     "type": "string",
                     "description": "(Optional) The argument we'll replace the propertyBatchKey with - should be a singular version of the propertyBatchKey (e.g. usually 'property' or 'feature')"
+                },
+                "mergePropertyConfig": {
+                    "type": "string",
+                    "description": "(Optional) A string enum to control what style of the resource it is. Currently, 'PropertyInNestedObject', 'PropertyAtTopLevel' and 'IdPropertyPair' are the only 3 supported styles"
                 }
             }
         },
