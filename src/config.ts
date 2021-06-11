@@ -16,12 +16,22 @@ export interface GlobalConfig {
     resources: any;
 }
 
+export enum mergePropertyOptions {
+    // case 1: properties are returned in a nested object, id is at the top level.
+    PropertyInNestedObject = 'PropertyInNestedObject',
+    // case 2: properties are not returned in a nested object, but spread at top level as well.
+    PropertyAtTopLevel = 'PropertyAtTopLevel',
+    // case 3: id and its properties are returned as a key-value pair at the top level.
+    IdPropertyPair = 'IdPropertyPair',
+}
+
 export interface BatchResourceConfig {
     isBatchResource: true;
     batchKey: string;
     newKey: string;
     propertyBatchKey: string;
     propertyNewKey: string;
+    mergePropertyConfig: mergePropertyOptions;
     reorderResultsByKey?: string;
     nestedPath?: string;
     commaSeparatedBatchKey?: boolean;

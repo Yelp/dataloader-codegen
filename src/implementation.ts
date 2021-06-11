@@ -480,7 +480,8 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              */
             if (
                 ${typeof resourceConfig.propertyNewKey === 'string'} &&
-                ${typeof resourceConfig.propertyBatchKey === 'string'}) {
+                ${typeof resourceConfig.propertyBatchKey === 'string'} &&
+                ${typeof resourceConfig.mergePropertyConfig === 'string'}) {
                 const batchKeyPartition = getBatchKeysForPartitionItems(
                     '${resourceConfig.newKey}',
                     ['${resourceConfig.newKey}', '${resourceConfig.propertyNewKey}'],
@@ -495,6 +496,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return unPartitionResultsByBatchKeyPartition(
                     '${resourceConfig.newKey}',
                     '${resourceConfig.propertyBatchKey}',
+                    '${resourceConfig.mergePropertyConfig}',
                     batchKeyPartition,
                     propertyBatchKeyPartiion,
                     requestGroups,

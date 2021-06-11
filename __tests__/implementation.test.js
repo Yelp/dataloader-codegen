@@ -1227,6 +1227,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyAtTopLevel',
             },
         },
     };
@@ -1282,6 +1283,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey returned in a nes
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
@@ -1339,6 +1341,7 @@ test('batch endpoint (with commaSeparatedBatchKey) with propertyBatchKey', async
                 commaSeparatedBatchKey: true,
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
@@ -1381,6 +1384,7 @@ test('batch endpoint (with nestedPath) with propertyBatchKey', async () => {
                 nestedPath: 'foos',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
@@ -1424,6 +1428,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey that rejects', as
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyAtTopLevel',
             },
         },
     };
@@ -1489,6 +1494,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey error handling', 
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyAtTopLevel',
             },
         },
     };
@@ -1554,6 +1560,7 @@ test('batch endpoint with propertyBatchKey without reorderResultsByKey throws er
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyAtTopLevel',
             },
         },
     };
@@ -1619,6 +1626,7 @@ test('batch endpoint with propertyBatchKey with isResponseDictionary with a miss
                 isResponseDictionary: true,
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
@@ -1662,6 +1670,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey different respons
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'IdPropertyPair',
             },
         },
     };
@@ -1714,6 +1723,7 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
                 reorderResultsByKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
@@ -1764,6 +1774,7 @@ test('batch endpoint with propertyBatchKey (multiple requests, error handling - 
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyAtTopLevel',
             },
         },
     };
@@ -1817,6 +1828,7 @@ test('batch endpoint with propertyBatchKey (multiple requests, error handling, w
                 reorderResultsByKey: 'foo_id',
                 propertyBatchKey: 'properties',
                 propertyNewKey: 'property',
+                mergePropertyConfig: 'PropertyInNestedObject',
             },
         },
     };
