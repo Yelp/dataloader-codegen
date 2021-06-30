@@ -12,4 +12,5 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: '12.x'
+            - run: pip3 install --user virtualenv
             - run: make test

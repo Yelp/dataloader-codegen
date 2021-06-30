@@ -53,6 +53,7 @@ resources:
         propertyBatchKey: properties
         propertyNewKey: property
         mergePropertyConfig: IdPropertyPair
+        nestedPath: properties
     getRoot:
         docsLink: https://swapi.dev/documentation#root
         isBatchResource: false
