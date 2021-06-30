@@ -23,6 +23,7 @@ const createSWAPIServer = () => {
         type Query {
             planet(id: Int): Planet
             film(id: Int): Film
+            filmv2(id: Int): Film
         }
     `);
 
@@ -114,12 +115,59 @@ const createSWAPIServer = () => {
         }
     }
 
+    class FilmModelV2 {
+        id: number;
+
+        constructor(id: number) {
+            this.id = id;
+        }
+
+        async title() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['title'] });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.title;
+            }
+        }
+
+        async episodeNumber() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['episode_id'] });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.episode_id;
+            }
+        }
+
+        async director() {
+            const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['director'] });
+
+            if (response instanceof Error) {
+                return response;
+            }
+
+            if (response) {
+                return response.director;
+            }
+        }
+    }
+
     const root = {
         planet: ({ id }) => {
             return new PlanetModel(id);
         },
         film: ({ id }) => {
             return new FilmModel(id);
+        },
+        filmv2: ({ id }) => {
+            return new FilmModelV2(id);
         },
     };
 
@@ -151,6 +199,11 @@ runQuery(/* GraphQL */ `
             director
         }
         theBest: film(id: 4) {
+            title
+            episodeNumber
+            director
+        }
+        theBestV2: filmv2(id: 4) {
             title
             episodeNumber
             director

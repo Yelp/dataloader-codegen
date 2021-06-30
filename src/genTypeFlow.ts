@@ -92,32 +92,31 @@ export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: R
         >`;
 
     if (resourceConfig.isBatchResource) {
+        /**
+         * If the response is nested in some path, unwrap it.
+         *
+         * Example:
+         * ```js
+         * {
+         *   businesses: [
+         *     { id: 1, name: 'foo' },
+         *     { id: 2, name: 'bar' }
+         *   ]
+         * }
+         * ```
+         *
+         * Becomes:
+         * ```js
+         * [
+         *   { id: 1, name: 'foo' },
+         *   { id: 2, name: 'bar' }
+         * ]
+         * ```
+         */
+        if (resourceConfig.nestedPath) {
+            retVal = `$PropertyType<${retVal}, '${resourceConfig.nestedPath}'>`;
+        }
         retVal = resourceConfig.isResponseDictionary ? `$Values<${retVal}>` : `$ElementType<${retVal}, 0>`;
-    }
-
-    /**
-     * If the response is nested in some path, unwrap it.
-     *
-     * Example:
-     * ```js
-     * {
-     *   businesses: [
-     *     { id: 1, name: 'foo' },
-     *     { id: 2, name: 'bar' }
-     *   ]
-     * }
-     * ```
-     *
-     * Becomes:
-     * ```js
-     * [
-     *   { id: 1, name: 'foo' },
-     *   { id: 2, name: 'bar' }
-     * ]
-     * ```
-     */
-    if (resourceConfig.isBatchResource && resourceConfig.nestedPath) {
-        retVal = `$PropertyType<${retVal}, '${resourceConfig.nestedPath}'>`;
     }
 
     return retVal;

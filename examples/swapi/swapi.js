@@ -60,6 +60,16 @@ export type SWAPI_Film = $ReadOnly<{|
     edited: string,
 |}>;
 
+export type SWAPI_Film_V2 = $ReadOnly<{|
+    properties: $ReadOnlyArray<{|
+        film_id: number,
+        title: string,
+        episode_id: number,
+        director: string,
+        producer: string,
+    |}>,
+|}>;
+
 export type SWAPI_Vehicle = $ReadOnly<{|
     name: string,
     key: string,
@@ -79,6 +89,10 @@ export type SWAPIClientlibTypes = {|
     getPeople: ({| people_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Person>>,
     getVehicles: ({| vehicle_ids: $ReadOnlyArray<number> |}) => Promise<$ReadOnlyArray<SWAPI_Vehicle>>,
     getFilms: ({| film_ids: Set<number> |}) => Promise<$ReadOnlyArray<SWAPI_Film>>,
+    getFilmsV2: ({|
+        film_ids: $ReadOnlyArray<number>,
+        properties: $ReadOnlyArray<string>,
+    |}) => Promise<SWAPI_Film_V2>,
     getRoot: ({||}) => Promise<SWAPI_Root>,
 |};
 
@@ -100,6 +114,19 @@ module.exports = function (): SWAPIClientlibTypes {
             Promise.all(
                 [...film_ids].map((id) => fetch(url.resolve(SWAPI_URL, `films/${id}`)).then((res) => res.json())),
             ),
+        getFilmsV2: ({ film_ids, properties }) => {
+            return Promise.resolve({
+                properties: [
+                    {
+                        film_id: 4,
+                        director: 'George Lucas',
+                        producer: 'Rick McCallum',
+                        episode_id: 1,
+                        title: 'The Phantom Menace',
+                    },
+                ],
+            });
+        },
         getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
     };
 };
