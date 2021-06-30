@@ -148,7 +148,7 @@ const createSWAPIServer = () => {
 
         async director() {
             const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['director'] });
-        
+
             if (response instanceof Error) {
                 return response;
             }
@@ -158,7 +158,7 @@ const createSWAPIServer = () => {
             }
         }
     }
-    
+
     const root = {
         planet: ({ id }) => {
             return new PlanetModel(id);
