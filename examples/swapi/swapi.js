@@ -63,10 +63,10 @@ export type SWAPI_Film = $ReadOnly<{|
 export type SWAPI_Film_V2 = $ReadOnly<{|
     properties: $ReadOnlyArray<{|
         film_id: number,
-        title: string,
-        episode_id: number,
-        director: string,
-        producer: string,
+        title: ?string,
+        episode_id: ?number,
+        director: ?string,
+        producer: ?string,
     |}>,
 |}>;
 

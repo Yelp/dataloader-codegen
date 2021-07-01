@@ -85,7 +85,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
         resourceConfig.isBatchResource === true,
         `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
     );
-
+    assert(
+        typeof resourceConfig.batchKey === 'string' && typeof resourceConfig.newKey === 'string',
+        `${errorPrefix(resourcePath)} Expected both batchKey and newKey for a batch resource`,
+    );
     // The reference at runtime to where the underlying resource lives
     const resourceReference = ['resources', ...resourcePath].join('.');
 
