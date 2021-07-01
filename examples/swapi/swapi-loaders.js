@@ -13,10 +13,12 @@ import {
     cacheKeyOptions,
     CaughtResourceError,
     defaultErrorHandler,
+    getBatchKeysForPartitionItems,
     partitionItems,
     resultsDictToList,
     sortByKeys,
     unPartitionResults,
+    unPartitionResultsByBatchKeyPartition,
 } from 'dataloader-codegen/lib/runtimeHelpers';
 
 /**
@@ -274,70 +276,91 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 );
 
                 /**
-                 * Chunk up the "keys" array to create a set of "request groups".
-                 *
-                 * We're about to hit a batch resource. In addition to the batch
-                 * key, the resource may take other arguments too. When batching
-                 * up requests, we'll want to look out for where those other
-                 * arguments differ, and send multiple requests so we don't get
-                 * back the wrong info.
-                 *
-                 * In other words, we'll potentially want to send _multiple_
-                 * requests to the underlying resource batch method in this
-                 * dataloader body.
-                 *
-                 * ~~~ Why? ~~~
-                 *
-                 * Consider what happens when we get called with arguments where
-                 * the non-batch keys differ.
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
-                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
-                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
-                 * ```
-                 *
-                 * If we collected everything up and tried to send the one
-                 * request to the resource as a batch request, how do we know
-                 * what the value for "include_private_data" should be? We're
-                 * going to have to group these up up and send two requests to
-                 * the resource to make sure we're requesting the right stuff.
-                 *
-                 * e.g. We'd need to make the following set of underlying resource
-                 * calls:
-                 *
-                 * ```js
-                 * foo({ foo_ids: [ 2 ], include_private_data: true });
-                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-                 * ```
-                 *
-                 * ~~~ tl;dr ~~~
-                 *
-                 * When we have calls to .load with differing non batch key args,
-                 * we'll need to send multiple requests to the underlying
-                 * resource to make sure we get the right results back.
-                 *
-                 * Let's create the request groups, where each element in the
-                 * group refers to a position in "keys" (i.e. a call to .load)
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * partitionItems([
-                 *   { bar_id: 7, include_extra_info: true },
-                 *   { bar_id: 8, include_extra_info: false },
-                 *   { bar_id: 9, include_extra_info: true },
-                 * ], 'bar_id')
-                 * ```
-                 *
-                 * Returns:
-                 * `[ [ 0, 2 ], [ 1 ] ]`
-                 *
-                 * We'll refer to each element in the group as a "request ID".
-                 */
-                const requestGroups = partitionItems('planet_id', keys);
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * ```js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * ```
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * ```js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * ```
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * ```
+             *
+
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * ```
+             *
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             * We'll refer to each element in the group as a "request ID".
+             */
+                let requestGroups;
+
+                if (false) {
+                    requestGroups = partitionItems(['planet_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('planet_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -487,8 +510,34 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+                 *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+                 *  back up into the order that they were requested.
+                 */
+                if (false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'planet_id',
+                        ['planet_id', 'undefined'],
+                        keys,
+                    );
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['planet_id', 'undefined'],
+                        keys,
+                    );
+                    return unPartitionResultsByBatchKeyPartition(
+                        'planet_id',
+                        'undefined',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -548,70 +597,91 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 );
 
                 /**
-                 * Chunk up the "keys" array to create a set of "request groups".
-                 *
-                 * We're about to hit a batch resource. In addition to the batch
-                 * key, the resource may take other arguments too. When batching
-                 * up requests, we'll want to look out for where those other
-                 * arguments differ, and send multiple requests so we don't get
-                 * back the wrong info.
-                 *
-                 * In other words, we'll potentially want to send _multiple_
-                 * requests to the underlying resource batch method in this
-                 * dataloader body.
-                 *
-                 * ~~~ Why? ~~~
-                 *
-                 * Consider what happens when we get called with arguments where
-                 * the non-batch keys differ.
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
-                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
-                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
-                 * ```
-                 *
-                 * If we collected everything up and tried to send the one
-                 * request to the resource as a batch request, how do we know
-                 * what the value for "include_private_data" should be? We're
-                 * going to have to group these up up and send two requests to
-                 * the resource to make sure we're requesting the right stuff.
-                 *
-                 * e.g. We'd need to make the following set of underlying resource
-                 * calls:
-                 *
-                 * ```js
-                 * foo({ foo_ids: [ 2 ], include_private_data: true });
-                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-                 * ```
-                 *
-                 * ~~~ tl;dr ~~~
-                 *
-                 * When we have calls to .load with differing non batch key args,
-                 * we'll need to send multiple requests to the underlying
-                 * resource to make sure we get the right results back.
-                 *
-                 * Let's create the request groups, where each element in the
-                 * group refers to a position in "keys" (i.e. a call to .load)
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * partitionItems([
-                 *   { bar_id: 7, include_extra_info: true },
-                 *   { bar_id: 8, include_extra_info: false },
-                 *   { bar_id: 9, include_extra_info: true },
-                 * ], 'bar_id')
-                 * ```
-                 *
-                 * Returns:
-                 * `[ [ 0, 2 ], [ 1 ] ]`
-                 *
-                 * We'll refer to each element in the group as a "request ID".
-                 */
-                const requestGroups = partitionItems('person_id', keys);
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * ```js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * ```
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * ```js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * ```
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * ```
+             *
+
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * ```
+             *
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             * We'll refer to each element in the group as a "request ID".
+             */
+                let requestGroups;
+
+                if (false) {
+                    requestGroups = partitionItems(['person_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('person_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -758,8 +828,34 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+                 *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+                 *  back up into the order that they were requested.
+                 */
+                if (false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'person_id',
+                        ['person_id', 'undefined'],
+                        keys,
+                    );
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['person_id', 'undefined'],
+                        keys,
+                    );
+                    return unPartitionResultsByBatchKeyPartition(
+                        'person_id',
+                        'undefined',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -819,70 +915,91 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 );
 
                 /**
-                 * Chunk up the "keys" array to create a set of "request groups".
-                 *
-                 * We're about to hit a batch resource. In addition to the batch
-                 * key, the resource may take other arguments too. When batching
-                 * up requests, we'll want to look out for where those other
-                 * arguments differ, and send multiple requests so we don't get
-                 * back the wrong info.
-                 *
-                 * In other words, we'll potentially want to send _multiple_
-                 * requests to the underlying resource batch method in this
-                 * dataloader body.
-                 *
-                 * ~~~ Why? ~~~
-                 *
-                 * Consider what happens when we get called with arguments where
-                 * the non-batch keys differ.
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
-                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
-                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
-                 * ```
-                 *
-                 * If we collected everything up and tried to send the one
-                 * request to the resource as a batch request, how do we know
-                 * what the value for "include_private_data" should be? We're
-                 * going to have to group these up up and send two requests to
-                 * the resource to make sure we're requesting the right stuff.
-                 *
-                 * e.g. We'd need to make the following set of underlying resource
-                 * calls:
-                 *
-                 * ```js
-                 * foo({ foo_ids: [ 2 ], include_private_data: true });
-                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-                 * ```
-                 *
-                 * ~~~ tl;dr ~~~
-                 *
-                 * When we have calls to .load with differing non batch key args,
-                 * we'll need to send multiple requests to the underlying
-                 * resource to make sure we get the right results back.
-                 *
-                 * Let's create the request groups, where each element in the
-                 * group refers to a position in "keys" (i.e. a call to .load)
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * partitionItems([
-                 *   { bar_id: 7, include_extra_info: true },
-                 *   { bar_id: 8, include_extra_info: false },
-                 *   { bar_id: 9, include_extra_info: true },
-                 * ], 'bar_id')
-                 * ```
-                 *
-                 * Returns:
-                 * `[ [ 0, 2 ], [ 1 ] ]`
-                 *
-                 * We'll refer to each element in the group as a "request ID".
-                 */
-                const requestGroups = partitionItems('vehicle_id', keys);
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * ```js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * ```
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * ```js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * ```
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * ```
+             *
+
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * ```
+             *
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             * We'll refer to each element in the group as a "request ID".
+             */
+                let requestGroups;
+
+                if (false) {
+                    requestGroups = partitionItems(['vehicle_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('vehicle_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -1032,8 +1149,34 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+                 *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+                 *  back up into the order that they were requested.
+                 */
+                if (false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems(
+                        'vehicle_id',
+                        ['vehicle_id', 'undefined'],
+                        keys,
+                    );
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['vehicle_id', 'undefined'],
+                        keys,
+                    );
+                    return unPartitionResultsByBatchKeyPartition(
+                        'vehicle_id',
+                        'undefined',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -1102,70 +1245,91 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 );
 
                 /**
-                 * Chunk up the "keys" array to create a set of "request groups".
-                 *
-                 * We're about to hit a batch resource. In addition to the batch
-                 * key, the resource may take other arguments too. When batching
-                 * up requests, we'll want to look out for where those other
-                 * arguments differ, and send multiple requests so we don't get
-                 * back the wrong info.
-                 *
-                 * In other words, we'll potentially want to send _multiple_
-                 * requests to the underlying resource batch method in this
-                 * dataloader body.
-                 *
-                 * ~~~ Why? ~~~
-                 *
-                 * Consider what happens when we get called with arguments where
-                 * the non-batch keys differ.
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
-                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
-                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
-                 * ```
-                 *
-                 * If we collected everything up and tried to send the one
-                 * request to the resource as a batch request, how do we know
-                 * what the value for "include_private_data" should be? We're
-                 * going to have to group these up up and send two requests to
-                 * the resource to make sure we're requesting the right stuff.
-                 *
-                 * e.g. We'd need to make the following set of underlying resource
-                 * calls:
-                 *
-                 * ```js
-                 * foo({ foo_ids: [ 2 ], include_private_data: true });
-                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-                 * ```
-                 *
-                 * ~~~ tl;dr ~~~
-                 *
-                 * When we have calls to .load with differing non batch key args,
-                 * we'll need to send multiple requests to the underlying
-                 * resource to make sure we get the right results back.
-                 *
-                 * Let's create the request groups, where each element in the
-                 * group refers to a position in "keys" (i.e. a call to .load)
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * partitionItems([
-                 *   { bar_id: 7, include_extra_info: true },
-                 *   { bar_id: 8, include_extra_info: false },
-                 *   { bar_id: 9, include_extra_info: true },
-                 * ], 'bar_id')
-                 * ```
-                 *
-                 * Returns:
-                 * `[ [ 0, 2 ], [ 1 ] ]`
-                 *
-                 * We'll refer to each element in the group as a "request ID".
-                 */
-                const requestGroups = partitionItems('film_id', keys);
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * ```js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * ```
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * ```js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * ```
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * ```
+             *
+
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * ```
+             *
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             * We'll refer to each element in the group as a "request ID".
+             */
+                let requestGroups;
+
+                if (false) {
+                    requestGroups = partitionItems(['film_id', 'undefined'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -1310,8 +1474,30 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+                 *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+                 *  back up into the order that they were requested.
+                 */
+                if (false) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'undefined'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'undefined',
+                        ['film_id', 'undefined'],
+                        keys,
+                    );
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'undefined',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,
@@ -1361,7 +1547,8 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "isBatchResource": true,
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
-             *   "nestedPath": "properties"
+             *   "nestedPath": "properties",
+             *   "propertyBatchKey": "properties"
              * }
              * ```
              */
@@ -1375,70 +1562,91 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                 );
 
                 /**
-                 * Chunk up the "keys" array to create a set of "request groups".
-                 *
-                 * We're about to hit a batch resource. In addition to the batch
-                 * key, the resource may take other arguments too. When batching
-                 * up requests, we'll want to look out for where those other
-                 * arguments differ, and send multiple requests so we don't get
-                 * back the wrong info.
-                 *
-                 * In other words, we'll potentially want to send _multiple_
-                 * requests to the underlying resource batch method in this
-                 * dataloader body.
-                 *
-                 * ~~~ Why? ~~~
-                 *
-                 * Consider what happens when we get called with arguments where
-                 * the non-batch keys differ.
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * loaders.foo.load({ foo_id: 2, include_private_data: true });
-                 * loaders.foo.load({ foo_id: 3, include_private_data: false });
-                 * loaders.foo.load({ foo_id: 4, include_private_data: false });
-                 * ```
-                 *
-                 * If we collected everything up and tried to send the one
-                 * request to the resource as a batch request, how do we know
-                 * what the value for "include_private_data" should be? We're
-                 * going to have to group these up up and send two requests to
-                 * the resource to make sure we're requesting the right stuff.
-                 *
-                 * e.g. We'd need to make the following set of underlying resource
-                 * calls:
-                 *
-                 * ```js
-                 * foo({ foo_ids: [ 2 ], include_private_data: true });
-                 * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-                 * ```
-                 *
-                 * ~~~ tl;dr ~~~
-                 *
-                 * When we have calls to .load with differing non batch key args,
-                 * we'll need to send multiple requests to the underlying
-                 * resource to make sure we get the right results back.
-                 *
-                 * Let's create the request groups, where each element in the
-                 * group refers to a position in "keys" (i.e. a call to .load)
-                 *
-                 * Example:
-                 *
-                 * ```js
-                 * partitionItems([
-                 *   { bar_id: 7, include_extra_info: true },
-                 *   { bar_id: 8, include_extra_info: false },
-                 *   { bar_id: 9, include_extra_info: true },
-                 * ], 'bar_id')
-                 * ```
-                 *
-                 * Returns:
-                 * `[ [ 0, 2 ], [ 1 ] ]`
-                 *
-                 * We'll refer to each element in the group as a "request ID".
-                 */
-                const requestGroups = partitionItems('film_id', keys);
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * ```js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * ```
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * ```js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * ```
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * ```
+             *
+
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * ```js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * ```
+             *
+             * Returns:
+             * `[ [ 0, 2 ], [ 1 ] ]`
+             * We'll refer to each element in the group as a "request ID".
+             */
+                let requestGroups;
+
+                if (true) {
+                    requestGroups = partitionItems(['film_id', 'properties'], keys);
+                } else {
+                    requestGroups = partitionItems('film_id', keys);
+                }
 
                 // Map the request groups to a list of Promises - one for each request
                 const groupedResults = await Promise.all(
@@ -1555,32 +1763,6 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
                         }
 
-                        if (!(response instanceof Error)) {
-                            /**
-                             * Check to see the resource contains the same number
-                             * of items that we requested. If not, since there's
-                             * no "reorderResultsByKey" specified for this resource,
-                             * we don't know _which_ key's response is missing. Therefore
-                             * it's unsafe to return the response array back.
-                             */
-                            if (response.length !== requests.length) {
-                                /**
-                                 * We must return errors for all keys in this group :(
-                                 */
-                                response = new BatchItemNotFoundError(
-                                    [
-                                        `[dataloader-codegen :: getFilmsV2] Resource returned ${response.length} items, but we requested ${requests.length} items.`,
-                                        'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
-                                    ].join(' '),
-                                );
-
-                                // Tell flow that BatchItemNotFoundError extends Error.
-                                // It's an issue with flowgen package, but not an issue with Flow.
-                                // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
-                                invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
-                            }
-                        }
-
                         /**
                          * If the resource returns an Error, we'll want to copy and
                          * return that error as the return value for every request in
@@ -1622,8 +1804,30 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     }),
                 );
 
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
+                /**
+                 *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+                 *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+                 *  back up into the order that they were requested.
+                 */
+                if (true) {
+                    const batchKeyPartition = getBatchKeysForPartitionItems('film_id', ['film_id', 'properties'], keys);
+                    const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                        'properties',
+                        ['film_id', 'properties'],
+                        keys,
+                    );
+                    return unPartitionResultsByBatchKeyPartition(
+                        'film_id',
+                        'properties',
+                        batchKeyPartition,
+                        propertyBatchKeyPartiion,
+                        requestGroups,
+                        groupedResults,
+                    );
+                } else {
+                    // Split the results back up into the order that they were requested
+                    return unPartitionResults(requestGroups, groupedResults);
+                }
             },
             {
                 ...cacheKeyOptions,

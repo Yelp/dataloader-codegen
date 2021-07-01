@@ -1217,3 +1217,66 @@ test('bail if errorHandler does not return an error', async () => {
         ]);
     });
 });
+
+test('batch endpoint with propertyBatchKey without reorderResultsByKey throws error for response with non existant items', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                propertyBatchKey: 'properties',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids, bar }) => {
+            if (_.isEqual(foo_ids, [1, 2, 3])) {
+                return Promise.resolve([
+                    {
+                        foo_id: 1,
+                        name: 'Shake Shack',
+                        rating: 4,
+                    },
+                    // deliberately omit 2
+                    {
+                        foo_id: 3,
+                        name: 'Burger King',
+                        rating: 3,
+                    },
+                ]);
+            } else if (_.isEqual(foo_ids, [4])) {
+                return Promise.resolve([
+                    {
+                        foo_id: 4,
+                        name: 'In N Out',
+                        rating: 3.5,
+                    },
+                ]);
+            }
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([
+            { foo_id: 1, properties: ['name', 'rating'], include_extra_info: true },
+            { foo_id: 2, properties: ['rating'], include_extra_info: true },
+            { foo_id: 3, properties: ['rating'], include_extra_info: true },
+            { foo_id: 4, properties: ['rating'], include_extra_info: false },
+        ]);
+
+        expect(results).toMatchObject([
+            { foo_id: 1, name: 'Shake Shack', rating: 4 },
+            expect.toBeError(
+                'Could not find newKey = "2" and propertyNewKey = "rating" in the response dict. Or your endpoint does not follow the contract we support.',
+                'BatchItemNotFoundError',
+            ),
+            { foo_id: 3, rating: 3 },
+            { foo_id: 4, rating: 3.5 },
+        ]);
+    });
+});

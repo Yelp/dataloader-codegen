@@ -153,19 +153,42 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * Example:
              *
              * \`\`\`js
-             * partitionItems([
+             * partitionItems('bar_id', [
              *   { bar_id: 7, include_extra_info: true },
              *   { bar_id: 8, include_extra_info: false },
              *   { bar_id: 9, include_extra_info: true },
-             * ], 'bar_id')
+             * ])
+             * \`\`\`
+             *
+
+             * Returns:
+             * \`[ [ 0, 2 ], [ 1 ] ]\`
+             *
+             * We could also have more than one batch key.
+             *
+             * Example:
+             *
+             * \`\`\`js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
              * \`\`\`
              *
              * Returns:
              * \`[ [ 0, 2 ], [ 1 ] ]\`
-             *
              * We'll refer to each element in the group as a "request ID".
              */
-            const requestGroups = partitionItems('${resourceConfig.newKey}', keys);
+            let requestGroups;
+
+            if (${typeof resourceConfig.propertyBatchKey === 'string'}) {
+                requestGroups = partitionItems(['${resourceConfig.newKey}', '${
+        resourceConfig.propertyBatchKey
+    }'], keys);
+            } else {
+                requestGroups = partitionItems('${resourceConfig.newKey}', keys);
+            }
 
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
@@ -179,7 +202,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 const requests = requestIDs.map(id => keys[id]);
 
                 ${(() => {
-                    const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
+                    const { batchKey, newKey, commaSeparatedBatchKey, propertyBatchKey } = resourceConfig;
 
                     let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
                     if (commaSeparatedBatchKey === true) {
@@ -272,9 +295,17 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 }
 
                 ${(() => {
-                    const { reorderResultsByKey, isResponseDictionary } = resourceConfig;
-
-                    if (!isResponseDictionary && reorderResultsByKey == null) {
+                    const { reorderResultsByKey, isResponseDictionary, propertyBatchKey } = resourceConfig;
+                    if (
+                        !isResponseDictionary &&
+                        reorderResultsByKey == null &&
+                        /**
+                         * When there's propertyBatchKey and propertyNewKey, the resource might
+                         * contain less number of items that we requested. It's valid, so we
+                         * should skip the check.
+                         */
+                        !(typeof propertyBatchKey === 'string')
+                    ) {
                         return `
                             if (!(response instanceof Error)) {
                                 /**
@@ -387,8 +418,34 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return response;
             }))
 
-            // Split the results back up into the order that they were requested
-            return unPartitionResults(requestGroups, groupedResults);
+            /**
+             *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+             *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
+             *  back up into the order that they were requested.
+             */
+            if (${typeof resourceConfig.propertyBatchKey === 'string'}) {
+                const batchKeyPartition = getBatchKeysForPartitionItems(
+                    '${resourceConfig.newKey}',
+                    ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
+                    keys
+                );
+                const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                    '${resourceConfig.propertyBatchKey}',
+                    ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
+                    keys
+                );
+                return unPartitionResultsByBatchKeyPartition(
+                    '${resourceConfig.newKey}',
+                    '${resourceConfig.propertyBatchKey}',
+                    batchKeyPartition,
+                    propertyBatchKeyPartiion,
+                    requestGroups,
+                    groupedResults
+                );
+            } else {
+                // Split the results back up into the order that they were requested
+                return unPartitionResults(requestGroups, groupedResults);
+            }
          },
          {
              ${

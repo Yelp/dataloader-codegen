@@ -94,6 +94,7 @@ resources:
             commaSeparatedBatchKey: ?string   (can only use if isBatchResource=true)
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
+            propertyBatchKey: ?string         (can only use if isBatchResource=true)
 
 typings:
     language: flow
@@ -125,6 +126,7 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 | `commaSeparatedBatchKey` | (Optional) Set to true if the interface of the resource takes the batch key as a comma separated list (rather than an array of IDs, as is more common). Default: false                                                                                   |
 | `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                  |
 | `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
+| `propertyBatchKey`       | (Optional) The argument to the resource that represents the nested list of optional properties we want to fetch. (e.g. usually 'properties' or 'features').                                                                                              |
 
 ### `typings`
 

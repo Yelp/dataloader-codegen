@@ -34,6 +34,7 @@ resources:
         batchKey: film_ids
         newKey: film_id
         nestedPath: properties
+        propertyBatchKey: properties
     getRoot:
         docsLink: https://swapi.dev/documentation#root
         isBatchResource: false

@@ -97,6 +97,10 @@
                 "isBatchKeyASet": {
                     "type": "boolean",
                     "description": "(Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false"
+                },
+                "propertyBatchKey": {
+                    "type": "string",
+                    "description": "(Optional) The argument to the resource that represents the nested list of optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
                 }
             }
         },
