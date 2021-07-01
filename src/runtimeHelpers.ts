@@ -396,7 +396,7 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                         order: id,
                         result: new BatchItemNotFoundError(
                             [
-                                `Could not find newKey = "${batchKeyPartition[i][j]}" and propertyNewKey = "${propertyBatchKeyPartion[i][j]}" in the response dict.`,
+                                `Could not find newKey = "${batchKeyPartition[i][j]}" in the response dict.`,
                                 `Or your endpoint does not follow the contract we support.`,
                             ].join(' '),
                         ),

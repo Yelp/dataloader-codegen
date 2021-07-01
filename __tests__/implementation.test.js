@@ -1326,7 +1326,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
         expect(results).toEqual([
             { foo_id: 1, name: 'Shake Shack', rating: 4 },
             expect.toBeError(
-                'Could not find newKey = "2" and propertyNewKey = "rating" in the response dict. Or your endpoint does not follow the contract we support.',
+                'Could not find newKey = "2" in the response dict. Or your endpoint does not follow the contract we support.',
                 'BatchItemNotFoundError',
             ),
             { foo_id: 3, rating: 3 },
@@ -1439,7 +1439,7 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
         expect(results).toEqual([
             { foo_id: 1, rating: 3, name: 'Burger King' },
             expect.toBeError(
-                'Could not find newKey = "2" and propertyNewKey = "name" in the response dict. Or your endpoint does not follow the contract we support.',
+                'Could not find newKey = "2" in the response dict. Or your endpoint does not follow the contract we support.',
                 'BatchItemNotFoundError',
             ),
             { foo_id: 3, rating: 4 },
