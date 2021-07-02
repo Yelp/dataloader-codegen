@@ -100,7 +100,7 @@
                 },
                 "propertyBatchKey": {
                     "type": "string",
-                    "description": "(Optional) The argument to the resource that represents the nested list of optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
+                    "description": "(Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
                 }
             }
         },

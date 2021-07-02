@@ -381,12 +381,7 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                     }
 
                     if (resultElement[newKey] === batchKeyPartition[i][j]) {
-                        result = Object.assign(
-                            {},
-                            ...[newKey, ...propertyBatchKeyPartion[i][j]].map((key) => ({
-                                [key]: resultElement[key],
-                            })),
-                        );
+                        result = _.pick(resultElement, [newKey, ...propertyBatchKeyPartion[i][j]]);
                         break;
                     }
                 }

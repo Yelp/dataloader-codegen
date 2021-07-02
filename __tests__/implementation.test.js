@@ -1248,7 +1248,6 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
                         foo_id: 3,
                         rating: 5,
                         name: 'Shake Shack',
-                        extra_stuff: 'lorem ipsum',
                     },
                 ]);
             }
@@ -1367,7 +1366,6 @@ test('batch endpoint (multiple requests) with propertyBatchKey error handling', 
                         foo_id: 5,
                         name: 'Shake Shack',
                         rating: 4,
-                        extra_stuff: 'lorem ipsum',
                     },
                 ]);
             }

@@ -147,6 +147,43 @@ resources:
         newKey: user_id
 ```
 
+### Batch Resources with `properties` paramerters
+
+Instead of accepting just a list of users (`user_ids`), a batch resouce could accept both a list of users (`user_ids`) and a list of properties (`properties`):
+
+```js
+const getUserInfo = (args: { user_ids: Array<number>, properties: Array<string> }): Promise<Array<UserInfo>> =>
+    fetch('/userInfo', args);
+```
+
+To batch up calls to this resouce with different `properties` for different `user_ids`, we specify `propertyBatchKey` in the config to describe the "properties" argument.
+
+The config for our `getUserInfoV2` would look like this:
+
+```yaml
+resources:
+    getUserInfo:
+        isBatchResource: true
+        batchKey: user_ids
+        newKey: user_id
+        propertyBatchKey: properties
+```
+
+**IMPORTANT NOTE**
+To use this feature, there are several restrictions. (Please open an issue if you're interested in helping us support other use cases):
+
+1. The resouce accept two `list` type parameters, like this:
+
+```
+ids: str[] (should be the batchKey)
+properties: str[] (should be the propertyBatchKey)
+```
+
+2. `properties` are not returned in a nested object, but spread at the same level as the `id`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
+3. All `properties` should be optional in the response object.
+4. The resouce must have a one-to-one correspondence between the input "properties" and the output "properties".
+   (i.e. if we request property "name", the response must have "name" in it, and no extra data assciated with it.)
+
 See [the full docs](./API_DOCS.md) for more information on how to configure resources.
 
 ## Contributing
