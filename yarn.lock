@@ -3,28 +3,29 @@
 
 
 "@apidevtools/json-schema-ref-parser@^9.0.6":
-  version "9.0.7"
-  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fjson-schema-ref-parser@9.0.7/@apidevtools-json-schema-ref-parser-9.0.7.64aa7f5b34e43d74ea9e408b90ddfba02050dde3.tgz#64aa7f5b34e43d74ea9e408b90ddfba02050dde3"
-  integrity sha1-ZKp/WzTkPXTqnkCLkN37oCBQ3eM=
+  version "9.0.9"
+  resolved "https://registry.yarnpkg.com/@apidevtools/json-schema-ref-parser/-/json-schema-ref-parser-9.0.9.tgz#d720f9256e3609621280584f2b47ae165359268b"
+  integrity sha512-GBD2Le9w2+lVFoc4vswGI/TjkNIZSVp7+9xPf+X3uidBfWnAeUWmquteSyt0+VCrhNMWj/FTABISQrD3Z/YA+w==
   dependencies:
     "@jsdevtools/ono" "^7.1.3"
+    "@types/json-schema" "^7.0.6"
     call-me-maybe "^1.0.1"
-    js-yaml "^3.13.1"
+    js-yaml "^4.1.0"
 
 "@apidevtools/openapi-schemas@^2.0.4":
   version "2.1.0"
-  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fopenapi-schemas@2.1.0/@apidevtools-openapi-schemas-2.1.0.9fa08017fb59d80538812f03fc7cac5992caaa17.tgz#9fa08017fb59d80538812f03fc7cac5992caaa17"
-  integrity sha1-n6CAF/tZ2AU4gS8D/HysWZLKqhc=
+  resolved "https://registry.yarnpkg.com/@apidevtools/openapi-schemas/-/openapi-schemas-2.1.0.tgz#9fa08017fb59d80538812f03fc7cac5992caaa17"
+  integrity sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==
 
 "@apidevtools/swagger-methods@^3.0.2":
   version "3.0.2"
-  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fswagger-methods@3.0.2/@apidevtools-swagger-methods-3.0.2.b789a362e055b0340d04712eafe7027ddc1ac267.tgz#b789a362e055b0340d04712eafe7027ddc1ac267"
-  integrity sha1-t4mjYuBVsDQNBHEur+cCfdwawmc=
+  resolved "https://registry.yarnpkg.com/@apidevtools/swagger-methods/-/swagger-methods-3.0.2.tgz#b789a362e055b0340d04712eafe7027ddc1ac267"
+  integrity sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==
 
 "@apidevtools/swagger-parser@^10.0.2":
   version "10.0.2"
-  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fswagger-parser@10.0.2/@apidevtools-swagger-parser-10.0.2.f4145afb7c3a3bafe0376f003b5c3bdeae17a952.tgz#f4145afb7c3a3bafe0376f003b5c3bdeae17a952"
-  integrity sha1-9BRa+3w6O6/gN28AO1w73q4XqVI=
+  resolved "https://registry.npmjs.org/@apidevtools/swagger-parser/-/swagger-parser-10.0.2.tgz#f4145afb7c3a3bafe0376f003b5c3bdeae17a952"
+  integrity sha512-JFxcEyp8RlNHgBCE98nwuTkZT6eNFPc1aosWV6wPcQph72TSEEu1k3baJD4/x1qznU+JiDdz8F5pTwabZh+Dhg==
   dependencies:
     "@apidevtools/json-schema-ref-parser" "^9.0.6"
     "@apidevtools/openapi-schemas" "^2.0.4"
@@ -1077,8 +1078,8 @@
 
 "@jsdevtools/ono@^7.1.3":
   version "7.1.3"
-  resolved "https://npm.yelpcorp.com/_tarballs/%40jsdevtools%252Fono@7.1.3/@jsdevtools-ono-7.1.3.9df03bbd7c696a5c58885c34aa06da41c8543796.tgz#9df03bbd7c696a5c58885c34aa06da41c8543796"
-  integrity sha1-nfA7vXxpalxYiFw0qgbaQchUN5Y=
+  resolved "https://registry.yarnpkg.com/@jsdevtools/ono/-/ono-7.1.3.tgz#9df03bbd7c696a5c58885c34aa06da41c8543796"
+  integrity sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==
 
 "@sinonjs/commons@^1.7.0":
   version "1.7.0"
@@ -1157,6 +1158,11 @@
   version "3.12.1"
   resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-3.12.1.tgz#5c6f4a1eabca84792fbd916f0cb40847f123c656"
   integrity sha512-SGGAhXLHDx+PK4YLNcNGa6goPf9XRWQNAUUbffkwVGGXIxmDKWyGGL4inzq2sPmExu431Ekb9aEMn9BkPqEYFA==
+
+"@types/json-schema@^7.0.6":
+  version "7.0.8"
+  resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.8.tgz#edf1bf1dbf4e04413ca8e5b17b3b7d7d54b59818"
+  integrity sha512-YSBPTLTVm2e2OoQIDYx8HaeWJ5tTToLH67kXR7zYNGupXMEHa2++G8k+DczX2cFVgalypqtyZIcU19AFcmOpmg==
 
 "@types/lodash@^4.14.144":
   version "4.14.144"
@@ -1342,6 +1348,11 @@ argparse@^1.0.7:
   integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
   dependencies:
     sprintf-js "~1.0.2"
+
+argparse@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/argparse/-/argparse-2.0.1.tgz#246f50f3ca78a3240f6c997e8a9bd1eac49e4b38"
+  integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
 
 arr-diff@^4.0.0:
   version "4.0.0"
@@ -1573,7 +1584,7 @@ cache-base@^1.0.1:
 
 call-me-maybe@^1.0.1:
   version "1.0.1"
-  resolved "https://npm.yelpcorp.com/_tarballs/call-me-maybe@1.0.1/call-me-maybe-1.0.1.26d208ea89e37b5cbde60250a15f031c16a4d66b.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"
+  resolved "https://registry.yarnpkg.com/call-me-maybe/-/call-me-maybe-1.0.1.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"
   integrity sha1-JtII6onje1y95gJQoV8DHBak1ms=
 
 callsites@^3.0.0:
@@ -3187,6 +3198,13 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
+js-yaml@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.1.0.tgz#c1fb65f8f5017901cdd2c951864ba18458a10602"
+  integrity sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==
+  dependencies:
+    argparse "^2.0.1"
+
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
@@ -3325,12 +3343,12 @@ locate-path@^5.0.0:
 
 lodash.get@^4.4.2:
   version "4.4.2"
-  resolved "https://npm.yelpcorp.com/_tarballs/lodash.get@4.4.2/lodash.get-4.4.2.2d177f652fa31e939b4438d5341499dfa3825e99.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
 lodash.isequal@^4.5.0:
   version "4.5.0"
-  resolved "https://npm.yelpcorp.com/_tarballs/lodash.isequal@4.5.0/lodash.isequal-4.5.0.415c4478f2bcc30120c22ce10ed3226f7d3e18e0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
   integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
 
 lodash.sortby@^4.7.0:
@@ -3723,8 +3741,8 @@ onetime@^5.1.0:
 
 openapi-types@^1.3.5:
   version "1.3.5"
-  resolved "https://npm.yelpcorp.com/_tarballs/openapi-types@1.3.5/openapi-types-1.3.5.6718cfbc857fe6c6f1471f65b32bdebb9c10ce40.tgz#6718cfbc857fe6c6f1471f65b32bdebb9c10ce40"
-  integrity sha1-ZxjPvIV/5sbxRx9lsyveu5wQzkA=
+  resolved "https://registry.npmjs.org/openapi-types/-/openapi-types-1.3.5.tgz#6718cfbc857fe6c6f1471f65b32bdebb9c10ce40"
+  integrity sha512-11oi4zYorsgvg5yBarZplAqbpev5HkuVNPlZaPTknPDzAynq+lnJdXAmruGWP0s+dNYZS7bjM+xrTpJw7184Fg==
 
 optionator@^0.8.1:
   version "0.8.2"
@@ -4835,8 +4853,8 @@ v8-to-istanbul@^4.0.1:
 
 validator@^12.0.0:
   version "12.2.0"
-  resolved "https://npm.yelpcorp.com/_tarballs/validator@12.2.0/validator-12.2.0.660d47e96267033fd070096c3b1a6f2db4380a0a.tgz#660d47e96267033fd070096c3b1a6f2db4380a0a"
-  integrity sha1-Zg1H6WJnAz/QcAlsOxpvLbQ4Cgo=
+  resolved "https://registry.yarnpkg.com/validator/-/validator-12.2.0.tgz#660d47e96267033fd070096c3b1a6f2db4380a0a"
+  integrity sha512-jJfE/DW6tIK1Ek8nCfNFqt8Wb3nzMoAbocBF6/Icgg1ZFSBpObdnwVY2jQj6qUqzhx5jc71fpvBWyLGO7Xl+nQ==
 
 verror@1.10.0:
   version "1.10.0"
@@ -5037,8 +5055,8 @@ yargs@^15.0.0:
 
 z-schema@^4.2.3:
   version "4.2.3"
-  resolved "https://npm.yelpcorp.com/_tarballs/z-schema@4.2.3/z-schema-4.2.3.85f7eea7e6d4fe59a483462a98f511bd78fe9882.tgz#85f7eea7e6d4fe59a483462a98f511bd78fe9882"
-  integrity sha1-hffup+bU/lmkg0YqmPURvXj+mII=
+  resolved "https://registry.yarnpkg.com/z-schema/-/z-schema-4.2.3.tgz#85f7eea7e6d4fe59a483462a98f511bd78fe9882"
+  integrity sha512-zkvK/9TC6p38IwcrbnT3ul9in1UX4cm1y/VZSs4GHKIiDCrlafc+YQBgQBUdDXLAoZHf2qvQ7gJJOo6yT1LH6A==
   dependencies:
     lodash.get "^4.4.2"
     lodash.isequal "^4.5.0"

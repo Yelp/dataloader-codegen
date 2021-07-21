@@ -67,16 +67,16 @@ function verifyBatchPropertyResource(args: CLIArgs) {
             ) {
                 throw new Error(`Missing swagger info for ${key}, please add them in the dataloader-cofig.yaml file!`);
             }
-            const swaggerLink = value['swaggerLink'];
-            const swaggerPath = value['swaggerPath'];
-            const httpMethod = value['httpMethod'];
+            const swaggerLink: string = value['swaggerLink'];
+            const swaggerPath: string = value['swaggerPath'];
+            const httpMethod: string = value['httpMethod'];
 
             // parse swagger file, so that all $ref pointers will be resolved.
             SwaggerParser.validate(swaggerLink, (err, api) => {
                 if (err) {
                     console.error(err);
                 } else {
-                    if (typeof api !== 'object' || typeof api.paths[swaggerPath][httpMethod] !== 'object') {
+                    if (!api || !api.paths[swaggerPath][httpMethod]) {
                         throw new Error(
                             `Cannot find the swagger response definition for ${key}, please make sure you have correct swagger info in the dataloader-cofig.yaml file!`,
                         );
