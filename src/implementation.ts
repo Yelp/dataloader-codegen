@@ -440,6 +440,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 return unPartitionResultsByBatchKeyPartition(
                     '${resourceConfig.newKey}',
                     '${resourceConfig.propertyBatchKey}',
+                    '${resourceConfig.responseKey}',
                     batchKeyPartition,
                     propertyBatchKeyPartiion,
                     requestGroups,

@@ -1227,6 +1227,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
+                responseKey: 'id',
             },
         },
     };
@@ -1236,8 +1237,8 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
             if (_.isEqual(foo_ids, [2, 1])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
-                    { foo_id: 1, rating: 3, name: 'Burger King' },
-                    { foo_id: 2, rating: 4, name: 'In N Out' },
+                    { id: 1, rating: 3, name: 'Burger King' },
+                    { id: 2, rating: 4, name: 'In N Out' },
                 ]);
             }
 
@@ -1245,7 +1246,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {
-                        foo_id: 3,
+                        id: 3,
                         rating: 5,
                         name: 'Shake Shack',
                     },
@@ -1264,9 +1265,9 @@ test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
         ]);
 
         expect(results).toEqual([
-            { foo_id: 2, name: 'In N Out', rating: 4 },
-            { foo_id: 1, rating: 3 },
-            { foo_id: 3, rating: 5 },
+            { id: 2, name: 'In N Out', rating: 4 },
+            { id: 1, rating: 3 },
+            { id: 3, rating: 5 },
         ]);
     });
 });
@@ -1280,6 +1281,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
+                responseKey: 'foo_id',
             },
         },
     };
@@ -1325,7 +1327,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
         expect(results).toEqual([
             { foo_id: 1, name: 'Shake Shack', rating: 4 },
             expect.toBeError(
-                'Could not find newKey = "2" in the response dict. Or your endpoint does not follow the contract we support.',
+                'Could not find foo_id = 2 in the response dict. Or your endpoint does not follow the contract we support.',
                 'BatchItemNotFoundError',
             ),
             { foo_id: 3, rating: 3 },
@@ -1343,6 +1345,7 @@ test('batch endpoint (multiple requests) with propertyBatchKey error handling', 
                 batchKey: 'foo_ids',
                 newKey: 'foo_id',
                 propertyBatchKey: 'properties',
+                responseKey: 'id',
             },
         },
     };
@@ -1353,17 +1356,17 @@ test('batch endpoint (multiple requests) with propertyBatchKey error handling', 
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {
-                        foo_id: 2,
+                        id: 2,
                         name: 'Burger King',
                         rating: 3,
                     },
                     {
-                        foo_id: 4,
+                        id: 4,
                         name: 'In N Out',
                         rating: 3.5,
                     },
                     {
-                        foo_id: 5,
+                        id: 5,
                         name: 'Shake Shack',
                         rating: 4,
                     },
@@ -1389,10 +1392,10 @@ test('batch endpoint (multiple requests) with propertyBatchKey error handling', 
 
         expect(results).toEqual([
             expect.toBeError(/yikes/),
-            { foo_id: 2, name: 'Burger King', rating: 3 },
+            { id: 2, name: 'Burger King', rating: 3 },
             expect.toBeError(/yikes/),
-            { foo_id: 4, rating: 3.5 },
-            { foo_id: 5, name: 'Shake Shack' },
+            { id: 4, rating: 3.5 },
+            { id: 5, name: 'Shake Shack' },
         ]);
     });
 });
@@ -1407,6 +1410,7 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
                 newKey: 'foo_id',
                 reorderResultsByKey: 'foo_id',
                 propertyBatchKey: 'properties',
+                responseKey: 'foo_id',
             },
         },
     };
@@ -1437,7 +1441,7 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
         expect(results).toEqual([
             { foo_id: 1, rating: 3, name: 'Burger King' },
             expect.toBeError(
-                'Could not find newKey = "2" in the response dict. Or your endpoint does not follow the contract we support.',
+                'Could not find foo_id = 2 in the response dict. Or your endpoint does not follow the contract we support.',
                 'BatchItemNotFoundError',
             ),
             { foo_id: 3, rating: 4 },

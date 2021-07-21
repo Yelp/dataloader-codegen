@@ -21,6 +21,7 @@ export interface BatchResourceConfig {
     batchKey: string;
     newKey: string;
     propertyBatchKey: string;
+    responseKey: string;
     reorderResultsByKey?: string;
     nestedPath?: string;
     commaSeparatedBatchKey?: boolean;
