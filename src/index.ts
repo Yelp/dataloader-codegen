@@ -79,19 +79,28 @@ function verifyBatchPropertyResource(args: CLIArgs) {
                 if (err) {
                     console.error(err);
                 } else {
-                    var object = api.paths[swaggerPath][httpMethod]['responses']['200'];
-                    // The resource may return the list of results in a nested path and properties are under the nestedPath
-                    if (value.hasOwnProperty('nestedPath')) {
-                        object = api.paths[swaggerPath][httpMethod]['responses']['200']['schema'][value['nestedPath']];
-                    }
-                    // Find all the fields that are `required` in the swagger spec
-                    const requiredList = findVal(object, 'required', []);
-                    const requiredKeys = value.hasOwnProperty('swaggeRequiredKeys') ? value['swaggeRequiredKeys'] : [];
-                    if (!arraysEqual(requiredKeys, requiredList)) {
+                    if (typeof api !== 'object' || typeof api.paths[swaggerPath][httpMethod] !== 'object') {
                         throw new Error(
-                            'Sorry, your endpoint does not match the requirement for using propertyBatchKey ' +
-                                ', please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
+                            `Cannot find the swagger response definition for ${key}, please make sure you have correct swagger info in the dataloader-cofig.yaml file!`,
                         );
+                    } else {
+                        var swaggerResponse: any = api.paths[swaggerPath][httpMethod]['responses']['200'];
+                        // The resource may return the list of results in a nested path and properties are under the nestedPath
+                        if (value.hasOwnProperty('nestedPath')) {
+                            swaggerResponse =
+                                api.paths[swaggerPath][httpMethod]['responses']['200']['schema'][value['nestedPath']];
+                        }
+                        // Find all the fields that are `required` in the swagger spec
+                        const requiredList = findVal(swaggerResponse, 'required', []);
+                        const requiredKeys = value.hasOwnProperty('swaggeRequiredKeys')
+                            ? value['swaggeRequiredKeys']
+                            : [];
+                        if (!arraysEqual(requiredKeys, requiredList)) {
+                            throw new Error(
+                                'Sorry, your swagger endpoint does not match the requirement of using propertyBatchKey ' +
+                                    ', please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
+                            );
+                        }
                     }
                 }
             });
@@ -115,7 +124,7 @@ function main() {
         })
         .help().argv;
     verifyBatchPropertyResource(argv);
-    //  writeLoaders(argv);
+    writeLoaders(argv);
 }
 
 if (!process.env.NODE_ENV) {
