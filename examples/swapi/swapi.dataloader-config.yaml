@@ -35,10 +35,10 @@ resources:
         newKey: film_id
         nestedPath: properties
         propertyBatchKey: properties
-        swaggerFile: https://github.yelpcorp.com/raw/clientlibs/search_business_properties/master/search_business_properties_clientlib_ng/swagger.json?token=AAAAIVXIYGB4EMDIUMF7CMTBABBJM
+        swaggerLink: https://github.yelpcorp.com/raw/clientlibs/search_business_properties/master/search_business_properties_clientlib_ng/swagger.json?token=AAAAIVXIYGB4EMDIUMF7CMTBABBJM
         swaggerPath: /v2/business
-        swaggerMethod: get
-        swaggerRequiredId:
+        httpMethod: get
+        swaggeRequiredKeys:
             - id
     getRoot:
         docsLink: https://swapi.dev/documentation#root

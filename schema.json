@@ -102,21 +102,21 @@
                     "type": "string",
                     "description": "(Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
                 },
-                "swaggerFile": {
+                "swaggerLink": {
                     "type": "string",
-                    "description": "(Optional)  "
+                    "description": "(Non-optional when propertyBatchKey is set) The URL of your Swagger definition. Should point to a source of truth. Useful for others to verify information specified here is correct, and is used in stack traces. "
                 },
                 "swaggerPath": {
                     "type": "string",
-                    "description": " "
+                    "description": "(Non-optional when propertyBatchKey is set)) The global paths section of the API specification. e.g. /users/v1"
                 },
-                "swaggerMethod": {
+                "httpMethod": {
                     "type": "string",
-                    "description": "(Optional)  "
+                    "description": "(Non-optional when propertyBatchKey is set)) The http method of the API specification. e.g. get, post, delete, etc."
                 },
-                "swaggerRequiredId": {
+                "swaggeRequiredKeys": {
                     "type": "array",
-                    "description": "(Optional)  "
+                    "description": "(Optional) The key in the response objects corresponds to an element in `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath"
                 }
             }
         },

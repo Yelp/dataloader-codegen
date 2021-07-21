@@ -22,7 +22,9 @@ function writeLoaders(args: CLIArgs) {
     fs.writeFileSync(args.output, output);
 }
 
-// return if two arrays have exact same values (order doesn't matter)
+/**
+ * If two arrays have the same items (order doesn't matter)
+ */
 function arraysEqual(a: Array<string>, b: Array<string>) {
     if (a === b) return true;
     if (a == null || b == null) return false;
@@ -35,7 +37,9 @@ function arraysEqual(a: Array<string>, b: Array<string>) {
     return true;
 }
 
-// return all values of the key in object
+/**
+ * Find all values of the intput key in an object recursively
+ */
 function findVal(object: any, key: string, array: Array<string>) {
     Object.keys(object).some(function (k) {
         if (k === key) {
@@ -50,6 +54,9 @@ function findVal(object: any, key: string, array: Array<string>) {
     return array;
 }
 
+/**
+ * Throw erros when resource uses propertyBatchKey feature but doesn't have optional properties
+ */
 function verifyBatchPropertyResource(args: CLIArgs) {
     const resources: object = getConfig(args.config).resources;
 
@@ -57,33 +64,33 @@ function verifyBatchPropertyResource(args: CLIArgs) {
         if (Object.keys(value).includes('propertyBatchKey')) {
             const propertyBatchKey = value['propertyBatchKey'];
             if (
-                !value.hasOwnProperty('swaggerFile') ||
+                !value.hasOwnProperty('swaggerLink') ||
                 !value.hasOwnProperty('swaggerPath') ||
-                !value.hasOwnProperty('swaggerMethod')
+                !value.hasOwnProperty('httpMethod')
             ) {
-                throw new Error('Missing swagger info, please add them in yout dataloader-cofig.yaml file!');
+                throw new Error(`Missing swagger info for ${key}, please add them in the dataloader-cofig.yaml file!`);
             }
-            const swaggerFile = value['swaggerFile'];
+            const swaggerLink = value['swaggerLink'];
             const swaggerPath = value['swaggerPath'];
-            const swaggerMethod = value['swaggerMethod'];
+            const httpMethod = value['httpMethod'];
 
             // parse swagger file, so that all $ref pointers will be resolved.
-            SwaggerParser.validate(swaggerFile, (err, api) => {
+            SwaggerParser.validate(swaggerLink, (err, api) => {
                 if (err) {
                     console.error(err);
                 } else {
-                    var object = api.paths[swaggerPath][swaggerMethod]['responses']['200'];
-                    // The resource may return the list of results in a nested path, we need to handle that
+                    var object = api.paths[swaggerPath][httpMethod]['responses']['200'];
+                    // The resource may return the list of results in a nested path and properties are under the nestedPath
                     if (value.hasOwnProperty('nestedPath')) {
-                        object =
-                            api.paths[swaggerPath][swaggerMethod]['responses']['200']['schema'][value['nestedPath']];
+                        object = api.paths[swaggerPath][httpMethod]['responses']['200']['schema'][value['nestedPath']];
                     }
-                    // Find all the fields that are listed `required` in the swagger spec
+                    // Find all the fields that are `required` in the swagger spec
                     const requiredList = findVal(object, 'required', []);
-                    const requiredId = value.hasOwnProperty('swaggerRequiredId') ? value['swaggerRequiredId'] : [];
-                    if (!arraysEqual(requiredId, requiredList)) {
+                    const requiredKeys = value.hasOwnProperty('swaggeRequiredKeys') ? value['swaggeRequiredKeys'] : [];
+                    if (!arraysEqual(requiredKeys, requiredList)) {
                         throw new Error(
-                            'Sorry, your endpoint does not match the requirement for using propertyBatchKey, please read.',
+                            'Sorry, your endpoint does not match the requirement for using propertyBatchKey ' +
+                                ', please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
                         );
                     }
                 }
