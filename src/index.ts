@@ -23,16 +23,12 @@ function writeLoaders(args: CLIArgs) {
 }
 
 /**
- * If two arrays have the same items (order doesn't matter)
+ * If requiredList only contains responseKey
  */
-function arraysEqual(a: Array<string>, b: Array<string>) {
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length !== b.length) return false;
-    a.sort();
-    b.sort();
-    for (var i = 0; i < a.length; ++i) {
-        if (a[i] !== b[i]) return false;
+function validRequiredList(requiredList: Array<string>, responseKey: string) {
+    if (requiredList.length > 1) return false;
+    if (requiredList.length == 1 && requiredList[0] !== responseKey) {
+        return false;
     }
     return true;
 }
@@ -64,6 +60,7 @@ function verifyBatchPropertyResource(args: CLIArgs) {
         if (Object.keys(value).includes('propertyBatchKey')) {
             const propertyBatchKey = value['propertyBatchKey'];
             if (
+                !value.hasOwnProperty('responseKey') ||
                 !value.hasOwnProperty('swaggerLink') ||
                 !value.hasOwnProperty('swaggerPath') ||
                 !value.hasOwnProperty('httpMethod')
@@ -92,13 +89,13 @@ function verifyBatchPropertyResource(args: CLIArgs) {
                         }
                         // Find all the fields that are `required` in the swagger spec
                         const requiredList = findVal(swaggerResponse, 'required', []);
-                        const requiredKeys = value.hasOwnProperty('swaggeRequiredKeys')
-                            ? [value['swaggeRequiredKeys']]
-                            : [];
-                        if (!arraysEqual(requiredKeys, requiredList)) {
+                        const responseKey = value['responseKey'];
+                        if (!validRequiredList(requiredList, responseKey)) {
                             throw new Error(
-                                'Sorry, your swagger endpoint does not match the requirement of using propertyBatchKey ' +
-                                    ', please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
+                                [
+                                    'Sorry, your swagger endpoint does not match the requirement of using propertyBatchKey,',
+                                    'please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
+                                ].join(' '),
                             );
                         }
                     }

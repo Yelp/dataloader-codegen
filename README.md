@@ -174,14 +174,14 @@ resources:
 **IMPORTANT NOTE**
 To use this feature, there are several restrictions. (Please open an issue if you're interested in helping us support other use cases):
 
-1. The resouce accept two `list` type parameters, like this:
+1. The resouce accept two non-optional `list` type parameters, like this:
 
 ```
 ids: str[] (should be the batchKey)
 properties: str[] (should be the propertyBatchKey)
 ```
 
-2. `properties` are not returned in a nested object, but spread at the same level as the `id`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
+2. `properties` are spread at the same level as the `responseKey`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
 3. All `properties` should be optional in the response object. To enfore that, we require `swaggerLink`, `swaggerPath` and `httpMethod` defined in the config.
 4. The resouce must have a one-to-one correspondence between the input "properties" and the output "properties".
    (i.e. if we request property "name", the response must have "name" in it, and no extra data assciated with it.)
