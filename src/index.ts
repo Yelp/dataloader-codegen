@@ -51,7 +51,7 @@ function findVal(object: any, key: string, array: Array<string>) {
 }
 
 /**
- * Throw erros when resource uses propertyBatchKey feature but doesn't have optional properties
+ * Throw erros when resource uses propertyBatchKey feature but doesn't match requirements
  */
 function verifyBatchPropertyResource(args: CLIArgs) {
     const resources: object = getConfig(args.config).resources;
