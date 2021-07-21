@@ -93,7 +93,7 @@ function verifyBatchPropertyResource(args: CLIArgs) {
                         // Find all the fields that are `required` in the swagger spec
                         const requiredList = findVal(swaggerResponse, 'required', []);
                         const requiredKeys = value.hasOwnProperty('swaggeRequiredKeys')
-                            ? value['swaggeRequiredKeys']
+                            ? [value['swaggeRequiredKeys']]
                             : [];
                         if (!arraysEqual(requiredKeys, requiredList)) {
                             throw new Error(
