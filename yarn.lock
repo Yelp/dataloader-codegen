@@ -2,6 +2,37 @@
 # yarn lockfile v1
 
 
+"@apidevtools/json-schema-ref-parser@^9.0.6":
+  version "9.0.7"
+  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fjson-schema-ref-parser@9.0.7/@apidevtools-json-schema-ref-parser-9.0.7.64aa7f5b34e43d74ea9e408b90ddfba02050dde3.tgz#64aa7f5b34e43d74ea9e408b90ddfba02050dde3"
+  integrity sha1-ZKp/WzTkPXTqnkCLkN37oCBQ3eM=
+  dependencies:
+    "@jsdevtools/ono" "^7.1.3"
+    call-me-maybe "^1.0.1"
+    js-yaml "^3.13.1"
+
+"@apidevtools/openapi-schemas@^2.0.4":
+  version "2.1.0"
+  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fopenapi-schemas@2.1.0/@apidevtools-openapi-schemas-2.1.0.9fa08017fb59d80538812f03fc7cac5992caaa17.tgz#9fa08017fb59d80538812f03fc7cac5992caaa17"
+  integrity sha1-n6CAF/tZ2AU4gS8D/HysWZLKqhc=
+
+"@apidevtools/swagger-methods@^3.0.2":
+  version "3.0.2"
+  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fswagger-methods@3.0.2/@apidevtools-swagger-methods-3.0.2.b789a362e055b0340d04712eafe7027ddc1ac267.tgz#b789a362e055b0340d04712eafe7027ddc1ac267"
+  integrity sha1-t4mjYuBVsDQNBHEur+cCfdwawmc=
+
+"@apidevtools/swagger-parser@^10.0.2":
+  version "10.0.2"
+  resolved "https://npm.yelpcorp.com/_tarballs/%40apidevtools%252Fswagger-parser@10.0.2/@apidevtools-swagger-parser-10.0.2.f4145afb7c3a3bafe0376f003b5c3bdeae17a952.tgz#f4145afb7c3a3bafe0376f003b5c3bdeae17a952"
+  integrity sha1-9BRa+3w6O6/gN28AO1w73q4XqVI=
+  dependencies:
+    "@apidevtools/json-schema-ref-parser" "^9.0.6"
+    "@apidevtools/openapi-schemas" "^2.0.4"
+    "@apidevtools/swagger-methods" "^3.0.2"
+    "@jsdevtools/ono" "^7.1.3"
+    call-me-maybe "^1.0.1"
+    z-schema "^4.2.3"
+
 "@babel/cli@^7.6.3":
   version "7.6.3"
   resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.6.3.tgz#1b0c62098c8a5e01e4a4a59a52cba9682e7e0906"
@@ -1044,6 +1075,11 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
+"@jsdevtools/ono@^7.1.3":
+  version "7.1.3"
+  resolved "https://npm.yelpcorp.com/_tarballs/%40jsdevtools%252Fono@7.1.3/@jsdevtools-ono-7.1.3.9df03bbd7c696a5c58885c34aa06da41c8543796.tgz#9df03bbd7c696a5c58885c34aa06da41c8543796"
+  integrity sha1-nfA7vXxpalxYiFw0qgbaQchUN5Y=
+
 "@sinonjs/commons@^1.7.0":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.7.0.tgz#f90ffc52a2e519f018b13b6c4da03cbff36ebed6"
@@ -1535,6 +1571,11 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
+call-me-maybe@^1.0.1:
+  version "1.0.1"
+  resolved "https://npm.yelpcorp.com/_tarballs/call-me-maybe@1.0.1/call-me-maybe-1.0.1.26d208ea89e37b5cbde60250a15f031c16a4d66b.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"
+  integrity sha1-JtII6onje1y95gJQoV8DHBak1ms=
+
 callsites@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
@@ -1695,7 +1736,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.11.0:
+commander@^2.11.0, commander@^2.7.1:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -3282,6 +3323,16 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://npm.yelpcorp.com/_tarballs/lodash.get@4.4.2/lodash.get-4.4.2.2d177f652fa31e939b4438d5341499dfa3825e99.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://npm.yelpcorp.com/_tarballs/lodash.isequal@4.5.0/lodash.isequal-4.5.0.415c4478f2bcc30120c22ce10ed3226f7d3e18e0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash.sortby@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
@@ -4777,6 +4828,11 @@ v8-to-istanbul@^4.0.1:
     convert-source-map "^1.6.0"
     source-map "^0.7.3"
 
+validator@^12.0.0:
+  version "12.2.0"
+  resolved "https://npm.yelpcorp.com/_tarballs/validator@12.2.0/validator-12.2.0.660d47e96267033fd070096c3b1a6f2db4380a0a.tgz#660d47e96267033fd070096c3b1a6f2db4380a0a"
+  integrity sha1-Zg1H6WJnAz/QcAlsOxpvLbQ4Cgo=
+
 verror@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.10.0.tgz#3a105ca17053af55d6e270c1f8288682e18da400"
@@ -4973,3 +5029,14 @@ yargs@^15.0.0:
     which-module "^2.0.0"
     y18n "^4.0.0"
     yargs-parser "^16.1.0"
+
+z-schema@^4.2.3:
+  version "4.2.3"
+  resolved "https://npm.yelpcorp.com/_tarballs/z-schema@4.2.3/z-schema-4.2.3.85f7eea7e6d4fe59a483462a98f511bd78fe9882.tgz#85f7eea7e6d4fe59a483462a98f511bd78fe9882"
+  integrity sha1-hffup+bU/lmkg0YqmPURvXj+mII=
+  dependencies:
+    lodash.get "^4.4.2"
+    lodash.isequal "^4.5.0"
+    validator "^12.0.0"
+  optionalDependencies:
+    commander "^2.7.1"

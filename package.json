@@ -44,6 +44,7 @@
     "typescript": "^3.7.0-beta"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.0.2",
     "@babel/preset-env": "^7.6.3",
     "aggregate-error": "^3.0.1",
     "ajv": "^6.11.0",

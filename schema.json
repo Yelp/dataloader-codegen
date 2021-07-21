@@ -101,6 +101,22 @@
                 "propertyBatchKey": {
                     "type": "string",
                     "description": "(Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
+                },
+                "swaggerFile": {
+                    "type": "string",
+                    "description": "(Optional)  "
+                },
+                "swaggerPath": {
+                    "type": "string",
+                    "description": " "
+                },
+                "swaggerMethod": {
+                    "type": "string",
+                    "description": "(Optional)  "
+                },
+                "swaggerRequiredId": {
+                    "type": "array",
+                    "description": "(Optional)  "
                 }
             }
         },
