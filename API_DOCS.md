@@ -95,6 +95,10 @@ resources:
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
             propertyBatchKey: ?string         (can only use if isBatchResource=true)
+            responseKey: ?string              (must exist when propertyBatchKey is used)
+            swaggerLink: ?string              (must exist when propertyBatchKey is used)
+            swaggerPath: ?string              (must exist when propertyBatchKey is used)
+            httpMethod: ?string               (must exist when propertyBatchKey is used)
 
 typings:
     language: flow
