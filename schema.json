@@ -104,19 +104,19 @@
                 },
                 "responseKey": {
                     "type": "string",
-                    "description": "(Non-optional when propertyBatchKey is set) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath."
+                    "description": "(Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath."
                 },
                 "swaggerLink": {
                     "type": "string",
-                    "description": "(Non-optional when propertyBatchKey is set) The URL of your Swagger definition. Should point to a source of truth. Useful for others to verify information specified here is correct, and is used in stack traces."
+                    "description": "(Non-optional when propertyBatchKey is used) The URL of your Swagger definition. Should point to a source of truth."
                 },
                 "swaggerPath": {
                     "type": "string",
-                    "description": "(Non-optional when propertyBatchKey is set) The global paths section of the API specification. e.g. /users/v1."
+                    "description": "(Non-optional when propertyBatchKey is used) The path section of the API specification. e.g. /users/v1."
                 },
                 "httpMethod": {
                     "type": "string",
-                    "description": "(Non-optional when propertyBatchKey is set) The http method of the API specification. e.g. get, post, delete, etc."
+                    "description": "(Non-optional when propertyBatchKey is used) The http method of the API specification. e.g. get, post, delete, etc."
                 }
             }
         },

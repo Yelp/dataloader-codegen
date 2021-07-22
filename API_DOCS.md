@@ -95,10 +95,10 @@ resources:
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
             propertyBatchKey: ?string         (can only use if isBatchResource=true)
-            responseKey: ?string              (must exist when propertyBatchKey is used)
-            swaggerLink: ?string              (must exist when propertyBatchKey is used)
-            swaggerPath: ?string              (must exist when propertyBatchKey is used)
-            httpMethod: ?string               (must exist when propertyBatchKey is used)
+            responseKey: ?string              (non-optional when propertyBatchKey is used)
+            swaggerLink: ?string              (non-optional when propertyBatchKey is used)
+            swaggerPath: ?string              (non-optional when propertyBatchKey is used)
+            httpMethod: ?string               (non-optional when propertyBatchKey is used)
 
 typings:
     language: flow
@@ -131,10 +131,10 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 | `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                  |
 | `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
 | `propertyBatchKey`       | (Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features').                                                                                                             |
-| `responseKey`            | (Optional) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                                                    |
-| `swaggerLink`            | (Non-optional when propertyBatchKey is set) The URL of your Swagger definition. Should point to a source of truth. Useful for others to verify information specified here is correct, and is used in stack traces.                                       |
-| `swaggerPath`            | (Non-optional when propertyBatchKey is set)) The global paths section of the API specification. e.g. /users/v1.                                                                                                                                          |
-| `httpMethod`             | (Non-optional when propertyBatchKey is set)) The http method of the API specification. e.g. get, post, delete, etc.                                                                                                                                      |
+| `responseKey`            | (Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                  |
+| `swaggerLink`            | (Non-optional when propertyBatchKey is used) The URL of your Swagger definition. Should point to a source of truth.                                                                                                                                      |
+| `swaggerPath`            | (Non-optional when propertyBatchKey is used) The path section of the API specification. e.g. /users/v1.                                                                                                                                                  |
+| `httpMethod`             | (Non-optional when propertyBatchKey is used) The http method of the API specification. e.g. get, post, delete, etc.                                                                                                                                      |
 |                          |
 
 ### `typings`

@@ -51,7 +51,7 @@ function findVal(object: any, key: string, array: Array<string>) {
 }
 
 /**
- * Throw erros when resource uses propertyBatchKey feature but doesn't match requirements
+ * Throw erros when resource uses propertyBatchKey but doesn't match requirements
  */
 function verifyBatchPropertyResource(args: CLIArgs) {
     const resources: object = getConfig(args.config).resources;
@@ -81,7 +81,7 @@ function verifyBatchPropertyResource(args: CLIArgs) {
                             `Cannot find the swagger response definition for ${key}, please make sure you have correct swagger info in the dataloader-cofig.yaml file!`,
                         );
                     } else {
-                        var swaggerResponse: any = api.paths[swaggerPath][httpMethod]['responses']['200'];
+                        var swaggerResponse = api.paths[swaggerPath][httpMethod]['responses']['200'];
                         // The resource may return the list of results in a nested path and properties are under the nestedPath
                         if (value.hasOwnProperty('nestedPath')) {
                             swaggerResponse =

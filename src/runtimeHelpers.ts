@@ -382,7 +382,9 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                         break;
                     }
 
+                    // Find the response that matches the requested batchKey
                     if (resultElement[responseKey] === batchKeyPartition[i][j]) {
+                        // Only responseKey and the requested properties will be in the final result.
                         result = _.pick(resultElement, [responseKey, ...propertyBatchKeyPartion[i][j]]);
                         break;
                     }
