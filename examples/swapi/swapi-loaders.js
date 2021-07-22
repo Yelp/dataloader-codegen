@@ -529,6 +529,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'planet_id',
                         'undefined',
+                        'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
@@ -846,6 +847,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     );
                     return unPartitionResultsByBatchKeyPartition(
                         'person_id',
+                        'undefined',
                         'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
@@ -1168,6 +1170,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'vehicle_id',
                         'undefined',
+                        'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
@@ -1489,6 +1492,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
                         'undefined',
+                        'undefined',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
@@ -1548,7 +1552,11 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "batchKey": "film_ids",
              *   "newKey": "film_id",
              *   "nestedPath": "properties",
-             *   "propertyBatchKey": "properties"
+             *   "propertyBatchKey": "properties",
+             *   "responseKey": "id",
+             *   "swaggerLink": "https://github.yelpcorp.com/raw/clientlibs/search_business_properties/master/search_business_properties_clientlib_ng/swagger.json?token=AAAAIVXIYGB4EMDIUMF7CMTBABBJM",
+             *   "swaggerPath": "/v2/business",
+             *   "httpMethod": "get"
              * }
              * ```
              */
@@ -1819,6 +1827,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                     return unPartitionResultsByBatchKeyPartition(
                         'film_id',
                         'properties',
+                        'id',
                         batchKeyPartition,
                         propertyBatchKeyPartiion,
                         requestGroups,
