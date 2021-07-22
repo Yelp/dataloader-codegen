@@ -20,14 +20,17 @@ export interface BatchResourceConfig {
     isBatchResource: true;
     batchKey: string;
     newKey: string;
-    propertyBatchKey: string;
-    responseKey: string;
     reorderResultsByKey?: string;
     nestedPath?: string;
     commaSeparatedBatchKey?: boolean;
     // TODO: Assert somehow/somewhere that both isResponseDictionary and reorderResultsByKey aren't set
     isResponseDictionary?: boolean;
     isBatchKeyASet?: boolean;
+    propertyBatchKey?: string;
+    responseKey?: string;
+    swaggerLink?: string;
+    swaggerPath?: string;
+    httpMethod?: string;
 }
 
 export interface NonBatchResourceConfig {
