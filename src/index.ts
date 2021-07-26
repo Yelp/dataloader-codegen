@@ -22,89 +22,6 @@ function writeLoaders(args: CLIArgs) {
     fs.writeFileSync(args.output, output);
 }
 
-/**
- * If requiredList only contains responseKey
- */
-function validRequiredList(requiredList: Array<string>, responseKey: string) {
-    if (requiredList.length > 1) return false;
-    if (requiredList.length == 1 && requiredList[0] !== responseKey) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * Find all values of the intput key in an object recursively
- */
-function findVal(object: any, key: string, array: Array<string>) {
-    Object.keys(object).some(function (k) {
-        if (k === key) {
-            array.push(...object[k]);
-        }
-        if (object[k] && typeof object[k] === 'object') {
-            findVal(object[k], key, array);
-        } else {
-            return;
-        }
-    });
-    return array;
-}
-
-/**
- * Throw erros when resource uses propertyBatchKey but doesn't match requirements
- */
-function verifyBatchPropertyResource(args: CLIArgs) {
-    const resources: object = getConfig(args.config).resources;
-
-    Object.entries(resources).forEach(([key, value]) => {
-        if (Object.keys(value).includes('propertyBatchKey')) {
-            const propertyBatchKey = value['propertyBatchKey'];
-            if (
-                !value.hasOwnProperty('responseKey') ||
-                !value.hasOwnProperty('swaggerLink') ||
-                !value.hasOwnProperty('swaggerPath') ||
-                !value.hasOwnProperty('httpMethod')
-            ) {
-                throw new Error(`Missing swagger info for ${key}, please add them in the dataloader-cofig.yaml file!`);
-            }
-            const swaggerLink: string = value['swaggerLink'];
-            const swaggerPath: string = value['swaggerPath'];
-            const httpMethod: string = value['httpMethod'];
-
-            // parse swagger file, so that all $ref pointers will be resolved.
-            SwaggerParser.validate(swaggerLink, (err, api) => {
-                if (err) {
-                    console.error(err);
-                } else {
-                    if (!api || !api.paths[swaggerPath][httpMethod]) {
-                        throw new Error(
-                            `Cannot find the swagger response definition for ${key}, please make sure you have correct swagger info in the dataloader-cofig.yaml file!`,
-                        );
-                    } else {
-                        var swaggerResponse = api.paths[swaggerPath][httpMethod]['responses']['200'];
-                        // The resource may return the list of results in a nested path and properties are under the nestedPath
-                        if (value.hasOwnProperty('nestedPath')) {
-                            swaggerResponse =
-                                api.paths[swaggerPath][httpMethod]['responses']['200']['schema'][value['nestedPath']];
-                        }
-                        // Find all the fields that are `required` in the swagger spec
-                        const requiredList = findVal(swaggerResponse, 'required', []);
-                        const responseKey = value['responseKey'];
-                        if (!validRequiredList(requiredList, responseKey)) {
-                            throw new Error(
-                                [
-                                    'Sorry, your swagger endpoint does not match the requirement of using propertyBatchKey,',
-                                    'please read https://github.com/Yelp/dataloader-codegen/blob/master/README.md',
-                                ].join(' '),
-                            );
-                        }
-                    }
-                }
-            });
-        }
-    });
-}
-
 function main() {
     const argv = yargs
         .options({
@@ -120,7 +37,7 @@ function main() {
             },
         })
         .help().argv;
-    verifyBatchPropertyResource(argv);
+
     writeLoaders(argv);
 }
 

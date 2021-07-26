@@ -96,9 +96,6 @@ resources:
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
             propertyBatchKey: ?string         (can only use if isBatchResource=true)
             responseKey: ?string              (non-optional when propertyBatchKey is used)
-            swaggerLink: ?string              (non-optional when propertyBatchKey is used)
-            swaggerPath: ?string              (non-optional when propertyBatchKey is used)
-            httpMethod: ?string               (non-optional when propertyBatchKey is used)
 
 typings:
     language: flow
@@ -132,10 +129,6 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 | `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
 | `propertyBatchKey`       | (Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features').                                                                                                             |
 | `responseKey`            | (Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                  |
-| `swaggerLink`            | (Non-optional when propertyBatchKey is used) The URL of your Swagger definition. Should point to a source of truth.                                                                                                                                      |
-| `swaggerPath`            | (Non-optional when propertyBatchKey is used) The path section of the API specification. e.g. /users/v1.                                                                                                                                                  |
-| `httpMethod`             | (Non-optional when propertyBatchKey is used) The http method of the API specification. e.g. get, post, delete, etc.                                                                                                                                      |
-|                          |
 
 ### `typings`
 

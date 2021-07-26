@@ -28,9 +28,6 @@ export interface BatchResourceConfig {
     isBatchKeyASet?: boolean;
     propertyBatchKey?: string;
     responseKey?: string;
-    swaggerLink?: string;
-    swaggerPath?: string;
-    httpMethod?: string;
 }
 
 export interface NonBatchResourceConfig {
