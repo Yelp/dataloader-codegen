@@ -1553,10 +1553,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
              *   "newKey": "film_id",
              *   "nestedPath": "properties",
              *   "propertyBatchKey": "properties",
-             *   "responseKey": "id",
-             *   "swaggerLink": "https://github.yelpcorp.com/raw/clientlibs/search_business_properties/master/search_business_properties_clientlib_ng/swagger.json?token=AAAAIVXIYGB4EMDIUMF7CMTBABBJM",
-             *   "swaggerPath": "/v2/business",
-             *   "httpMethod": "get"
+             *   "responseKey": "id"
              * }
              * ```
              */
