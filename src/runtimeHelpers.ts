@@ -304,7 +304,7 @@ export function unPartitionResults<T>(
  * We currently only support one specific response contract.
  *
  * propertyBatchKey is not returned in a nested object, but spread at top level as well.
- * If we have 'bar_id' as newKey and 'properties' as propertyBatchKey,
+ * If we have 'id' as responseKey and 'properties' as propertyBatchKey,
  * the resultGroups should look like this:
  * [
  *      [ { id: 2, name: 'Burger King', rating: 3 } ],
@@ -313,7 +313,7 @@ export function unPartitionResults<T>(
  *
  *
  * IMPORTANT NOTE: The contract must have a one-to-one correspondence between the input propertyBatchKey and the output propertyBatchKey.
- * i.e. if we have property: 'name' in the request, the response must have 'name' in it, and no extra data assciated with it.
+ * i.e. if we have property: 'name' in the request, the response must have 'name' in it, and no extra data associated with it.
  *
  * Example
  * Request args:
@@ -332,8 +332,8 @@ export function unPartitionResults<T>(
  *   propertyBatchKeyPartion = [ [['name'], ['rating']], [['rating']] ],
  *   requestGroups = [ [0, 2], [1] ],
  *   resultGroups = [
- *      [ { bar_id: 2, name: 'Burger King', rating: 3 } ],
- *      [ { bar_id: 1, name: 'In N Out', rating: 4 } ]
+ *      [ { id: 2, name: 'Burger King', rating: 3 } ],
+ *      [ { id: 1, name: 'In N Out', rating: 4 } ]
  *   ],
  * )
  * ```
@@ -362,11 +362,11 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
      * ```js
      * [
      *   [
-     *      { order: 0, result: { bar_id: 2, name: 'Burger King' },
-     *      { order: 2, result: { bar_id: 2, rating: 3 } },
+     *      { order: 0, result: { id: 2, name: 'Burger King' },
+     *      { order: 2, result: { id: 2, rating: 3 } },
      *   ],
      *   [
-     *      { order: 1, result: { bar_id: 1, rating: 4 } },
+     *      { order: 1, result: { id: 1, rating: 4 } },
      *   ]
      * ]
      * ```
@@ -410,9 +410,9 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
      * Flatten and sort the groups - e.g.:
      * ```js
      * [
-     *   { order: 0, result: { bar_id: 2, name: 'Burger King' } },
-     *   { order: 1, result: { bar_id: 1, rating: 4 } },
-     *   { order: 2, result: { bar_id: 2, rating: 3 } }
+     *   { order: 0, result: { id: 2, name: 'Burger King' } },
+     *   { order: 1, result: { id: 1, rating: 4 } },
+     *   { order: 2, result: { id: 2, rating: 3 } }
      * ]
      * ```
      */
