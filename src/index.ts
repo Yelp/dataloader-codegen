@@ -6,7 +6,6 @@ import path from 'path';
 import yargs from 'yargs';
 import codegen from './codegen';
 import { getConfig } from './config';
-import SwaggerParser from '@apidevtools/swagger-parser';
 
 interface CLIArgs {
     config: string;
