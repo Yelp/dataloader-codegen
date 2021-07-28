@@ -131,7 +131,7 @@ To use this feature, there are several restrictions. (Please open an issue if yo
     }): Array<T>
     ```
 
-2. In the response, `properties` are spread at the same level as the `responseKey`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
+2. In the response, `properties` are spread at the same level as the `responseKey`. (Check out `getFilmsV2` in [swapi example](./examples/swapi/swapi.js).)
 3. All `properties` must be optional in the response object. The flow types currently don't handle the nullability of these properties correctly, so to enforce this, we recommend a build step to ensure that the underlying types are always set as maybe types.
 4. The resource must have a one-to-one correspondence between the input "properties" and the output "properties".
     - e.g. if we request property "name", the response must have "name" in it, and no extra data associated with it.

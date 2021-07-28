@@ -186,9 +186,10 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
             let requestGroups;
 
             if (${typeof resourceConfig.propertyBatchKey === 'string'}) {
-                requestGroups = partitionItems(['${resourceConfig.newKey}', '${
-        resourceConfig.propertyBatchKey
-    }'], keys);
+                requestGroups = partitionItems([
+                    '${resourceConfig.newKey}',
+                    '${resourceConfig.propertyBatchKey}'
+                ], keys);
             } else {
                 requestGroups = partitionItems('${resourceConfig.newKey}', keys);
             }
