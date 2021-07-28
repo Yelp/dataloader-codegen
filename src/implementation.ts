@@ -163,7 +163,6 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              * ])
              * \`\`\`
              *
-
              * Returns:
              * \`[ [ 0, 2 ], [ 1 ] ]\`
              *
@@ -181,6 +180,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              *
              * Returns:
              * \`[ [ 0, 2 ], [ 1 ] ]\`
+             *
              * We'll refer to each element in the group as a "request ID".
              */
             let requestGroups;

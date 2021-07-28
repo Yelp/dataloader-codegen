@@ -1289,6 +1289,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
     const resources = {
         foo: ({ foo_ids, bar }) => {
             if (_.isEqual(foo_ids, [1, 2, 3])) {
+                expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {
                         foo_id: 1,
@@ -1303,6 +1304,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
                     },
                 ]);
             } else if (_.isEqual(foo_ids, [4])) {
+                expect(include_extra_info).toBe(false);
                 return Promise.resolve([
                     {
                         foo_id: 4,
@@ -1418,12 +1420,14 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
     const resources = {
         foo: ({ foo_ids, bar }) => {
             if (_.isEqual(foo_ids, [1, 2, 3])) {
+                expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     { foo_id: 3, rating: 4, name: 'Shake Shack' },
                     { foo_id: 1, rating: 3, name: 'Burger King' },
                     // deliberately omit 2
                 ]);
             } else if (_.isEqual(foo_ids, [4])) {
+                expect(include_extra_info).toBe(false);
                 return Promise.resolve([{ foo_id: 4, rating: 5, name: 'In N Out' }]);
             }
         },
@@ -1432,10 +1436,10 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
         const loaders = getLoaders(resources);
 
         const results = await loaders.foo.loadMany([
-            { foo_id: 1, properties: ['name', 'rating'], bar: true },
-            { foo_id: 2, properties: ['name'], bar: true },
-            { foo_id: 3, properties: ['rating'], bar: true },
-            { foo_id: 4, properties: ['rating'], bar: false },
+            { foo_id: 1, properties: ['name', 'rating'], include_extra_info: true },
+            { foo_id: 2, properties: ['name'], include_extra_info: true },
+            { foo_id: 3, properties: ['rating'], include_extra_info: true },
+            { foo_id: 4, properties: ['rating'], include_extra_info: false },
         ]);
 
         expect(results).toEqual([

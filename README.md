@@ -147,7 +147,7 @@ resources:
         newKey: user_id
 ```
 
-### Batch Resources with `properties` paramerters
+### Batch Resources with `properties` parameters
 
 Instead of accepting just a list of users (`user_ids`), a batch resource could accept both a list of users (`user_ids`) and a list of properties (`properties`) to fetch about that user:
 
@@ -156,16 +156,18 @@ const getUserInfo = (args: { user_ids: Array<number>, properties: Array<string> 
     fetch('/userInfo', args);
 
 const users = getUserInfo({
-  user_ids: [1, 2, 3],
-  properties: ['firstName', 'age']
+    user_ids: [1, 2, 3],
+    properties: ['firstName', 'age'],
 });
 
-e.g. users =>
-[
-  { id: 1, firstName: 'Alice', age: 42 },
-  { id: 2, firstName: 'Bob', age: 70 },
-  { id: 3, firstName: 'Carol', age: 50 },
-]
+/**
+ * e.g. users =>
+ * [
+ *   { id: 1, firstName: 'Alice', age: 42 },
+ *   { id: 2, firstName: 'Bob', age: 70 },
+ *   { id: 3, firstName: 'Carol', age: 50 },
+ * ]
+ */
 ```
 
 To batch up calls to this resource with different `properties` for different `user_ids`, we specify `propertyBatchKey` in the config to describe the "properties" argument.
@@ -186,14 +188,16 @@ resources:
 **IMPORTANT NOTE**
 To use this feature, there are several restrictions. (Please open an issue if you're interested in helping us support other use cases):
 
-1. The resource accept two non-optional `list` type parameters, like this:
+**Contract**
 
-```
-ids: str[] (should be the batchKey)
-properties: str[] (should be the propertyBatchKey)
-```
+1. The resource accepts two arguments; to specify the entity IDs and the properties for each entity to fetch:
 
-2. `properties` are spread at the same level as the `responseKey`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
+    ```
+    ids: str[] (should be the batchKey)
+    properties: str[] (should be the propertyBatchKey)
+    ```
+
+2. In the response, `properties` are spread at the same level as the `responseKey`. (see `getFilmsV2` in [swapi example](./examples/swapi/swapi-server.js))
 3. All `properties` must be optional in the response object. The flow types currently don't handle the nullability of these properties correctly, so to enforce this, we recommend a build step to ensure that the underlying types are always set as maybe types.
 4. The resource must have a one-to-one correspondence between the input "properties" and the output "properties".
     - e.g. if we request property "name", the response must have "name" in it, and no extra data associated with it.

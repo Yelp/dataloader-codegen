@@ -106,6 +106,9 @@
                     "type": "string",
                     "description": "(Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath."
                 }
+            },
+            "dependencies": {
+                "propertyBatchKey": { "required": ["responseKey"] }
             }
         },
         "nonBatchInfo": {

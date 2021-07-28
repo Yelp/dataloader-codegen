@@ -389,6 +389,7 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                         break;
                     }
                 }
+
                 // If requested property doesn't exist in resultElement, we should throw BatchItemNotFoundError error.
                 if (result === null) {
                     return {
@@ -401,7 +402,7 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                         ),
                     };
                 } else {
-                    return { order: id, result: result };
+                    return { order: id, result };
                 }
             });
         },
