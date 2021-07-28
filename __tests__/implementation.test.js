@@ -1287,7 +1287,7 @@ test('batch endpoint with propertyBatchKey throws error for response with non ex
     };
 
     const resources = {
-        foo: ({ foo_ids, bar }) => {
+        foo: ({ foo_ids, properties, include_extra_info }) => {
             if (_.isEqual(foo_ids, [1, 2, 3])) {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
@@ -1418,7 +1418,7 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
     };
 
     const resources = {
-        foo: ({ foo_ids, bar }) => {
+        foo: ({ foo_ids, properties, include_extra_info }) => {
             if (_.isEqual(foo_ids, [1, 2, 3])) {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
