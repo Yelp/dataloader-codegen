@@ -398,6 +398,7 @@ export function unPartitionResultsByBatchKeyPartition<T extends Record<string, a
                             [
                                 `Could not find ${responseKey} = ${batchKeyPartition[i][j]} in the response dict.`,
                                 `Or your endpoint does not follow the contract we support.`,
+                                `Please read https://github.com/Yelp/dataloader-codegen/blob/master/API_DOCS.md.`,
                             ].join(' '),
                         ),
                     };
