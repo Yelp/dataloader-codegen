@@ -61,10 +61,12 @@ export default function codegen(
             cacheKeyOptions,
             CaughtResourceError,
             defaultErrorHandler,
+            getBatchKeysForPartitionItems,
             partitionItems,
             resultsDictToList,
             sortByKeys,
             unPartitionResults,
+            unPartitionResultsByBatchKeyPartition,
         } from '${runtimeHelpers}';
 
 

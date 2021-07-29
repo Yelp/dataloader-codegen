@@ -77,6 +77,65 @@ getLoaders(resources[, options])
 
 To see an example call to `getLoaders`, [check out the SWAPI example](./examples/swapi/swapi-server.js) or [the tests](./__tests__/implementation.test.js).
 
+## Batch Resources with `properties` parameters
+
+Instead of accepting just a list of users (`user_ids`), a batch resource could accept both a list of users (`user_ids`) and a list of properties (`properties`) to fetch about that user:
+
+```js
+const getUserInfo = (args: { user_ids: Array<number>, properties: Array<string> }): Promise<Array<UserInfo>> =>
+    fetch('/userInfo', args);
+
+const users = getUserInfo({
+    user_ids: [1, 2, 3],
+    properties: ['firstName', 'age'],
+});
+
+/**
+ * e.g. users =>
+ * [
+ *   { id: 1, firstName: 'Alice', age: 42 },
+ *   { id: 2, firstName: 'Bob', age: 70 },
+ *   { id: 3, firstName: 'Carol', age: 50 },
+ * ]
+ */
+```
+
+To batch up calls to this resource with different `properties` for different `user_ids`, we specify `propertyBatchKey` in the config to describe the "properties" argument.
+We specify `responseKey` in the config as the key in the response objects corresponds to `batchKey`.
+
+The config for our `getUserInfoV2` would look like this:
+
+```yaml
+resources:
+    getUserInfo:
+        isBatchResource: true
+        batchKey: user_ids
+        newKey: user_id
+        propertyBatchKey: properties
+        responseKey: id
+```
+
+**IMPORTANT NOTE**
+To use this feature, there are several restrictions. (Please open an issue if you're interested in helping us support other use cases):
+
+**Contract**
+
+1. The resource accepts a list of `ids` and a list of `properties`; to specify the entity IDs and the properties for each entity to fetch:
+
+    ```js
+    ({
+        // this is the batchKey
+        ids: Array<string>,
+        // this is the propertyBatchKey
+        properties: Array<string>,
+    }): Array<T>
+    ```
+
+2. In the response, `properties` are spread at the same level as the `responseKey`. (Check out `getFilmsV2` in [swapi example](./examples/swapi/swapi.js).)
+3. All `properties` must be optional in the response object. The flow types currently don't handle the nullability of these properties correctly, so to enforce this, we recommend a build step to ensure that the underlying types are always set as maybe types.
+4. The resource must have a one-to-one correspondence between the input "properties" and the output "properties".
+    - e.g. if we request property "name", the response must have "name" in it, and no extra data associated with it.
+
 ## Config File
 
 The config file should be a [YAML](https://yaml.org/) file in the following format:
@@ -94,6 +153,8 @@ resources:
             commaSeparatedBatchKey: ?string   (can only use if isBatchResource=true)
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
+            propertyBatchKey: ?string         (can only use if isBatchResource=true)
+            responseKey: ?string              (non-optional when propertyBatchKey is used)
 
 typings:
     language: flow
@@ -125,6 +186,8 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 | `commaSeparatedBatchKey` | (Optional) Set to true if the interface of the resource takes the batch key as a comma separated list (rather than an array of IDs, as is more common). Default: false                                                                                   |
 | `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                  |
 | `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
+| `propertyBatchKey`       | (Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features').                                                                                                             |
+| `responseKey`            | (Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                  |
 
 ### `typings`
 

@@ -62,11 +62,11 @@ export type SWAPI_Film = $ReadOnly<{|
 
 export type SWAPI_Film_V2 = $ReadOnly<{|
     properties: $ReadOnlyArray<{|
-        film_id: number,
-        title: string,
-        episode_id: number,
-        director: string,
-        producer: string,
+        id: number,
+        title: ?string,
+        episode_id: ?number,
+        director: ?string,
+        producer: ?string,
     |}>,
 |}>;
 
@@ -118,7 +118,7 @@ module.exports = function (): SWAPIClientlibTypes {
             return Promise.resolve({
                 properties: [
                     {
-                        film_id: 4,
+                        id: 4,
                         director: 'George Lucas',
                         producer: 'Rick McCallum',
                         episode_id: 1,

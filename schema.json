@@ -97,7 +97,18 @@
                 "isBatchKeyASet": {
                     "type": "boolean",
                     "description": "(Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false"
+                },
+                "propertyBatchKey": {
+                    "type": "string",
+                    "description": "(Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features')"
+                },
+                "responseKey": {
+                    "type": "string",
+                    "description": "(Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath."
                 }
+            },
+            "dependencies": {
+                "propertyBatchKey": { "required": ["responseKey"] }
             }
         },
         "nonBatchInfo": {
