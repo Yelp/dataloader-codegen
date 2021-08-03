@@ -80,7 +80,10 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
     `;
 }
 
-function getBatchResourceCommonLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+/**
+ * This is a helper to implement the batch logic, shared between getBatchLoader and getPropertyBatchLoader
+ */
+function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     return `
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
@@ -399,7 +402,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
              */
             const requestGroups = partitionItems('${resourceConfig.newKey}', keys);
 
-                ${getBatchResourceCommonLoader(resourceConfig, resourcePath)}
+                ${batchLoaderLogic(resourceConfig, resourcePath)}
 
                 return response;
             }))
@@ -474,7 +477,7 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
                 '${resourceConfig.propertyBatchKey}'
             ], keys);
 
-                ${getBatchResourceCommonLoader(resourceConfig, resourcePath)}
+                ${batchLoaderLogic(resourceConfig, resourcePath)}
 
                 return response;
             }))
