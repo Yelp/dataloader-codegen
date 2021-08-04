@@ -80,120 +80,11 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
     `;
 }
 
-function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
-    assert(
-        resourceConfig.isBatchResource === true,
-        `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
-    );
-    assert(
-        typeof resourceConfig.batchKey === 'string' && typeof resourceConfig.newKey === 'string',
-        `${errorPrefix(resourcePath)} Expected both batchKey and newKey for a batch resource`,
-    );
-    // The reference at runtime to where the underlying resource lives
-    const resourceReference = ['resources', ...resourcePath].join('.');
-
-    return `\
-        new DataLoader<
-            ${getLoaderTypeKey(resourceConfig, resourcePath)},
-            ${getLoaderTypeVal(resourceConfig, resourcePath)},
-            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
-        >(${getLoaderComment(resourceConfig, resourcePath)} async (keys) => {
-            invariant(typeof ${resourceReference} === 'function', [
-                '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
-                'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
-            ].join(' '));
-
-            /**
-             * Chunk up the "keys" array to create a set of "request groups".
-             *
-             * We're about to hit a batch resource. In addition to the batch
-             * key, the resource may take other arguments too. When batching
-             * up requests, we'll want to look out for where those other
-             * arguments differ, and send multiple requests so we don't get
-             * back the wrong info.
-             *
-             * In other words, we'll potentially want to send _multiple_
-             * requests to the underlying resource batch method in this
-             * dataloader body.
-             *
-             * ~~~ Why? ~~~
-             *
-             * Consider what happens when we get called with arguments where
-             * the non-batch keys differ.
-             *
-             * Example:
-             *
-             * \`\`\`js
-             * loaders.foo.load({ foo_id: 2, include_private_data: true });
-             * loaders.foo.load({ foo_id: 3, include_private_data: false });
-             * loaders.foo.load({ foo_id: 4, include_private_data: false });
-             * \`\`\`
-             *
-             * If we collected everything up and tried to send the one
-             * request to the resource as a batch request, how do we know
-             * what the value for "include_private_data" should be? We're
-             * going to have to group these up up and send two requests to
-             * the resource to make sure we're requesting the right stuff.
-             *
-             * e.g. We'd need to make the following set of underlying resource
-             * calls:
-             *
-             * \`\`\`js
-             * foo({ foo_ids: [ 2 ], include_private_data: true });
-             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
-             * \`\`\`
-             *
-             * ~~~ tl;dr ~~~
-             *
-             * When we have calls to .load with differing non batch key args,
-             * we'll need to send multiple requests to the underlying
-             * resource to make sure we get the right results back.
-             *
-             * Let's create the request groups, where each element in the
-             * group refers to a position in "keys" (i.e. a call to .load)
-             *
-             * Example:
-             *
-             * \`\`\`js
-             * partitionItems('bar_id', [
-             *   { bar_id: 7, include_extra_info: true },
-             *   { bar_id: 8, include_extra_info: false },
-             *   { bar_id: 9, include_extra_info: true },
-             * ])
-             * \`\`\`
-             *
-             * Returns:
-             * \`[ [ 0, 2 ], [ 1 ] ]\`
-             *
-             * We could also have more than one batch key.
-             *
-             * Example:
-             *
-             * \`\`\`js
-             * partitionItems(['bar_id', 'properties'], [
-             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
-             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
-             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
-             * ])
-             * \`\`\`
-             *
-             * Returns:
-             * \`[ [ 0, 2 ], [ 1 ] ]\`
-             *
-             * We'll refer to each element in the group as a "request ID".
-             */
-            let requestGroups;
-
-            if (${typeof resourceConfig.propertyBatchKey === 'string'}) {
-                requestGroups = partitionItems([
-                    '${resourceConfig.newKey}',
-                    '${resourceConfig.propertyBatchKey}'
-                ], keys);
-            } else {
-                requestGroups = partitionItems('${resourceConfig.newKey}', keys);
-            }
-
+/**
+ * This is a helper to implement the batch logic, shared between getBatchLoader and getPropertyBatchLoader
+ */
+function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+    return `
             // Map the request groups to a list of Promises - one for each request
             const groupedResults = await Promise.all(requestGroups.map(async requestIDs => {
                 /**
@@ -206,7 +97,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                 const requests = requestIDs.map(id => keys[id]);
 
                 ${(() => {
-                    const { batchKey, newKey, commaSeparatedBatchKey, propertyBatchKey } = resourceConfig;
+                    const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
 
                     let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
                     if (commaSeparatedBatchKey === true) {
@@ -418,39 +309,203 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                         return '';
                     }
                 })()}
+    `;
+}
+
+function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+    assert(
+        resourceConfig.isBatchResource === true,
+        `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
+    );
+    assert(
+        typeof resourceConfig.batchKey === 'string' && typeof resourceConfig.newKey === 'string',
+        `${errorPrefix(resourcePath)} Expected both batchKey and newKey for a batch resource`,
+    );
+    // The reference at runtime to where the underlying resource lives
+    const resourceReference = ['resources', ...resourcePath].join('.');
+
+    return `\
+        new DataLoader<
+            ${getLoaderTypeKey(resourceConfig, resourcePath)},
+            ${getLoaderTypeVal(resourceConfig, resourcePath)},
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
+        >(${getLoaderComment(resourceConfig, resourcePath)} async (keys) => {
+            invariant(typeof ${resourceReference} === 'function', [
+                '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
+                'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
+            ].join(' '));
+
+            /**
+             * Chunk up the "keys" array to create a set of "request groups".
+             *
+             * We're about to hit a batch resource. In addition to the batch
+             * key, the resource may take other arguments too. When batching
+             * up requests, we'll want to look out for where those other
+             * arguments differ, and send multiple requests so we don't get
+             * back the wrong info.
+             *
+             * In other words, we'll potentially want to send _multiple_
+             * requests to the underlying resource batch method in this
+             * dataloader body.
+             *
+             * ~~~ Why? ~~~
+             *
+             * Consider what happens when we get called with arguments where
+             * the non-batch keys differ.
+             *
+             * Example:
+             *
+             * \`\`\`js
+             * loaders.foo.load({ foo_id: 2, include_private_data: true });
+             * loaders.foo.load({ foo_id: 3, include_private_data: false });
+             * loaders.foo.load({ foo_id: 4, include_private_data: false });
+             * \`\`\`
+             *
+             * If we collected everything up and tried to send the one
+             * request to the resource as a batch request, how do we know
+             * what the value for "include_private_data" should be? We're
+             * going to have to group these up up and send two requests to
+             * the resource to make sure we're requesting the right stuff.
+             *
+             * e.g. We'd need to make the following set of underlying resource
+             * calls:
+             *
+             * \`\`\`js
+             * foo({ foo_ids: [ 2 ], include_private_data: true });
+             * foo({ foo_ids: [ 3, 4 ], include_private_data: false });
+             * \`\`\`
+             *
+             * ~~~ tl;dr ~~~
+             *
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * \`\`\`js
+             * partitionItems('bar_id', [
+             *   { bar_id: 7, include_extra_info: true },
+             *   { bar_id: 8, include_extra_info: false },
+             *   { bar_id: 9, include_extra_info: true },
+             * ])
+             * \`\`\`
+             *
+             * Returns:
+             * \`[ [ 0, 2 ], [ 1 ] ]\`
+             *
+             * We'll refer to each element in the group as a "request ID".
+             */
+            const requestGroups = partitionItems('${resourceConfig.newKey}', keys);
+
+                ${batchLoaderLogic(resourceConfig, resourcePath)}
+
+                return response;
+            }))
+
+            return unPartitionResults(requestGroups, groupedResults);
+         },
+         {
+             ${
+                 /**
+                  * TODO: Figure out why directly passing `cacheKeyOptions` causes
+                  * flow errors :(
+                  */ ''
+             }
+             ...cacheKeyOptions
+         }
+     )`;
+}
+
+function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+    assert(
+        resourceConfig.isBatchResource === true,
+        `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
+    );
+    assert(
+        typeof resourceConfig.batchKey === 'string' && typeof resourceConfig.newKey === 'string',
+        `${errorPrefix(resourcePath)} Expected both batchKey and newKey for a batch resource`,
+    );
+    assert(
+        typeof resourceConfig.propertyBatchKey === 'string' && typeof resourceConfig.responseKey === 'string',
+        `${errorPrefix(resourcePath)} Expected propertyBatchKey and responseKey for a property batch resource`,
+    );
+    // The reference at runtime to where the underlying resource lives
+    const resourceReference = ['resources', ...resourcePath].join('.');
+
+    return `\
+        new DataLoader<
+            ${getLoaderTypeKey(resourceConfig, resourcePath)},
+            ${getLoaderTypeVal(resourceConfig, resourcePath)},
+            // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
+            string,
+        >(${getLoaderComment(resourceConfig, resourcePath)} async (keys) => {
+            invariant(typeof ${resourceReference} === 'function', [
+                '${errorPrefix(resourcePath)} ${resourceReference} is not a function.',
+                'Did you pass in an instance of ${resourcePath.join('.')} to "getLoaders"?',
+            ].join(' '));
+
+            /**
+             * When we have calls to .load with differing non batch key args,
+             * we'll need to send multiple requests to the underlying
+             * resource to make sure we get the right results back.
+             *
+             * Let's create the request groups, where each element in the
+             * group refers to a position in "keys" (i.e. a call to .load)
+             *
+             * Example:
+             *
+             * \`\`\`js
+             * partitionItems(['bar_id', 'properties'], [
+             *   { bar_id: 7, properties: ['property_1'], include_extra_info: true },
+             *   { bar_id: 8, properties: ['property_2'], include_extra_info: false },
+             *   { bar_id: 9, properties: ['property_3'], include_extra_info: true },
+             * ])
+             * \`\`\`
+             *
+             * Returns:
+             * \`[ [ 0, 2 ], [ 1 ] ]\`
+             *
+             * We'll refer to each element in the group as a "request ID".
+             */
+            const requestGroups = partitionItems([
+                '${resourceConfig.newKey}',
+                '${resourceConfig.propertyBatchKey}'
+            ], keys);
+
+                ${batchLoaderLogic(resourceConfig, resourcePath)}
 
                 return response;
             }))
 
             /**
-             *  When there's propertyBatchKey, the resource might contain less number of items that we requested.
+             *  The resource might contain less number of items that we requested.
              *  We need the value of batchKey and propertyBatchKey in requests group to help us split the results
              *  back up into the order that they were requested.
              */
-            if (${typeof resourceConfig.propertyBatchKey === 'string'}) {
-                const batchKeyPartition = getBatchKeysForPartitionItems(
-                    '${resourceConfig.newKey}',
-                    ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
-                    keys
-                );
-                const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
-                    '${resourceConfig.propertyBatchKey}',
-                    ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
-                    keys
-                );
-                return unPartitionResultsByBatchKeyPartition(
-                    '${resourceConfig.newKey}',
-                    '${resourceConfig.propertyBatchKey}',
-                    '${resourceConfig.responseKey}',
-                    batchKeyPartition,
-                    propertyBatchKeyPartiion,
-                    requestGroups,
-                    groupedResults
-                );
-            } else {
-                // Split the results back up into the order that they were requested
-                return unPartitionResults(requestGroups, groupedResults);
-            }
+            const batchKeyPartition = getBatchKeysForPartitionItems(
+                '${resourceConfig.newKey}',
+                ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
+                keys
+            );
+            const propertyBatchKeyPartiion = getBatchKeysForPartitionItems(
+                '${resourceConfig.propertyBatchKey}',
+                ['${resourceConfig.newKey}', '${resourceConfig.propertyBatchKey}'],
+                keys
+            );
+            return unPartitionResultsByBatchKeyPartition(
+                '${resourceConfig.newKey}',
+                '${resourceConfig.propertyBatchKey}',
+                '${resourceConfig.responseKey}',
+                batchKeyPartition,
+                propertyBatchKeyPartiion,
+                requestGroups,
+                groupedResults
+            );
          },
          {
              ${
@@ -501,9 +556,13 @@ function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath:
 }
 
 export default function getLoaderImplementation(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
-    const loader = resourceConfig.isBatchResource
-        ? getBatchLoader(resourceConfig, resourcePath)
-        : getNonBatchLoader(resourceConfig, resourcePath);
-
-    return loader;
+    if (resourceConfig.isBatchResource) {
+        if (typeof resourceConfig.propertyBatchKey === 'string') {
+            return getPropertyBatchLoader(resourceConfig, resourcePath);
+        } else {
+            return getBatchLoader(resourceConfig, resourcePath);
+        }
+    } else {
+        return getNonBatchLoader(resourceConfig, resourcePath);
+    }
 }
