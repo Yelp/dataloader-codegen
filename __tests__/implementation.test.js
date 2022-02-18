@@ -130,7 +130,7 @@ test('batch endpoint', async () => {
     });
 });
 
-test("batch endpoint can' be called with null", async () => {
+test("batch endpoint can't be called with null", async () => {
     const config = {
         resources: {
             foo: {
