@@ -130,6 +130,34 @@ test('batch endpoint', async () => {
     });
 });
 
+test("batch endpoint can't be called with null", async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids }) => {
+            expect(foo_ids).toEqual([1]);
+            return Promise.resolve([{ foo_id: 1, foo_value: 'hello' }]);
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        expect(() => {
+            loaders.foo.load(null);
+        }).toThrow(TypeError);
+    });
+});
+
 test('batch endpoint (with reorderResultsByKey)', async () => {
     const config = {
         resources: {

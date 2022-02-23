@@ -55,7 +55,8 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
 
     if (resourceConfig.isBatchResource) {
         // Extract newKeyType from the batch key's Array's type
-        let newKeyType = `${resourceConfig.newKey}: $ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>`;
+        // We add NonMaybeType before batch key element type to force the batch key to be required, regardless if the OpenAPI spec specifies it as being optional
+        let newKeyType = `${resourceConfig.newKey}: $NonMaybeType<$ElementType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>, 0>>`;
 
         if (resourceConfig.isBatchKeyASet) {
             /**
