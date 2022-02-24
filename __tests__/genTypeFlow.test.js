@@ -39,9 +39,9 @@ it('getLoaderTypeKey forces a nullable batchKey to be strictly non-nullable', ()
             [$PropertyType<$PropertyType<ResourcesType, 'a'>, 'b'>]
         >, 'test_ids'>
             }>,
-            ...{| test_id: $NonMaybeType<$ElementType<$PropertyType<        $Call<
+            ...{| test_id: $ElementType<$NonMaybeType<$PropertyType<        $Call<
             ExtractArg,
             [$PropertyType<$PropertyType<ResourcesType, 'a'>, 'b'>]
-        >, 'test_ids'>, 0>> |}
+        >, 'test_ids'>>, 0> |}
         |}`);
 });
