@@ -1942,10 +1942,10 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-ensure-error@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/ensure-error/-/ensure-error-2.0.0.tgz#b8359a992601601b3541af9472f6a49d9dca1458"
-  integrity sha512-1ela4oR5A+TdtFpfiQrZKFUbsOi4JuIYmz2qSGFar6pEdRa54E15mKHVVYrAq1OQhd6b6nVrCaQxQlo6kYwhaw==
+ensure-error@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/ensure-error/-/ensure-error-3.0.1.tgz#60c381f24baa8223115b2d56b2a340ff9ba5c52d"
+  integrity sha512-J2e5Z3sgnA8en6+alf2VkO5cRwe75hHgSw0rJiMn5CEE4Yyw6GSgH31IBgwN9lugeCuPKHzuOF3X/RozAFsuhQ==
 
 es-abstract@^1.5.1:
   version "1.15.0"
