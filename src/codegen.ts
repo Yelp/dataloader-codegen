@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import prettier from 'prettier';
-import { GlobalConfig, getResourcePaths } from './config';
+import { GlobalConfig, getResourcePaths, LanguageOptions } from './config';
 import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genTypeFlow';
 import getLoaderImplementation from './implementation';
 
-function getLoaders(config: object, paths: Array<Array<string>>, current: Array<string>) {
+function getLoaders(language: LanguageOptions, config: object, paths: Array<Array<string>>, current: Array<string>) {
     if (_.isEqual(paths, [[]])) {
-        return getLoaderImplementation(_.get(config, current.join('.')), current);
+        return getLoaderImplementation(language, _.get(config, current.join('.')), current);
     }
 
     const nextValues = _.uniq(paths.map((p) => p[0]));
@@ -14,6 +14,7 @@ function getLoaders(config: object, paths: Array<Array<string>>, current: Array<
     const objectProperties: Array<string> = nextValues.map(
         (nextVal) =>
             `${nextVal}: ${getLoaders(
+                language,
                 config,
                 paths.filter((p) => p[0] === nextVal).map((p) => p.slice(1)),
                 [...current, nextVal],
@@ -110,10 +111,10 @@ export default function codegen(
          * ===============================
          */
 
-        export type LoadersType = ${getLoadersTypeMap(config.resources, getResourcePaths(config.resources), [])};
+        export type LoadersType = ${getLoadersTypeMap(config.typings.language, config.resources, getResourcePaths(config.resources), [])};
 
         export default function getLoaders(resources: ResourcesType, options?: DataLoaderCodegenOptions): LoadersType {
-            return ${getLoaders(config.resources, getResourcePaths(config.resources), [])};
+            return ${getLoaders(config.typings.language, config.resources, getResourcePaths(config.resources), [])};
         }
     `;
 

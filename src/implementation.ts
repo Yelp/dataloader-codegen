@@ -1,4 +1,4 @@
-import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
+import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig, LanguageOptions } from './config';
 import assert from './assert';
 import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
 import { errorPrefix } from './runtimeHelpers';
@@ -312,7 +312,7 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
     `;
 }
 
-function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+function getBatchLoader(language: LanguageOptions, resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === true,
         `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
@@ -421,7 +421,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
      )`;
 }
 
-function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+function getPropertyBatchLoader(language: LanguageOptions, resourceConfig: BatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === true,
         `${errorPrefix(resourcePath)} Expected getBatchLoader to be called with a batch resource config`,
@@ -519,7 +519,7 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
      )`;
 }
 
-function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath: ReadonlyArray<string>) {
+function getNonBatchLoader(language: LanguageOptions, resourceConfig: NonBatchResourceConfig, resourcePath: ReadonlyArray<string>) {
     assert(
         resourceConfig.isBatchResource === false,
         `${errorPrefix(resourcePath)} Expected getNonBatchLoader to be called with a non-batch endpoint config`,
@@ -555,14 +555,14 @@ function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath:
         })`;
 }
 
-export default function getLoaderImplementation(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
+export default function getLoaderImplementation(language: LanguageOptions = LanguageOptions.FLOW, resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
     if (resourceConfig.isBatchResource) {
         if (typeof resourceConfig.propertyBatchKey === 'string') {
-            return getPropertyBatchLoader(resourceConfig, resourcePath);
+            return getPropertyBatchLoader(language, resourceConfig, resourcePath);
         } else {
-            return getBatchLoader(resourceConfig, resourcePath);
+            return getBatchLoader(language, resourceConfig, resourcePath);
         }
     } else {
-        return getNonBatchLoader(resourceConfig, resourcePath);
+        return getNonBatchLoader(language, resourceConfig, resourcePath);
     }
 }
