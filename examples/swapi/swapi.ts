@@ -3,7 +3,6 @@
  */
 
 import fetch from 'node-fetch';
-import * as url from 'url';
 const SWAPI_URL = 'https://swapi.dev/api/';
 
 export interface SWAPI_Planet {
@@ -88,30 +87,30 @@ export interface SWAPIClientlibTypes {
     getPeople: (params: { readonly people_ids: readonly number[] }) => Promise<readonly SWAPI_Person[]>;
     getVehicles: (params: { readonly vehicle_ids: readonly number[] }) => Promise<readonly SWAPI_Vehicle[]>;
     getFilms: (params: { film_ids: Set<number> }) => Promise<readonly SWAPI_Film[]>;
-    getFilmsV2: (params: { 
+    getFilmsV2: (params: {
         readonly film_ids: readonly number[];
         readonly properties: readonly string[];
     }) => Promise<SWAPI_Film_V2>;
     getRoot: (params: {}) => Promise<SWAPI_Root>;
 }
 
-export default function(): SWAPIClientlibTypes {
+export default function (): SWAPIClientlibTypes {
     return {
         getPlanets: ({ planet_ids: planetIds }) =>
             Promise.all(
-                planetIds.map((id) => fetch(url.resolve(SWAPI_URL, `planets/${id}`)).then((res) => res.json())),
+                planetIds.map((id) => fetch(new URL(`planets/${id}`, SWAPI_URL)).then((res) => res.json())),
             ),
         getPeople: ({ people_ids: peopleIds }) =>
             Promise.all(
-                peopleIds.map((id) => fetch(url.resolve(SWAPI_URL, `people/${id}`)).then((res) => res.json())),
+                peopleIds.map((id) => fetch(new URL(`people/${id}`, SWAPI_URL)).then((res) => res.json())),
             ),
         getVehicles: ({ vehicle_ids: vehicleIds }) =>
             Promise.all(
-                vehicleIds.map((id) => fetch(url.resolve(SWAPI_URL, `vehicles/${id}`)).then((res) => res.json())),
+                vehicleIds.map((id) => fetch(new URL(`vehicles/${id}`, SWAPI_URL)).then((res) => res.json())),
             ),
         getFilms: ({ film_ids: filmIds }) =>
             Promise.all(
-                [...filmIds].map((id) => fetch(url.resolve(SWAPI_URL, `films/${id}`)).then((res) => res.json())),
+                [...filmIds].map((id) => fetch(new URL(`films/${id}`, SWAPI_URL)).then((res) => res.json())),
             ),
         getFilmsV2: ({ film_ids: filmIds, properties }) => {
             return Promise.resolve({
@@ -126,6 +125,6 @@ export default function(): SWAPIClientlibTypes {
                 ],
             });
         },
-        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
+        getRoot: ({ }) => fetch(SWAPI_URL).then((res) => res.json()),
     };
 };

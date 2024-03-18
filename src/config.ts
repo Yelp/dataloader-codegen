@@ -3,13 +3,10 @@ import path from 'path';
 import yaml from 'js-yaml';
 import Ajv from 'ajv';
 
-export enum LanguageOptions {
-    FLOW = 'flow',
-    TYPESCRIPT = 'typescript',
-}
+export type LanguageOption = 'flow' | 'typescript';
 export interface GlobalConfig {
     typings: {
-        language: LanguageOptions;
+        language: LanguageOption;
         embedResourcesType: {
             imports: string;
             ResourcesType: string;
