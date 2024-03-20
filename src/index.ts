@@ -4,7 +4,7 @@ import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
-import codegen from './codegen';
+import codegenFlow from './genTypeFlow/codegen';
 import { getConfig } from './config';
 
 interface CLIArgs {
@@ -14,7 +14,7 @@ interface CLIArgs {
 
 function writeLoaders(args: CLIArgs) {
     const config = getConfig(args.config);
-    const output = codegen(config);
+    const output = codegenFlow(config);
 
     assert(typeof args.config === 'string', 'expected args.config to be set!');
     assert(typeof args.output === 'string', 'expected args.output to be set!');

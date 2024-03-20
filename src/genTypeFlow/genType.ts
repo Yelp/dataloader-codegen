@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import assert from './assert';
-import { GlobalConfig, ResourceConfig, LanguageOptions } from './config';
+import assert from '../assert';
+import { GlobalConfig, ResourceConfig, LanguageOption } from '../config';
 
 function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
@@ -136,7 +136,6 @@ export function getLoaderType(resourceConfig: ResourceConfig, resourcePath: Read
 }
 
 export function getLoadersTypeMap(
-    language: LanguageOptions = LanguageOptions.FLOW,
     config: object,
     paths: ReadonlyArray<ReadonlyArray<string>>,
     current: ReadonlyArray<string>,
@@ -150,7 +149,6 @@ export function getLoadersTypeMap(
     const objectProperties: ReadonlyArray<string> = nextValues.map(
         (nextVal) =>
             `${nextVal}: ${getLoadersTypeMap(
-                language,
                 config,
                 paths.filter((p) => p[0] === nextVal).map((p) => p.slice(1)),
                 [...current, nextVal],
