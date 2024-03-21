@@ -4,7 +4,8 @@
         "@babel/node": "^7.7.0",
         "@babel/preset-flow": "^7.0.0",
         "flow-bin": "0.123.0",
-        "flow-typed": "^2.6.2"
+        "flow-typed": "^2.6.2",
+        "typescript": "^5.4.3"
     },
     "dependencies": {
         "dataloader": "^2.0.0",
@@ -13,5 +14,8 @@
     },
     "engines": {
         "node": ">=10"
+    },
+    "scripts": {
+        "build": "tsc"
     }
 }
