@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import prettier from 'prettier';
-import { GlobalConfig, getResourcePaths } from './config';
-import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genTypeFlow';
-import getLoaderImplementation from './implementation';
+import { GlobalConfig, getResourcePaths } from '../config';
+import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genType';
+import getLoaderImplementation from '../genTypeFlow/implementation';
 
 function getLoaders(config: object, paths: Array<Array<string>>, current: Array<string>) {
     if (_.isEqual(paths, [[]])) {

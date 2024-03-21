@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import assert from './assert';
-import { GlobalConfig, ResourceConfig } from './config';
+import assert from '../assert';
+import { GlobalConfig, ResourceConfig, LanguageOption } from '../config';
 
 function errorPrefix(resourcePath: ReadonlyArray<string>): string {
     return `[dataloader-codegen :: ${resourcePath.join('.')}]`;

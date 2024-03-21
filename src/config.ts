@@ -3,9 +3,10 @@ import path from 'path';
 import yaml from 'js-yaml';
 import Ajv from 'ajv';
 
+export type LanguageOption = 'flow' | 'typescript';
 export interface GlobalConfig {
     typings: {
-        language: 'flow';
+        language: LanguageOption;
         embedResourcesType: {
             imports: string;
             ResourcesType: string;

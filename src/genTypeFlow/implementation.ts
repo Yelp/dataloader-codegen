@@ -1,7 +1,7 @@
-import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
-import assert from './assert';
-import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
-import { errorPrefix } from './runtimeHelpers';
+import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from '../config';
+import assert from '../assert';
+import { getLoaderTypeKey, getLoaderTypeVal } from './genType';
+import { errorPrefix } from '../runtimeHelpers';
 
 function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
     const configComment = JSON.stringify(resourceConfig, null, 2)
@@ -61,8 +61,8 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
                 if (!(_response instanceof Error)) {
                     _response = new Error([
                         \`${errorPrefix(
-                            resourcePath,
-                        )} Caught an error, but errorHandler did not return an Error object.\`,
+        resourcePath,
+    )} Caught an error, but errorHandler did not return an Error object.\`,
                         \`Instead, got \${typeof _response}: \${util.inspect(_response)}\`,
                     ].join(' '));
                 }
@@ -97,14 +97,14 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                 const requests = requestIDs.map(id => keys[id]);
 
                 ${(() => {
-                    const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
+            const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
 
-                    let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
-                    if (commaSeparatedBatchKey === true) {
-                        batchKeyParam = `${batchKeyParam}.join(',')`;
-                    }
+            let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
+            if (commaSeparatedBatchKey === true) {
+                batchKeyParam = `${batchKeyParam}.join(',')`;
+            }
 
-                    return `
+            return `
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
                         const resourceArgs = [{
@@ -112,14 +112,14 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                             ${batchKeyParam},
                         }];
                     `;
-                })()}
+        })()}
 
                 let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
 
                 if (!(response instanceof Error)) {
                     ${(() => {
-                        if (typeof resourceConfig.nestedPath === 'string') {
-                            return `
+            if (typeof resourceConfig.nestedPath === 'string') {
+                return `
                                 /**
                                  * Un-nest the actual data from the resource return value.
                                  *
@@ -155,16 +155,16 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                     ),
                                 );
                             `;
-                        } else {
-                            return '';
-                        }
-                    })()}
+            } else {
+                return '';
+            }
+        })()}
                 }
 
                 if (!(response instanceof Error)) {
                     ${(() => {
-                        if (resourceConfig.isResponseDictionary === true) {
-                            return `
+            if (resourceConfig.isResponseDictionary === true) {
+                return `
                                 if (typeof response !== 'object') {
                                     response = new Error(
                                         [
@@ -174,8 +174,8 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                     );
                                 }
                             `;
-                        } else {
-                            return `
+            } else {
+                return `
                                 if (!Array.isArray(response)) {
                                     response = new Error(
                                         [
@@ -185,23 +185,23 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                     );
                                 }
                             `;
-                        }
-                    })()}
+            }
+        })()}
                 }
 
                 ${(() => {
-                    const { reorderResultsByKey, isResponseDictionary, propertyBatchKey } = resourceConfig;
-                    if (
-                        !isResponseDictionary &&
-                        reorderResultsByKey == null &&
-                        /**
-                         * When there's propertyBatchKey and propertyNewKey, the resource might
-                         * contain less number of items that we requested. It's valid, so we
-                         * should skip the check.
-                         */
-                        !(typeof propertyBatchKey === 'string')
-                    ) {
-                        return `
+            const { reorderResultsByKey, isResponseDictionary, propertyBatchKey } = resourceConfig;
+            if (
+                !isResponseDictionary &&
+                reorderResultsByKey == null &&
+                /**
+                 * When there's propertyBatchKey and propertyNewKey, the resource might
+                 * contain less number of items that we requested. It's valid, so we
+                 * should skip the check.
+                 */
+                !(typeof propertyBatchKey === 'string')
+            ) {
+                return `
                             if (!(response instanceof Error)) {
                                 /**
                                 * Check to see the resource contains the same number
@@ -216,8 +216,8 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                     */
                                     response = new BatchItemNotFoundError([
                                         \`${errorPrefix(
-                                            resourcePath,
-                                        )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
+                    resourcePath,
+                )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '));
 
@@ -228,15 +228,15 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                 }
                             }
                         `;
-                    } else {
-                        return '';
-                    }
-                })()}
+            } else {
+                return '';
+            }
+        })()}
 
                 ${(() => {
-                    const { newKey, isResponseDictionary } = resourceConfig;
-                    if (isResponseDictionary === true) {
-                        return `
+            const { newKey, isResponseDictionary } = resourceConfig;
+            if (isResponseDictionary === true) {
+                return `
                             if (!(response instanceof Error)) {
                                 response = resultsDictToList(
                                     response,
@@ -245,10 +245,10 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                 );
                             }
                         `;
-                    } else {
-                        return '';
-                    }
-                })()}
+            } else {
+                return '';
+            }
+        })()}
 
                 /**
                  * If the resource returns an Error, we'll want to copy and
@@ -273,11 +273,10 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                          * (If we didn't specify that this resource needs
                          * sorting, then this will be "null" and won't be used.)
                          */
-                        const reorderResultsByValue = ${
-                            typeof resourceConfig.reorderResultsByKey === 'string'
-                                ? `keys[requestId]['${resourceConfig.newKey}']`
-                                : 'null'
-                        }
+                        const reorderResultsByValue = ${typeof resourceConfig.reorderResultsByKey === 'string'
+            ? `keys[requestId]['${resourceConfig.newKey}']`
+            : 'null'
+        }
 
                         // Tell flow that "response" is actually an error object.
                         // (This is so we can pass it as 'cause' to CaughtResourceError)
@@ -285,8 +284,8 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
 
                         return new CaughtResourceError(
                             \`${errorPrefix(
-                                resourcePath,
-                            )} Caught error during call to resource. Error: \${response.stack}\`,
+            resourcePath,
+        )} Caught error during call to resource. Error: \${response.stack}\`,
                             response,
                             reorderResultsByValue
                         );
@@ -294,10 +293,10 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                 }
 
                 ${(() => {
-                    const { reorderResultsByKey, newKey } = resourceConfig;
+            const { reorderResultsByKey, newKey } = resourceConfig;
 
-                    if (typeof reorderResultsByKey === 'string') {
-                        return `
+            if (typeof reorderResultsByKey === 'string') {
+                return `
                             response = sortByKeys({
                                 items: response,
                                 keys: requests.map(k => k['${newKey}']),
@@ -305,10 +304,10 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                 resourcePath: ${JSON.stringify(resourcePath)},
                             })
                         `;
-                    } else {
-                        return '';
-                    }
-                })()}
+            } else {
+                return '';
+            }
+        })()}
     `;
 }
 
@@ -415,7 +414,7 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                   * TODO: Figure out why directly passing `cacheKeyOptions` causes
                   * flow errors :(
                   */ ''
-             }
+        }
              ...cacheKeyOptions
          }
      )`;
@@ -513,7 +512,7 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
                   * TODO: Figure out why directly passing `cacheKeyOptions` causes
                   * flow errors :(
                   */ ''
-             }
+        }
              ...cacheKeyOptions
          }
      )`;
