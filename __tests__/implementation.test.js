@@ -1279,7 +1279,7 @@ test('batch endpoint with maxBatchSize', async () => {
     await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
         
-        // Request 5 items at once, which should be split into 3 batches (2 + 2 + 1)
+        // Request 5 items at once, which should be split by maxBatchSize later in the test.
         const results = await Promise.all([
             loaders.foo.load({ foo_id: 1, properties: ['name', 'rating'] }),
             loaders.foo.load({ foo_id: 2, properties: ['name', 'rating'] }),
@@ -1298,7 +1298,6 @@ test('batch endpoint with maxBatchSize', async () => {
         ]);
         
         // Verify that the requests were batched correctly
-        // We should have 3 batches with max 2 IDs.
         expect(receivedBatches.map(batch => batch.length)).toEqual([3, 2]);
         
         // Verify that all IDs were requested
@@ -1341,7 +1340,7 @@ test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
     await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
         
-        // Request 5 items at once, which should be split into 3 batches (2 + 2 + 1)
+        // Request 5 items at once, which should be split by maxBatchSize later in the test.
         const results = await Promise.all([
             loaders.foo.load({ foo_id: 1, properties: ['name', 'rating'] }),
             loaders.foo.load({ foo_id: 2, properties: ['name', 'rating'] }),
@@ -1360,7 +1359,6 @@ test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
         ]);
         
         // Verify that the requests were batched correctly
-        // We should have 3 batches with max 2 IDs.
         expect(receivedBatches.map(batch => batch.length)).toEqual([2, 2, 1]);
         
         // Verify that all IDs were requested
