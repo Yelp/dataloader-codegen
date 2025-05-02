@@ -1246,6 +1246,68 @@ test('bail if errorHandler does not return an error', async () => {
     });
 });
 
+test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                propertyBatchKey: 'properties', // This is required for maxBatchSize to work
+                responseKey: 'id',
+                maxBatchSize: 2, // Set a maximum batch size of 2
+            },
+        },
+    };
+    
+    // Track each batch of IDs that the resource function receives
+    const receivedBatches = [];
+    
+    const resources = {
+        foo: ({ foo_ids, properties }) => {
+            receivedBatches.push([...foo_ids]);
+            return Promise.resolve(
+                foo_ids.map(id => ({ 
+                    id, 
+                    name: `name-${id}`, 
+                    rating: id + 1 
+                }))
+            );
+        },
+    };
+    
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+        
+        // Request 5 items at once, which should be split into 3 batches (2 + 2 + 1)
+        const results = await Promise.all([
+            loaders.foo.load({ foo_id: 1, properties: ['name', 'rating'] }),
+            loaders.foo.load({ foo_id: 2, properties: ['name', 'rating'] }),
+            loaders.foo.load({ foo_id: 3, properties: ['name', 'rating'] }),
+            loaders.foo.load({ foo_id: 4, properties: ['name', 'rating'] }),
+            loaders.foo.load({ foo_id: 5, properties: ['name', 'rating'] }),
+        ]);
+        
+        // Verify that all results were returned correctly
+        expect(results).toEqual([
+            { id: 1, name: 'name-1', rating: 2 },
+            { id: 2, name: 'name-2', rating: 3 },
+            { id: 3, name: 'name-3', rating: 4 },
+            { id: 4, name: 'name-4', rating: 5 },
+            { id: 5, name: 'name-5', rating: 6 },
+        ]);
+        
+        // Verify that the requests were batched correctly
+        // We should have 3 batches with max 2 IDs.
+        expect(receivedBatches.map(batch => batch.length)).toEqual([2, 2, 1]);
+        
+        // Verify that all IDs were requested
+        const allRequestedIds = receivedBatches.flat().sort();
+        expect(allRequestedIds).toEqual([1, 2, 3, 4, 5]);
+    });
+});
+
 test('batch endpoint (multiple requests) with propertyBatchKey', async () => {
     const config = {
         resources: {
