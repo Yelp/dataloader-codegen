@@ -514,7 +514,8 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
                   * flow errors :(
                   */ ''
              }
-             ...cacheKeyOptions
+             ...cacheKeyOptions,
+            ${resourceConfig.maxBatchSize ? `maxBatchSize: ${resourceConfig.maxBatchSize},` : ''}
          }
      )`;
 }
