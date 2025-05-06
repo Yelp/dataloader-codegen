@@ -1259,26 +1259,26 @@ test('batch endpoint with maxBatchSize', async () => {
             },
         },
     };
-    
+
     // Track each batch of IDs that the resource function receives
     const receivedBatches = [];
-    
+
     const resources = {
         foo: ({ foo_ids, properties }) => {
             receivedBatches.push([...foo_ids]);
             return Promise.resolve(
-                foo_ids.map(id => ({ 
-                    id, 
-                    name: `name-${id}`, 
-                    rating: id + 1 
-                }))
+                foo_ids.map((id) => ({
+                    id,
+                    name: `name-${id}`,
+                    rating: id + 1,
+                })),
             );
         },
     };
-    
+
     await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
-        
+
         // Request 5 items at once, which should be split by maxBatchSize later in the test.
         const results = await Promise.all([
             loaders.foo.load({ foo_id: 1, properties: ['name', 'rating'] }),
@@ -1287,7 +1287,7 @@ test('batch endpoint with maxBatchSize', async () => {
             loaders.foo.load({ foo_id: 4, properties: ['name', 'rating'] }),
             loaders.foo.load({ foo_id: 5, properties: ['name', 'rating'] }),
         ]);
-        
+
         // Verify that all results were returned correctly
         expect(results).toEqual([
             { id: 1, name: 'name-1', rating: 2 },
@@ -1296,10 +1296,10 @@ test('batch endpoint with maxBatchSize', async () => {
             { id: 4, name: 'name-4', rating: 5 },
             { id: 5, name: 'name-5', rating: 6 },
         ]);
-        
+
         // Verify that the requests were batched correctly
-        expect(receivedBatches.map(batch => batch.length)).toEqual([3, 2]);
-        
+        expect(receivedBatches.map((batch) => batch.length)).toEqual([3, 2]);
+
         // Verify that all IDs were requested
         const allRequestedIds = receivedBatches.flat().sort();
         expect(allRequestedIds).toEqual([1, 2, 3, 4, 5]);
@@ -1320,26 +1320,26 @@ test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
             },
         },
     };
-    
+
     // Track each batch of IDs that the resource function receives
     const receivedBatches = [];
-    
+
     const resources = {
         foo: ({ foo_ids, properties }) => {
             receivedBatches.push([...foo_ids]);
             return Promise.resolve(
-                foo_ids.map(id => ({ 
-                    id, 
-                    name: `name-${id}`, 
-                    rating: id + 1 
-                }))
+                foo_ids.map((id) => ({
+                    id,
+                    name: `name-${id}`,
+                    rating: id + 1,
+                })),
             );
         },
     };
-    
+
     await createDataLoaders(config, async (getLoaders) => {
         const loaders = getLoaders(resources);
-        
+
         // Request 5 items at once, which should be split by maxBatchSize later in the test.
         const results = await Promise.all([
             loaders.foo.load({ foo_id: 1, properties: ['name', 'rating'] }),
@@ -1348,7 +1348,7 @@ test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
             loaders.foo.load({ foo_id: 4, properties: ['name', 'rating'] }),
             loaders.foo.load({ foo_id: 5, properties: ['name', 'rating'] }),
         ]);
-        
+
         // Verify that all results were returned correctly
         expect(results).toEqual([
             { id: 1, name: 'name-1', rating: 2 },
@@ -1357,10 +1357,10 @@ test('batch endpoint with propertyBatchKey and maxBatchSize', async () => {
             { id: 4, name: 'name-4', rating: 5 },
             { id: 5, name: 'name-5', rating: 6 },
         ]);
-        
+
         // Verify that the requests were batched correctly
-        expect(receivedBatches.map(batch => batch.length)).toEqual([2, 2, 1]);
-        
+        expect(receivedBatches.map((batch) => batch.length)).toEqual([2, 2, 1]);
+
         // Verify that all IDs were requested
         const allRequestedIds = receivedBatches.flat().sort();
         expect(allRequestedIds).toEqual([1, 2, 3, 4, 5]);
