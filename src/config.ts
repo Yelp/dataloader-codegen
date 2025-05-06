@@ -28,6 +28,7 @@ export interface BatchResourceConfig {
     isBatchKeyASet?: boolean;
     propertyBatchKey?: string;
     responseKey?: string;
+    maxBatchSize?: number;
 }
 
 export interface NonBatchResourceConfig {

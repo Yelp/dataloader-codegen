@@ -416,7 +416,8 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
                   * flow errors :(
                   */ ''
              }
-             ...cacheKeyOptions
+             ...cacheKeyOptions,
+             ${resourceConfig.maxBatchSize ? `maxBatchSize: ${resourceConfig.maxBatchSize},` : ''}
          }
      )`;
 }
@@ -514,7 +515,8 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
                   * flow errors :(
                   */ ''
              }
-             ...cacheKeyOptions
+             ...cacheKeyOptions,
+            ${resourceConfig.maxBatchSize ? `maxBatchSize: ${resourceConfig.maxBatchSize},` : ''}
          }
      )`;
 }
