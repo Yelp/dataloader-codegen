@@ -154,8 +154,8 @@ resources:
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
             isBatchKeyASet: ?boolean          (can only use if isBatchResource=true)
             propertyBatchKey: ?string         (can only use if isBatchResource=true)
-            responseKey: ?string              (non-optional when propertyBatchKey is used)
             maxBatchSize: ?integer            (can only use if isBatchResource=true)
+            responseKey: ?string              (non-optional when propertyBatchKey is used)
 
 typings:
     language: flow
