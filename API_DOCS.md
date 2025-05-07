@@ -148,7 +148,7 @@ resources:
             docsLink: string
             batchKey: string                  (can only use if isBatchResource=true)
             newKey: string                    (can only use if isBatchResource=true)
-            reorderResultsKey: ?string        (can only use if isBatchResource=true)
+            reorderResultsByKey: ?string      (can only use if isBatchResource=true)
             nestedPath: ?string               (can only use if isBatchResource=true)
             commaSeparatedBatchKey: ?string   (can only use if isBatchResource=true)
             isResponseDictionary: ?boolean    (can only use if isBatchResource=true)
