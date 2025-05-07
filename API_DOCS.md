@@ -188,8 +188,8 @@ Describes the shape and behaviour of the resources object you will pass to `getL
 | `isResponseDictionary`   | (Optional) Set to true if the batch resource returns the results as a dictionary with key mapped to values (instead of a list of items). If this option is supplied `reorderResultsByKey` should not be. Default: false                                  |
 | `isBatchKeyASet`         | (Optional) Set to true if the interface of the resource takes the batch key as a set (rather than an array). For example, when using a generated clientlib based on swagger where `uniqueItems: true` is set for the batchKey parameter. Default: false. |
 | `propertyBatchKey`       | (Optional) The argument to the resource that represents the optional properties we want to fetch. (e.g. usually 'properties' or 'features').                                                                                                             |
-| `responseKey`            | (Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                  |
 | `maxBatchSize`           | (Optional) Limits the number of items that can be batched together in a single request. When more items are requested than this limit, multiple requests will be made. This can help prevent hitting URI length limits or timeouts for large batches.    |
+| `responseKey`            | (Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath.                                  |
 
 ### `typings`
 
