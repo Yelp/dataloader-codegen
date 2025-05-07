@@ -105,6 +105,10 @@
                 "responseKey": {
                     "type": "string",
                     "description": "(Non-optional when propertyBatchKey is used) The key in the response objects corresponds to `batchKey`. This should be the only field that are marked as required in your swagger endpoint response, except nestedPath."
+                },
+                "maxBatchSize": {
+                    "type": "integer",
+                    "description": "(Optional) Limits the number of items that can be batched together in a single request. When more items are requested than this limit, multiple requests will be made. This can help prevent hitting URI length limits or timeouts for large batches."
                 }
             },
             "dependencies": {
