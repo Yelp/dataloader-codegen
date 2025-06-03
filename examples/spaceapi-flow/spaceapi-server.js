@@ -74,7 +74,7 @@ const createServer = () => {
         }
     }
 
-   class PersonModel {
+    class PersonModel {
         id: number;
 
         constructor(id: number) {
@@ -173,7 +173,7 @@ runQuery(/* GraphQL */ `
         kepler_186f: planet(id: 2) {
             ...PlanetFields
         }
-       
+
         # Get People
         alice: person(id: 1) {
             ...PersonFields
@@ -184,44 +184,47 @@ runQuery(/* GraphQL */ `
     }
 `).then((result) => {
     console.log(JSON.stringify(result, null, 4));
-    assert.partialDeepStrictEqual({
-        "data": {
-            "proxima_centauri": {
-                "id": "1",
-                "name": "Proxima Centauri",
-                "climate": "hot",
-                "diameter": "12000"
+    assert.partialDeepStrictEqual(
+        {
+            data: {
+                proxima_centauri: {
+                    id: '1',
+                    name: 'Proxima Centauri',
+                    climate: 'hot',
+                    diameter: '12000',
+                },
+                kepler_186f: {
+                    id: '2',
+                    name: 'Kepler-186f',
+                    climate: 'icy',
+                    diameter: '8000',
+                },
+                alice: {
+                    id: '1',
+                    name: 'Alice',
+                    height: 180,
+                    hairColor: 'blue',
+                    homePlanet: {
+                        id: '1',
+                        name: 'Proxima Centauri',
+                        climate: 'hot',
+                        diameter: '12000',
+                    },
+                },
+                eve: {
+                    id: '5',
+                    name: 'Eve',
+                    height: 170,
+                    hairColor: 'blue',
+                    homePlanet: {
+                        id: '2',
+                        name: 'Kepler-186f',
+                        climate: 'icy',
+                        diameter: '8000',
+                    },
+                },
             },
-            "kepler_186f": {
-                "id": "2",
-                "name": "Kepler-186f",
-                "climate": "icy",
-                "diameter": "8000"
-            },
-            "alice": {
-                "id": "1",
-                "name": "Alice",
-                "height": 180,
-                "hairColor": "blue",
-                "homePlanet": {
-                    "id": "1",
-                    "name": "Proxima Centauri",
-                    "climate": "hot",
-                    "diameter": "12000"
-                }
-            },
-            "eve": {
-                "id": "5",
-                "name": "Eve",
-                "height": 170,
-                "hairColor": "blue",
-                "homePlanet": {
-                    "id": "2",
-                    "name": "Kepler-186f",
-                    "climate": "icy",
-                    "diameter": "8000"
-                }
-            }
-        }
-    }, result)
+        },
+        result,
+    );
 });
