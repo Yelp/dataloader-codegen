@@ -1,0 +1,19 @@
+typings:
+    language: flow
+    embedResourcesType:
+        imports: |
+            import type { SpacePeopleClientlibTypes } from './clientlib';
+        ResourcesType: |
+            type ResourcesType = SpacePeopleClientlibTypes;
+
+resources:
+    getPlanets:
+        docsLink: https://example.com/documentation#planets
+        isBatchResource: true
+        batchKey: planet_ids
+        newKey: planet_id
+    getPeople:
+        docsLink: https://example.com/documentation#people
+        isBatchResource: true
+        batchKey: people_ids
+        newKey: person_id
