@@ -8,10 +8,10 @@
     },
     "dependencies": {
         "dataloader": "^2.0.0",
-        "graphql": "15.0.0",
-        "node-fetch": "^2.6.0"
+        "dataloader-codegen": "file:../../",
+        "graphql": "16.x"
     },
     "engines": {
-        "node": ">=10"
+        "node": ">=20"
     }
 }

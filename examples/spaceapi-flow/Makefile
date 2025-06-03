@@ -1,9 +1,8 @@
 node_modules: package.json
 	yarn
 
-.PHONY: swapi-loaders.js
-swapi-loaders.js:
-	node ../../lib/index.js --config swapi.dataloader-config.yaml --output swapi-loaders.js
+spaceapi-loaders.js:
+	node ../../lib/index.js --config spaceapi.dataloader-config.yaml --output spaceapi-loaders.js
 
 flow-typed: node_modules
 	yarn flow-typed install
