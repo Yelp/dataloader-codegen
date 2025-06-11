@@ -1,6 +1,6 @@
 import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
 import assert from './assert';
-import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
+import { getLoaderTypeKey, getLoaderTypeVal } from './genType';
 import { errorPrefix } from './runtimeHelpers';
 
 function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
@@ -32,7 +32,7 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
     // Uses an iife so the result variable is assignable at the callsite (for readability)
     return `
         (async _resourceArgs => {
-            // Make a re-assignable variable so flow/eslint doesn't complain
+            // Make a re-assignable variable so eslint doesn't complain
             let __resourceArgs = _resourceArgs;
 
             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import prettier from 'prettier';
 import { GlobalConfig, getResourcePaths } from './config';
-import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genTypeFlow';
+import { getLoaderType, getLoadersTypeMap, getResourceTypings } from './genType';
 import getLoaderImplementation from './implementation';
 
 function getLoaders(config: object, paths: Array<Array<string>>, current: Array<string>) {
@@ -46,8 +46,6 @@ export default function codegen(
     const { printResourceTypeImports, printResourcesType } = getResourceTypings(config);
 
     const output = `
-        // @flow strict-local
-
         /**
          * !!! THIS FILE IS AUTO-GENERATED. CHANGES MAY BE OVERWRITTEN !!!
          */
@@ -82,21 +80,22 @@ export default function codegen(
          * ===============================
          */
 
-        // https://github.com/facebook/flow/issues/7709#issuecomment-530501257
-        type ExtractArg = <Arg, Ret>([Arg => Ret]) => Arg;
-        type ExtractPromisedReturnValue<A> = <R>((...A) => Promise<R>) => R;
+        type PromisedReturnType<F extends (...args: any) => Promise<any>> =
+            F extends (...args: any) => Promise<infer R> ? R : never;
 
-        export type DataLoaderCodegenOptions = {|
+        type Values<T> = T[keyof T];
+
+        export type DataLoaderCodegenOptions = {
             errorHandler?: (
-                resourcePath: $ReadOnlyArray<string>,
-                // $FlowFixMe: We don't know what type the resource might throw, so we have to type error to "any" :(
+                resourcePath: ReadonlyArray<string>,
+                // We don't know what type the resource might throw, so we have to type error to "any" :(
                 error: any,
             ) => Promise<Error>,
-            resourceMiddleware?: {|
-                before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => Promise<T>,
-                after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => Promise<T>,
-            |};
-        |};
+            resourceMiddleware?: {
+                before?: <T>(resourcePath: ReadonlyArray<string>, resourceArgs: T) => Promise<T>,
+                after?: <T>(resourcePath: ReadonlyArray<string>, response: T) => Promise<T>,
+            };
+        };
 
         /**
          * ===============================
@@ -117,5 +116,5 @@ export default function codegen(
         }
     `;
 
-    return prettier.format(output, { parser: 'babel' });
+    return prettier.format(output, { parser: 'babel-ts' });
 }

@@ -12,9 +12,9 @@ interface CLIArgs {
     output: string;
 }
 
-function writeLoaders(args: CLIArgs) {
+async function writeLoaders(args: CLIArgs) {
     const config = getConfig(args.config);
-    const output = codegen(config);
+    const output = await codegen(config);
 
     assert(typeof args.config === 'string', 'expected args.config to be set!');
     assert(typeof args.output === 'string', 'expected args.output to be set!');
