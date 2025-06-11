@@ -1,39 +1,17 @@
 import _ from 'lodash';
-import assert from './assert';
 import { GlobalConfig, ResourceConfig } from './config';
-
-function errorPrefix(resourcePath: ReadonlyArray<string>): string {
-    return `[dataloader-codegen :: ${resourcePath.join('.')}]`;
-}
-
-// The reference at runtime to where the underlying resource lives
-const resourceReference = (resourcePath: ReadonlyArray<string>) => ['resources', ...resourcePath].join('.');
 
 /**
  * Get the reference to the type representing the resource function this resource
  */
 export function getResourceTypeReference(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
-    function toPropertyTypePath(path: ReadonlyArray<string>): string {
-        assert(path.length >= 1, 'expected resource path to be a not empty array');
-
-        if (path.length === 1) {
-            return path[0];
-        }
-
-        return `$PropertyType<${toPropertyTypePath(path.slice(0, -1))}, '${path.slice(-1)}'>`;
-    }
-
-    return toPropertyTypePath(['ResourcesType', ...resourcePath]);
+    return `ResourcesType${resourcePath.map((segment) => `['${segment}']`).join('')}`;
 }
 
 function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
     // TODO: We assume that the resource accepts a single dict argument. Let's
     // make thie configurable to handle resources that use seperate arguments.
-    return `\
-        $Call<
-            ExtractArg,
-            [${getResourceTypeReference(resourceConfig, resourcePath)}]
-        >`;
+    return `Parameters<${getResourceTypeReference(resourceConfig, resourcePath)}>[0]`;
 }
 
 /**
@@ -41,11 +19,7 @@ function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
  * using its `.has(T)`'s function paremeter type
  */
 export function getNewKeyTypeFromBatchKeySetType(batchKey: string, resourceArgs: string) {
-    return `\
-        $Call<
-            ExtractArg,
-            [$PropertyType<$PropertyType<${resourceArgs}, '${batchKey}'>, 'has'>]
-        >`;
+    return `Parameters<${resourceArgs}['${batchKey}']['has']>[0]`;
 }
 
 export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
@@ -55,8 +29,8 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
 
     if (resourceConfig.isBatchResource) {
         // Extract newKeyType from the batch key's Array's type
-        // We add NonMaybeType before batch key element type to force the batch key to be required, regardless if the OpenAPI spec specifies it as being optional
-        let newKeyType = `${resourceConfig.newKey}: $ElementType<$NonMaybeType<$PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>>, 0>`;
+        // We add NonNullable before batch key element type to force the batch key to be required, regardless if the OpenAPI spec specifies it as being optional
+        let newKeyType = `${resourceConfig.newKey}: NonNullable<${resourceArgs}['${resourceConfig.batchKey}']>[0]`;
 
         if (resourceConfig.isBatchKeyASet) {
             /**
@@ -69,28 +43,14 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
             )}`;
         }
 
-        return `{|
-            ...$Diff<${resourceArgs}, {
-                ${resourceConfig.batchKey}: $PropertyType<${resourceArgs}, '${resourceConfig.batchKey}'>
-            }>,
-            ...{| ${newKeyType} |}
-        |}`;
+        return `Omit<${resourceArgs}, '${resourceConfig.batchKey}'> & { ${newKeyType} }`;
     }
 
     return resourceArgs;
 }
 
 export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
-    // TODO: We assume that the resource accepts a single dict argument. Let's
-    // make this configurable to handle resources that use seperate arguments.
-    const resourceArgs = getResourceArg(resourceConfig, resourcePath);
-
-    // TODO: DRY up in codegen to something like RetVal<resource>
-    let retVal = `\
-        $Call<
-            ExtractPromisedReturnValue<[${resourceArgs}]>,
-            ${getResourceTypeReference(resourceConfig, resourcePath)}
-        >`;
+    let retVal = `PromisedReturnType<${getResourceTypeReference(resourceConfig, resourcePath)}>`;
 
     if (resourceConfig.isBatchResource) {
         /**
@@ -115,9 +75,9 @@ export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: R
          * ```
          */
         if (resourceConfig.nestedPath) {
-            retVal = `$PropertyType<${retVal}, '${resourceConfig.nestedPath}'>`;
+            retVal = `${retVal}['${resourceConfig.nestedPath}']`;
         }
-        retVal = resourceConfig.isResponseDictionary ? `$Values<${retVal}>` : `$ElementType<${retVal}, 0>`;
+        retVal = resourceConfig.isResponseDictionary ? `Values<${retVal}>` : `${retVal}[0]`;
     }
 
     return retVal;
@@ -147,7 +107,7 @@ export function getLoadersTypeMap(
     const nextValues = _.uniq(paths.map((p) => p[0]));
 
     const objectProperties: ReadonlyArray<string> = nextValues.map(
-        (nextVal) =>
+        (nextVal: any) =>
             `${nextVal}: ${getLoadersTypeMap(
                 config,
                 paths.filter((p) => p[0] === nextVal).map((p) => p.slice(1)),
@@ -155,9 +115,9 @@ export function getLoadersTypeMap(
             )},`,
     );
 
-    return `$ReadOnly<{|
+    return `Readonly<{
         ${objectProperties.join('\n')}
-    |}>`;
+    }>`;
 }
 
 export function getResourceTypings(

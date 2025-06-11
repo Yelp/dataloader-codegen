@@ -1,5 +1,7 @@
 # 🤖 dataloader-codegen
 
+## Now with TypeScript!
+
 [![npm](https://img.shields.io/npm/v/dataloader-codegen.svg)](https://yarn.pm/dataloader-codegen)
 [![Build Status](https://api.travis-ci.com/Yelp/dataloader-codegen.svg?branch=master)](https://travis-ci.com/github/Yelp/dataloader-codegen)
 
@@ -14,7 +16,7 @@ Read more about the motivation behind this library in our recent blog post: http
 -   🚚 Supports Batched + Non Batched Resources
 -   ✨ Predictable DataLoader Interfaces
 -   🐛 Error Handling
--   🔒 Type Safety (Flow)
+-   🔒 Type Safety (TypeScript)
 -   🔧 Resource Middleware
 
 ## Install

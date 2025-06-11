@@ -2,16 +2,14 @@
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/node": "^7.7.0",
-        "@babel/preset-flow": "^7.0.0",
-        "flow-bin": "0.123.0",
-        "flow-typed": "^2.6.2"
+        "@types/node-fetch": "^3.0.3"
     },
     "dependencies": {
         "dataloader": "^2.0.0",
         "graphql": "15.0.0",
-        "node-fetch": "^2.6.0"
+        "node-fetch": "^3.0.3"
     },
     "engines": {
-        "node": ">=10"
+        "node": ">=22"
     }
 }

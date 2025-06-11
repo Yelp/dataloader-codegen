@@ -1,5 +1,5 @@
 typings:
-    language: flow
+    language: typescript
     embedResourcesType:
         imports: |
             import type { SWAPIClientlibTypes } from './swapi';

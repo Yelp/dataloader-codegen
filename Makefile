@@ -8,15 +8,13 @@ venv: Makefile requirements-dev.txt
 	virtualenv venv --python=$(PYTHON3)
 	venv/bin/pip install -r requirements-dev.txt
 
-node_modules: package.json yarn.lock
+node_modules: package.json
 	yarn
 
 build: node_modules
 	yarn build
 	# Generate the .d.ts files
 	node_modules/.bin/tsc --project tsconfig.json --checkJs false --emitDeclarationOnly || true
-	# TODO: Loop through everything in the lib folder to create the flow types
-	yarn flowgen --add-flow-header lib/runtimeHelpers.d.ts --output-file lib/runtimeHelpers.js.flow
 
 .PHONY: test
 test: build venv node_modules

@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "rootDir": "./",
+        "allowSyntheticDefaultImports": true
+    },
+    "files": ["swapi-server.ts"]
+}

@@ -1,5 +1,3 @@
-// @flow strict-local
-
 /**
  * !!! THIS FILE IS AUTO-GENERATED. CHANGES MAY BE OVERWRITTEN !!!
  */
@@ -34,21 +32,23 @@ import type { SWAPIClientlibTypes } from './swapi';
  * ===============================
  */
 
-// https://github.com/facebook/flow/issues/7709#issuecomment-530501257
-type ExtractArg = <Arg, Ret>([(Arg) => Ret]) => Arg;
-type ExtractPromisedReturnValue<A> = <R>((...A) => Promise<R>) => R;
+type PromisedReturnType<F extends (...args: any) => Promise<any>> = F extends (...args: any) => Promise<infer R>
+    ? R
+    : never;
 
-export type DataLoaderCodegenOptions = {|
+type Values<T> = T[keyof T];
+
+export type DataLoaderCodegenOptions = {
     errorHandler?: (
-        resourcePath: $ReadOnlyArray<string>,
-        // $FlowFixMe: We don't know what type the resource might throw, so we have to type error to "any" :(
+        resourcePath: ReadonlyArray<string>,
+        // We don't know what type the resource might throw, so we have to type error to "any" :(
         error: any,
-    ) => Promise<Error>,
-    resourceMiddleware?: {|
-        before?: <T>(resourcePath: $ReadOnlyArray<string>, resourceArgs: T) => Promise<T>,
-        after?: <T>(resourcePath: $ReadOnlyArray<string>, response: T) => Promise<T>,
-    |},
-|};
+    ) => Promise<Error>;
+    resourceMiddleware?: {
+        before?: <T>(resourcePath: ReadonlyArray<string>, resourceArgs: T) => Promise<T>;
+        after?: <T>(resourcePath: ReadonlyArray<string>, response: T) => Promise<T>;
+    };
+};
 
 /**
  * ===============================
@@ -63,192 +63,64 @@ type ResourcesType = SWAPIClientlibTypes;
  * ===============================
  */
 
-export type LoadersType = $ReadOnly<{|
+export type LoadersType = Readonly<{
     getPlanets: DataLoader<
-        {|
-            ...$Diff<
-                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>,
-                {
-                    planet_ids: $PropertyType<
-                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>,
-                        'planet_ids',
-                    >,
-                },
-            >,
-            ...{|
-                planet_id: $ElementType<
-                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>, 'planet_ids'>,
-                    0,
-                >,
-            |},
-        |},
-        $ElementType<
-            $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>]>,
-                $PropertyType<ResourcesType, 'getPlanets'>,
-            >,
-            0,
-        >,
+        Omit<Parameters<ResourcesType['getPlanets']>[0], 'planet_ids'> & {
+            planet_id: NonNullable<Parameters<ResourcesType['getPlanets']>[0]['planet_ids']>[0];
+        },
+        PromisedReturnType<ResourcesType['getPlanets']>[0],
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
+        string
+    >;
     getPeople: DataLoader<
-        {|
-            ...$Diff<
-                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>,
-                {
-                    people_ids: $PropertyType<
-                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>,
-                        'people_ids',
-                    >,
-                },
-            >,
-            ...{|
-                person_id: $ElementType<
-                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>, 'people_ids'>,
-                    0,
-                >,
-            |},
-        |},
-        $ElementType<
-            $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>]>,
-                $PropertyType<ResourcesType, 'getPeople'>,
-            >,
-            0,
-        >,
+        Omit<Parameters<ResourcesType['getPeople']>[0], 'people_ids'> & {
+            person_id: NonNullable<Parameters<ResourcesType['getPeople']>[0]['people_ids']>[0];
+        },
+        PromisedReturnType<ResourcesType['getPeople']>[0],
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
+        string
+    >;
     getVehicles: DataLoader<
-        {|
-            ...$Diff<
-                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>,
-                {
-                    vehicle_ids: $PropertyType<
-                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>,
-                        'vehicle_ids',
-                    >,
-                },
-            >,
-            ...{|
-                vehicle_id: $ElementType<
-                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>, 'vehicle_ids'>,
-                    0,
-                >,
-            |},
-        |},
-        $ElementType<
-            $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>]>,
-                $PropertyType<ResourcesType, 'getVehicles'>,
-            >,
-            0,
-        >,
+        Omit<Parameters<ResourcesType['getVehicles']>[0], 'vehicle_ids'> & {
+            vehicle_id: NonNullable<Parameters<ResourcesType['getVehicles']>[0]['vehicle_ids']>[0];
+        },
+        PromisedReturnType<ResourcesType['getVehicles']>[0],
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
+        string
+    >;
     getFilms: DataLoader<
-        {|
-            ...$Diff<
-                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>,
-                {
-                    film_ids: $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>, 'film_ids'>,
-                },
-            >,
-            ...{|
-                film_id: $Call<
-                    ExtractArg,
-                    [
-                        $PropertyType<
-                            $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>, 'film_ids'>,
-                            'has',
-                        >,
-                    ],
-                >,
-            |},
-        |},
-        $ElementType<
-            $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>]>,
-                $PropertyType<ResourcesType, 'getFilms'>,
-            >,
-            0,
-        >,
+        Omit<Parameters<ResourcesType['getFilms']>[0], 'film_ids'> & {
+            film_id: Parameters<Parameters<ResourcesType['getFilms']>[0]['film_ids']['has']>[0];
+        },
+        PromisedReturnType<ResourcesType['getFilms']>[0],
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
+        string
+    >;
     getFilmsV2: DataLoader<
-        {|
-            ...$Diff<
-                $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
-                {
-                    film_ids: $PropertyType<
-                        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
-                        'film_ids',
-                    >,
-                },
-            >,
-            ...{|
-                film_id: $ElementType<
-                    $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'film_ids'>,
-                    0,
-                >,
-            |},
-        |},
-        $ElementType<
-            $PropertyType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
-                    $PropertyType<ResourcesType, 'getFilmsV2'>,
-                >,
-                'properties',
-            >,
-            0,
-        >,
+        Omit<Parameters<ResourcesType['getFilmsV2']>[0], 'film_ids'> & {
+            film_id: NonNullable<Parameters<ResourcesType['getFilmsV2']>[0]['film_ids']>[0];
+        },
+        PromisedReturnType<ResourcesType['getFilmsV2']>['properties'][0],
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
+        string
+    >;
     getRoot: DataLoader<
-        $Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>,
-        $Call<
-            ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>]>,
-            $PropertyType<ResourcesType, 'getRoot'>,
-        >,
+        Parameters<ResourcesType['getRoot']>[0],
+        PromisedReturnType<ResourcesType['getRoot']>,
         // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-        string,
-    >,
-|}>;
+        string
+    >;
+}>;
 
 export default function getLoaders(resources: ResourcesType, options?: DataLoaderCodegenOptions): LoadersType {
     return Object.freeze({
         getPlanets: new DataLoader<
-            {|
-                ...$Diff<
-                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>,
-                    {
-                        planet_ids: $PropertyType<
-                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>,
-                            'planet_ids',
-                        >,
-                    },
-                >,
-                ...{|
-                    planet_id: $ElementType<
-                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>, 'planet_ids'>,
-                        0,
-                    >,
-                |},
-            |},
-            $ElementType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPlanets'>]>]>,
-                    $PropertyType<ResourcesType, 'getPlanets'>,
-                >,
-                0,
-            >,
+            Omit<Parameters<ResourcesType['getPlanets']>[0], 'planet_ids'> & {
+                planet_id: NonNullable<Parameters<ResourcesType['getPlanets']>[0]['planet_ids']>[0];
+            },
+            PromisedReturnType<ResourcesType['getPlanets']>[0],
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -355,16 +227,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [
-                            {
-                                ..._.omit(requests[0], 'planet_id'),
-                                ['planet_ids']: requests.map((k) => k['planet_id']),
-                            },
-                        ];
+                        const resourceArg = {
+                            ..._.omit(requests[0], 'planet_id'),
+                            ['planet_ids']: requests.map((k) => k['planet_id']),
+                        };
 
-                        let response = await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                        let response: any = await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getPlanets> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(
@@ -407,7 +278,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
 
                         if (!(response instanceof Error)) {
                         }
@@ -496,32 +367,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
             },
         ),
         getPeople: new DataLoader<
-            {|
-                ...$Diff<
-                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>,
-                    {
-                        people_ids: $PropertyType<
-                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>,
-                            'people_ids',
-                        >,
-                    },
-                >,
-                ...{|
-                    person_id: $ElementType<
-                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>, 'people_ids'>,
-                        0,
-                    >,
-                |},
-            |},
-            $ElementType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getPeople'>]>]>,
-                    $PropertyType<ResourcesType, 'getPeople'>,
-                >,
-                0,
-            >,
+            Omit<Parameters<ResourcesType['getPeople']>[0], 'people_ids'> & {
+                person_id: NonNullable<Parameters<ResourcesType['getPeople']>[0]['people_ids']>[0];
+            },
+            PromisedReturnType<ResourcesType['getPeople']>[0],
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -628,16 +479,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [
-                            {
-                                ..._.omit(requests[0], 'person_id'),
-                                ['people_ids']: requests.map((k) => k['person_id']),
-                            },
-                        ];
+                        const resourceArg = {
+                            ..._.omit(requests[0], 'person_id'),
+                            ['people_ids']: requests.map((k) => k['person_id']),
+                        };
 
-                        let response = await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                        let response: any = await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getPeople> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(['getPeople'], __resourceArgs);
@@ -677,7 +527,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
 
                         if (!(response instanceof Error)) {
                         }
@@ -766,32 +616,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
             },
         ),
         getVehicles: new DataLoader<
-            {|
-                ...$Diff<
-                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>,
-                    {
-                        vehicle_ids: $PropertyType<
-                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>,
-                            'vehicle_ids',
-                        >,
-                    },
-                >,
-                ...{|
-                    vehicle_id: $ElementType<
-                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>, 'vehicle_ids'>,
-                        0,
-                    >,
-                |},
-            |},
-            $ElementType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getVehicles'>]>]>,
-                    $PropertyType<ResourcesType, 'getVehicles'>,
-                >,
-                0,
-            >,
+            Omit<Parameters<ResourcesType['getVehicles']>[0], 'vehicle_ids'> & {
+                vehicle_id: NonNullable<Parameters<ResourcesType['getVehicles']>[0]['vehicle_ids']>[0];
+            },
+            PromisedReturnType<ResourcesType['getVehicles']>[0],
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -898,16 +728,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [
-                            {
-                                ..._.omit(requests[0], 'vehicle_id'),
-                                ['vehicle_ids']: requests.map((k) => k['vehicle_id']),
-                            },
-                        ];
+                        const resourceArg = {
+                            ..._.omit(requests[0], 'vehicle_id'),
+                            ['vehicle_ids']: requests.map((k) => k['vehicle_id']),
+                        };
 
-                        let response = await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                        let response: any = await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getVehicles> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(
@@ -950,7 +779,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
 
                         if (!(response instanceof Error)) {
                         }
@@ -1039,40 +868,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
             },
         ),
         getFilms: new DataLoader<
-            {|
-                ...$Diff<
-                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>,
-                    {
-                        film_ids: $PropertyType<
-                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>,
-                            'film_ids',
-                        >,
-                    },
-                >,
-                ...{|
-                    film_id: $Call<
-                        ExtractArg,
-                        [
-                            $PropertyType<
-                                $PropertyType<
-                                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>,
-                                    'film_ids',
-                                >,
-                                'has',
-                            >,
-                        ],
-                    >,
-                |},
-            |},
-            $ElementType<
-                $Call<
-                    ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilms'>]>]>,
-                    $PropertyType<ResourcesType, 'getFilms'>,
-                >,
-                0,
-            >,
+            Omit<Parameters<ResourcesType['getFilms']>[0], 'film_ids'> & {
+                film_id: Parameters<Parameters<ResourcesType['getFilms']>[0]['film_ids']['has']>[0];
+            },
+            PromisedReturnType<ResourcesType['getFilms']>[0],
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -1180,16 +981,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [
-                            {
-                                ..._.omit(requests[0], 'film_id'),
-                                ['film_ids']: requests.map((k) => k['film_id']),
-                            },
-                        ];
+                        const resourceArg = {
+                            ..._.omit(requests[0], 'film_id'),
+                            ['film_ids']: requests.map((k) => k['film_id']),
+                        };
 
-                        let response = await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                        let response: any = await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getFilms> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(['getFilms'], __resourceArgs);
@@ -1229,7 +1029,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
 
                         if (!(response instanceof Error)) {
                         }
@@ -1316,35 +1116,12 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
             },
         ),
         getFilmsV2: new DataLoader<
-            {|
-                ...$Diff<
-                    $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
-                    {
-                        film_ids: $PropertyType<
-                            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>,
-                            'film_ids',
-                        >,
-                    },
-                >,
-                ...{|
-                    film_id: $ElementType<
-                        $PropertyType<$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>, 'film_ids'>,
-                        0,
-                    >,
-                |},
-            |},
-            $ElementType<
-                $PropertyType<
-                    $Call<
-                        ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getFilmsV2'>]>]>,
-                        $PropertyType<ResourcesType, 'getFilmsV2'>,
-                    >,
-                    'properties',
-                >,
-                0,
-            >,
+            Omit<Parameters<ResourcesType['getFilmsV2']>[0], 'film_ids'> & {
+                film_id: NonNullable<Parameters<ResourcesType['getFilmsV2']>[0]['film_ids']>[0];
+            },
+            PromisedReturnType<ResourcesType['getFilmsV2']>['properties'][0],
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -1413,16 +1190,15 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [
-                            {
-                                ..._.omit(requests[0], 'film_id'),
-                                ['film_ids']: requests.map((k) => k['film_id']),
-                            },
-                        ];
+                        const resourceArg = {
+                            ..._.omit(requests[0], 'film_id'),
+                            ['film_ids']: requests.map((k) => k['film_id']),
+                        };
 
-                        let response = await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                        let response: any = await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getFilmsV2> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(
@@ -1465,7 +1241,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
 
                         if (!(response instanceof Error)) {
                             /**
@@ -1581,13 +1357,10 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
             },
         ),
         getRoot: new DataLoader<
-            $Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>,
-            $Call<
-                ExtractPromisedReturnValue<[$Call<ExtractArg, [$PropertyType<ResourcesType, 'getRoot'>]>]>,
-                $PropertyType<ResourcesType, 'getRoot'>,
-            >,
+            Parameters<ResourcesType['getRoot']>[0],
+            PromisedReturnType<ResourcesType['getRoot']>,
             // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
-            string,
+            string
         >(
             /**
              * ===============================================================
@@ -1616,11 +1389,11 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
 
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [key];
+                        const resourceArg = key;
 
-                        return await (async (_resourceArgs) => {
-                            // Make a re-assignable variable so flow/eslint doesn't complain
-                            let __resourceArgs = _resourceArgs;
+                        return await (async (_resourceArg) => {
+                            // Make a re-assignable variable so eslint doesn't complain
+                            let __resourceArgs: Parameters<typeof resources.getRoot> = [_resourceArg];
 
                             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                                 __resourceArgs = await options.resourceMiddleware.before(['getRoot'], __resourceArgs);
@@ -1660,7 +1433,7 @@ export default function getLoaders(resources: ResourcesType, options?: DataLoade
                             }
 
                             return _response;
-                        })(resourceArgs);
+                        })(resourceArg);
                     }),
                 );
 

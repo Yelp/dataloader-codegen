@@ -1,6 +1,6 @@
+import { strict as assert } from 'node:assert';
 import { ResourceConfig, BatchResourceConfig, NonBatchResourceConfig } from './config';
-import assert from './assert';
-import { getLoaderTypeKey, getLoaderTypeVal } from './genTypeFlow';
+import { getLoaderTypeKey, getLoaderTypeVal } from './genType';
 import { errorPrefix } from './runtimeHelpers';
 
 function getLoaderComment(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>): string {
@@ -31,9 +31,9 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
     // Call the underlying resource, wrapped with our middleware and error handling.
     // Uses an iife so the result variable is assignable at the callsite (for readability)
     return `
-        (async _resourceArgs => {
-            // Make a re-assignable variable so flow/eslint doesn't complain
-            let __resourceArgs = _resourceArgs;
+        (async _resourceArg => {
+            // Make a re-assignable variable so eslint doesn't complain
+            let __resourceArgs: Parameters<typeof ${resourceReference}> = [_resourceArg];
 
             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                 __resourceArgs = await options.resourceMiddleware.before(
@@ -107,14 +107,15 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                     return `
                         // For now, we assume that the dataloader key should be the first argument to the resource
                         // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                        const resourceArgs = [{
+                        const resourceArg = {
                             ..._.omit(requests[0], '${resourceConfig.newKey}'),
                             ${batchKeyParam},
-                        }];
+                        };
                     `;
                 })()}
 
-                let response = await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
+                // Any-type so this is re-assignable to the 'nestedPath' without TS complaining
+                let response: any = await ${callResource(resourceConfig, resourcePath)}(resourceArg);
 
                 if (!(response instanceof Error)) {
                     ${(() => {
@@ -220,11 +221,6 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                         )} Resource returned \${response.length} items, but we requested \${requests.length} items.\`,
                                         'Add reorderResultsByKey to the config for this resource to be able to handle a partial response.',
                                     ].join(' '));
-
-                                    // Tell flow that BatchItemNotFoundError extends Error.
-                                    // It's an issue with flowgen package, but not an issue with Flow.
-                                    // @see https://github.com/Yelp/dataloader-codegen/pull/35#discussion_r394777533
-                                    invariant(response instanceof Error, 'expected BatchItemNotFoundError to be an Error');
                                 }
                             }
                         `;
@@ -278,10 +274,6 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                                 ? `keys[requestId]['${resourceConfig.newKey}']`
                                 : 'null'
                         }
-
-                        // Tell flow that "response" is actually an error object.
-                        // (This is so we can pass it as 'cause' to CaughtResourceError)
-                        invariant(response instanceof Error, 'expected response to be an error');
 
                         return new CaughtResourceError(
                             \`${errorPrefix(
@@ -410,12 +402,6 @@ function getBatchLoader(resourceConfig: BatchResourceConfig, resourcePath: Reado
             return unPartitionResults(requestGroups, groupedResults);
          },
          {
-             ${
-                 /**
-                  * TODO: Figure out why directly passing `cacheKeyOptions` causes
-                  * flow errors :(
-                  */ ''
-             }
              ...cacheKeyOptions,
              ${resourceConfig.maxBatchSize ? `maxBatchSize: ${resourceConfig.maxBatchSize},` : ''}
          }
@@ -509,12 +495,6 @@ function getPropertyBatchLoader(resourceConfig: BatchResourceConfig, resourcePat
             );
          },
          {
-             ${
-                 /**
-                  * TODO: Figure out why directly passing `cacheKeyOptions` causes
-                  * flow errors :(
-                  */ ''
-             }
              ...cacheKeyOptions,
             ${resourceConfig.maxBatchSize ? `maxBatchSize: ${resourceConfig.maxBatchSize},` : ''}
          }
@@ -545,9 +525,9 @@ function getNonBatchLoader(resourceConfig: NonBatchResourceConfig, resourcePath:
 
                 // For now, we assume that the dataloader key should be the first argument to the resource
                 // @see https://github.com/Yelp/dataloader-codegen/issues/56
-                const resourceArgs = [key];
+                const resourceArg = key;
 
-                return await ${callResource(resourceConfig, resourcePath)}(resourceArgs);
+                return await ${callResource(resourceConfig, resourcePath)}(resourceArg);
             }));
 
             return responses;

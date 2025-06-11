@@ -1,11 +1,9 @@
-// @flow
-
-const { graphql, buildSchema } = require('graphql');
-const StarWarsAPI = require('./swapi');
-const createSwapiLoaders = require('./swapi-loaders');
+import { graphql, buildSchema } from 'graphql';
+import StarWarsAPI from './swapi';
+import createSwapiLoaders from './swapi-loaders';
 
 const createSWAPIServer = () => {
-    const swapiLoaders = createSwapiLoaders.default(StarWarsAPI());
+    const swapiLoaders = createSwapiLoaders(StarWarsAPI());
 
     const schema = buildSchema(/* GraphQL */ `
         type Planet {
@@ -34,7 +32,7 @@ const createSWAPIServer = () => {
             this.id = id;
         }
 
-        async name() {
+        async name(): Promise<string | Error | undefined> {
             const response = await swapiLoaders.getPlanets.load({ planet_id: this.id });
 
             if (response instanceof Error) {
@@ -46,7 +44,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async climate() {
+        async climate(): Promise<string | Error | undefined> {
             const response = await swapiLoaders.getPlanets.load({ planet_id: this.id });
 
             if (response instanceof Error) {
@@ -58,7 +56,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async diameter() {
+        async diameter(): Promise<string | Error | undefined> {
             const response = await swapiLoaders.getPlanets.load({ planet_id: this.id });
 
             if (response instanceof Error) {
@@ -78,7 +76,7 @@ const createSWAPIServer = () => {
             this.id = id;
         }
 
-        async title() {
+        async title(): Promise<string | Error | undefined> {
             const response = await swapiLoaders.getFilms.load({ film_id: this.id });
 
             if (response instanceof Error) {
@@ -90,7 +88,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async episodeNumber() {
+        async episodeNumber(): Promise<number | Error | undefined> {
             const response = await swapiLoaders.getFilms.load({ film_id: this.id });
 
             if (response instanceof Error) {
@@ -102,7 +100,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async director() {
+        async director(): Promise<string | Error | undefined> {
             const response = await swapiLoaders.getFilms.load({ film_id: this.id });
 
             if (response instanceof Error) {
@@ -122,7 +120,7 @@ const createSWAPIServer = () => {
             this.id = id;
         }
 
-        async title() {
+        async title(): Promise<string | null | Error | undefined> {
             const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['title'] });
 
             if (response instanceof Error) {
@@ -134,7 +132,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async episodeNumber() {
+        async episodeNumber(): Promise<number | null | Error | undefined> {
             const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['episode_id'] });
 
             if (response instanceof Error) {
@@ -146,7 +144,7 @@ const createSWAPIServer = () => {
             }
         }
 
-        async director() {
+        async director(): Promise<string | null | Error | undefined> {
             const response = await swapiLoaders.getFilmsV2.load({ film_id: this.id, properties: ['director'] });
 
             if (response instanceof Error) {
@@ -160,13 +158,13 @@ const createSWAPIServer = () => {
     }
 
     const root = {
-        planet: ({ id }) => {
+        planet: ({ id }: { id: number }) => {
             return new PlanetModel(id);
         },
-        film: ({ id }) => {
+        film: ({ id }: { id: number }) => {
             return new FilmModel(id);
         },
-        filmv2: ({ id }) => {
+        filmv2: ({ id }: { id: number }) => {
             return new FilmModelV2(id);
         },
     };
@@ -174,7 +172,7 @@ const createSWAPIServer = () => {
     return { schema, root };
 };
 
-const runQuery = (query) => {
+const runQuery = (query: string) => {
     const { schema, root } = createSWAPIServer();
     return graphql(schema, query, root);
 };
