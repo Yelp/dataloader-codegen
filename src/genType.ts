@@ -50,6 +50,8 @@ export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: R
 }
 
 export function getLoaderTypeVal(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
+    // TODO: We assume that the resource accepts a single dict argument. Let's
+    // make this configurable to handle resources that use seperate arguments.
     let retVal = `PromisedReturnType<${getResourceTypeReference(resourceConfig, resourcePath)}>`;
 
     if (resourceConfig.isBatchResource) {

@@ -16,11 +16,22 @@ build: node_modules
 	# Generate the .d.ts files
 	node_modules/.bin/tsc --project tsconfig.json --checkJs false --emitDeclarationOnly || true
 
+link-examples: build
+	yarn link
+	cd examples/swapi
+	yarn link dataloader-codegen
+
+build-examples: link-examples
+	$(MAKE) -C examples/swapi swapi-loaders.ts
+	$(MAKE) -C examples/swapi build
+	node examples/swapi/build/swapi-server.js
+
 .PHONY: test
-test: build venv node_modules
+test: build venv node_modules build-examples
 	venv/bin/pre-commit install -f --install-hooks
 	venv/bin/pre-commit run --all-files
 	yarn test
+	yarn test:exampleTypes
 
 .PHONY: clean
 clean:

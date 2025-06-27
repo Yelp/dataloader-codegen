@@ -888,7 +888,8 @@ test('batch endpoint with isBatchKeyASet handles a response', async () => {
 
     const resources = {
         foo: ({ foo_ids, include_extra_info }) => {
-            if (_.isEqual(foo_ids, [1, 2])) {
+            expect(foo_ids).toBeInstanceOf(Set);
+            if (_.isEqual(Array.from(foo_ids), [1, 2])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
                     { foo_id: 1, foo_value: 'hello' },
@@ -896,7 +897,7 @@ test('batch endpoint with isBatchKeyASet handles a response', async () => {
                 ]);
             }
 
-            if (_.isEqual(foo_ids, [3])) {
+            if (_.isEqual(Array.from(foo_ids), [3])) {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {

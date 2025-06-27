@@ -8,28 +8,28 @@ typings:
 
 resources:
     getPlanets:
-        docsLink: https://swapi.dev/documentation#planets
+        docsLink: https://swapi.info/documentation#planets
         isBatchResource: true
         batchKey: planet_ids
         newKey: planet_id
     getPeople:
-        docsLink: https://swapi.dev/documentation#people
+        docsLink: https://swapi.info/documentation#people
         isBatchResource: true
         batchKey: people_ids
         newKey: person_id
     getVehicles:
-        docsLink: https://swapi.dev/documentation#vehicles
+        docsLink: https://swapi.info/documentation#vehicles
         isBatchResource: true
         batchKey: vehicle_ids
         newKey: vehicle_id
     getFilms:
-        docsLink: https://swapi.dev/documentation#films
+        docsLink: https://swapi.info/documentation#films
         isBatchResource: true
         batchKey: film_ids
         newKey: film_id
         isBatchKeyASet: true
     getFilmsV2:
-        docsLink: https://swapi.dev/documentation#films
+        docsLink: https://swapi.info/documentation#films
         isBatchResource: true
         batchKey: film_ids
         newKey: film_id
@@ -37,5 +37,5 @@ resources:
         propertyBatchKey: properties
         responseKey: id
     getRoot:
-        docsLink: https://swapi.dev/documentation#root
+        docsLink: https://swapi.info/documentation#root
         isBatchResource: false

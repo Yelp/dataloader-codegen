@@ -74,7 +74,7 @@ export type SWAPI_Vehicle = Readonly<{
     key: string;
 }>;
 
-type SWAPI_Root = Readonly<{
+export type SWAPI_Root = Readonly<{
     people: string;
     planets: string;
     films: string;
@@ -99,22 +99,26 @@ export default function (): SWAPIClientlibTypes {
     return {
         getPlanets: ({ planet_ids }) =>
             Promise.all(
-                planet_ids.map((id) => fetch(new URL(`planets/${id}`, SWAPI_URL).toString()).then((res) => res.json())),
+                planet_ids.map((id) =>
+                    fetch(new URL(`planets/${id}`, SWAPI_URL).toString()).then((res) => res.json() as any),
+                ),
             ),
         getPeople: ({ people_ids }) =>
             Promise.all(
-                people_ids.map((id) => fetch(new URL(`people/${id}`, SWAPI_URL).toString()).then((res) => res.json())),
+                people_ids.map((id) =>
+                    fetch(new URL(`people/${id}`, SWAPI_URL).toString()).then((res) => res.json() as any),
+                ),
             ),
         getVehicles: ({ vehicle_ids }) =>
             Promise.all(
                 vehicle_ids.map((id) =>
-                    fetch(new URL(`vehicles/${id}`, SWAPI_URL).toString()).then((res) => res.json()),
+                    fetch(new URL(`vehicles/${id}`, SWAPI_URL).toString()).then((res) => res.json() as any),
                 ),
             ),
         getFilms: ({ film_ids }) =>
             Promise.all(
                 Array.from(film_ids).map((id) =>
-                    fetch(new URL(`films/${id}`, SWAPI_URL).toString()).then((res) => res.json()),
+                    fetch(new URL(`films/${id}`, SWAPI_URL).toString()).then((res) => res.json() as any),
                 ),
             ),
         getFilmsV2: ({ film_ids, properties }) => {
@@ -130,6 +134,6 @@ export default function (): SWAPIClientlibTypes {
                 ],
             });
         },
-        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json()),
+        getRoot: ({}) => fetch(SWAPI_URL).then((res) => res.json() as any),
     };
 }

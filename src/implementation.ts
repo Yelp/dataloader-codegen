@@ -33,7 +33,7 @@ function callResource(resourceConfig: ResourceConfig, resourcePath: ReadonlyArra
     return `
         (async _resourceArg => {
             // Make a re-assignable variable so eslint doesn't complain
-            let __resourceArgs: Parameters<typeof ${resourceReference}> = [_resourceArg];
+            let __resourceArgs = [_resourceArg] as const;
 
             if (options && options.resourceMiddleware && options.resourceMiddleware.before) {
                 __resourceArgs = await options.resourceMiddleware.before(
@@ -97,9 +97,14 @@ function batchLoaderLogic(resourceConfig: BatchResourceConfig, resourcePath: Rea
                 const requests = requestIDs.map(id => keys[id]);
 
                 ${(() => {
-                    const { batchKey, newKey, commaSeparatedBatchKey } = resourceConfig;
+                    const { batchKey, newKey, commaSeparatedBatchKey, isBatchKeyASet } = resourceConfig;
 
-                    let batchKeyParam = `['${batchKey}']: requests.map(k => k['${newKey}'])`;
+                    let requestsMap = `requests.map(k => k['${newKey}'])`;
+                    if (isBatchKeyASet === true) {
+                        requestsMap = `new Set(${requestsMap})`;
+                    }
+
+                    let batchKeyParam = `['${batchKey}']: ${requestsMap}`;
                     if (commaSeparatedBatchKey === true) {
                         batchKeyParam = `${batchKeyParam}.join(',')`;
                     }
