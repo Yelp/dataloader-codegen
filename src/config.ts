@@ -5,7 +5,7 @@ import Ajv from 'ajv';
 
 export interface GlobalConfig {
     typings: {
-        language: 'flow';
+        language: 'typescript';
         embedResourcesType: {
             imports: string;
             ResourcesType: string;
@@ -74,7 +74,7 @@ export function getConfig(
     }
 
     const fileContents = fs.readFileSync(configFilePath, 'utf8');
-    const config = yaml.safeLoad(fileContents);
+    const config = yaml.load(fileContents) as any;
 
     assertConfigValidity(config);
 

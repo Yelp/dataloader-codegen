@@ -9,7 +9,7 @@ import { getConfig } from '../src/config';
 
 const BABEL_CONFIG = {
     presets: [
-        '@babel/preset-flow',
+        '@babel/preset-typescript',
         [
             '@babel/preset-env',
             {
@@ -17,6 +17,8 @@ const BABEL_CONFIG = {
             },
         ],
     ],
+    // Babel needs this dummy file name to determine it's a TypeScript file
+    filename: 'file.ts',
 };
 
 const RUNTIME_HELPERS = path.resolve(__dirname, '..', 'src', 'runtimeHelpers.ts');
@@ -45,7 +47,7 @@ expect.extend({
 async function createDataLoaders(config, cb) {
     await tmp.withFile(
         async ({ path }) => {
-            const loadersCode = await babel.transformAsync(codegen(config, RUNTIME_HELPERS), BABEL_CONFIG);
+            const loadersCode = await babel.transformAsync(await codegen(config, RUNTIME_HELPERS), BABEL_CONFIG);
             fs.writeFileSync(path, 'const regeneratorRuntime = require("regenerator-runtime");');
             fs.appendFileSync(path, loadersCode.code);
             // Import the generated code into memory :scream:
@@ -886,7 +888,8 @@ test('batch endpoint with isBatchKeyASet handles a response', async () => {
 
     const resources = {
         foo: ({ foo_ids, include_extra_info }) => {
-            if (_.isEqual(foo_ids, [1, 2])) {
+            expect(foo_ids).toBeInstanceOf(Set);
+            if (_.isEqual(Array.from(foo_ids), [1, 2])) {
                 expect(include_extra_info).toBe(false);
                 return Promise.resolve([
                     { foo_id: 1, foo_value: 'hello' },
@@ -894,7 +897,7 @@ test('batch endpoint with isBatchKeyASet handles a response', async () => {
                 ]);
             }
 
-            if (_.isEqual(foo_ids, [3])) {
+            if (_.isEqual(Array.from(foo_ids), [3])) {
                 expect(include_extra_info).toBe(true);
                 return Promise.resolve([
                     {
@@ -1605,6 +1608,52 @@ test('batch endpoint with propertyBatchKey with reorderResultsByKey handles resp
             ),
             { foo_id: 3, rating: 4 },
             { foo_id: 4, rating: 5 },
+        ]);
+    });
+});
+
+test('embeds resource types', async () => {
+    // For the sake of coverage we pass in these test comments which will get interpolated in the generated code
+    // but otherwise we don't need to test them.
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: false,
+                docsLink: 'example.com/docs/foo',
+            },
+        },
+        typings: {
+            embedResourcesType: {
+                imports: '// test foo',
+                ResourcesType: '// test bar',
+            },
+        },
+    };
+
+    const resources = {
+        foo: jest
+            .fn()
+            .mockReturnValueOnce(
+                Promise.resolve({
+                    message: 'knock knock',
+                    message_suffix: '!',
+                }),
+            )
+            .mockReturnValueOnce(
+                Promise.resolve({
+                    message: "who's there",
+                    message_suffix: '?',
+                }),
+            ),
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([{ bar_id: 1 }, { bar_id: 2 }]);
+        expect(results).toEqual([
+            { message: 'knock knock', message_suffix: '!' },
+            { message: "who's there", message_suffix: '?' },
         ]);
     });
 });

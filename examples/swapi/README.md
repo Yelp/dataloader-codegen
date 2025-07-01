@@ -19,7 +19,7 @@ Build the example:
 $ cd examples/swapi
 $ yarn
 $ yarn link dataloader-codegen
-$ make swapi-loaders.js
+$ make swapi-loaders.ts
 $ make build
 # Prints out a GraphQL query result:
 $ node build/swapi-server.js

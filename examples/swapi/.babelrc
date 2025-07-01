@@ -4,10 +4,10 @@
             "@babel/preset-env",
             {
                 "targets": {
-                    "node": "8"
+                    "node": "22"
                 }
             }
         ],
-        "@babel/preset-flow"
+        "@babel/preset-typescript"
     ]
 }
