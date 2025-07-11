@@ -97,6 +97,8 @@ export default function codegen(
             };
         };
 
+        type GetSetType<T> = T extends Set<infer U> ? U : never;
+
         /**
          * ===============================
          * BEGIN: printResourcesType()

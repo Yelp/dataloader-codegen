@@ -15,11 +15,10 @@ function getResourceArg(resourceConfig: ResourceConfig, resourcePath: ReadonlyAr
 }
 
 /**
- * Extract the type T from a Set<T> resource (in this case a batchKey's resource)
- * using its `.has(T)`'s function paremeter type
+ * Extract the type T from a Set<T> resource (using the helper defined in codegen.ts)
  */
 export function getNewKeyTypeFromBatchKeySetType(batchKey: string, resourceArgs: string) {
-    return `Parameters<${resourceArgs}['${batchKey}']['has']>[0]`;
+    return `GetSetType<${resourceArgs}['${batchKey}']>`;
 }
 
 export function getLoaderTypeKey(resourceConfig: ResourceConfig, resourcePath: ReadonlyArray<string>) {
