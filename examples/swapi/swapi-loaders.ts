@@ -55,6 +55,8 @@ export type DataLoaderCodegenOptions = {
   };
 };
 
+type GetSetType<T> = T extends Set<infer U> ? U : never;
+
 /**
  * ===============================
  * BEGIN: printResourcesType()
@@ -101,9 +103,7 @@ export type LoadersType = Readonly<{
   >;
   getFilms: DataLoader<
     Omit<Parameters<ResourcesType["getFilms"]>[0], "film_ids"> & {
-      film_id: Parameters<
-        Parameters<ResourcesType["getFilms"]>[0]["film_ids"]["has"]
-      >[0];
+      film_id: GetSetType<Parameters<ResourcesType["getFilms"]>[0]["film_ids"]>;
     },
     PromisedReturnType<ResourcesType["getFilms"]>[0],
     // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".
@@ -905,9 +905,9 @@ export default function getLoaders(
     ),
     getFilms: new DataLoader<
       Omit<Parameters<ResourcesType["getFilms"]>[0], "film_ids"> & {
-        film_id: Parameters<
-          Parameters<ResourcesType["getFilms"]>[0]["film_ids"]["has"]
-        >[0];
+        film_id: GetSetType<
+          Parameters<ResourcesType["getFilms"]>[0]["film_ids"]
+        >;
       },
       PromisedReturnType<ResourcesType["getFilms"]>[0],
       // This third argument is the cache key type. Since we use objectHash in cacheKeyOptions, this is "string".

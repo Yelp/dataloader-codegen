@@ -6,7 +6,7 @@ it('getResourceTypeReference converts a resource path to a valid reference', () 
 
 it('getNewKeyTypeFromBatchKeySetType returns a newKey type with a valid value', () => {
     expect(getNewKeyTypeFromBatchKeySetType('bKey', "ResourcesType['foo']['bar']['baz']")).toBe(
-        `Parameters<ResourcesType['foo']['bar']['baz']['bKey']['has']>[0]`,
+        `GetSetType<ResourcesType['foo']['bar']['baz']['bKey']>`,
     );
 });
 
