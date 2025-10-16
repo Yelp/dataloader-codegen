@@ -169,7 +169,7 @@ export function sortByKeys<V>({
     items,
     /** The IDs we originally requested from the endpoint */
     keys,
-    /** The attribute of each element in `items` that maps it to an element in `keys`. */
+    /** The attribute of each element in `items` that maps it to an element in `keys`. Can be a dot-separated nested path. */
     prop,
     /** Some path that indicates what resource this is being used on. Used for stack traces. */
     resourcePath,
@@ -212,10 +212,9 @@ export function sortByKeys<V>({
 
             itemsMap.set(String(reorderResultsByValue), item);
         } else {
-            // @ts-ignore: TODO: Work how to tell typescript item[prop] exists
-            invariant(item[prop] != null, `${errorPrefix(resourcePath)} Could not find property "${prop}" in item`);
-            // @ts-ignore: TODO: Work how to tell typescript item[prop] exists
-            itemsMap.set(String(item[prop]), item);
+            const sortKey = _.get(item, prop);
+            invariant(sortKey != null, `${errorPrefix(resourcePath)} Could not find property "${prop}" in item`);
+            itemsMap.set(String(sortKey), item);
         }
     });
 
