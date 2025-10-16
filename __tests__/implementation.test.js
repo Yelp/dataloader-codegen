@@ -196,6 +196,42 @@ test('batch endpoint (with reorderResultsByKey)', async () => {
     });
 });
 
+test('batch endpoint (with nested reorderResultsByKey path)', async () => {
+    const config = {
+        resources: {
+            foo: {
+                isBatchResource: true,
+                docsLink: 'example.com/docs/bar',
+                batchKey: 'foo_ids',
+                newKey: 'foo_id',
+                reorderResultsByKey: 'nested.foo_id',
+            },
+        },
+    };
+
+    const resources = {
+        foo: ({ foo_ids }) => {
+            expect(foo_ids).toEqual([1, 2, 3]);
+            return Promise.resolve([
+                { nested: { foo_id: 2, foo_value: 'world' } },
+                { nested: { foo_id: 1, foo_value: 'hello' } },
+                { nested: { foo_id: 3, foo_value: '!' } },
+            ]);
+        },
+    };
+
+    await createDataLoaders(config, async (getLoaders) => {
+        const loaders = getLoaders(resources);
+
+        const results = await loaders.foo.loadMany([{ foo_id: 1 }, { foo_id: 2 }, { foo_id: 3 }]);
+        expect(results).toEqual([
+            { nested: { foo_id: 1, foo_value: 'hello' } },
+            { nested: { foo_id: 2, foo_value: 'world' } },
+            { nested: { foo_id: 3, foo_value: '!' } },
+        ]);
+    });
+});
+
 test('batch endpoint (with nestedPath)', async () => {
     const config = {
         resources: {
